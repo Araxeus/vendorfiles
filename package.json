@@ -1,0 +1,45 @@
+{
+  "name": "vendorfiles",
+  "packageManager": "yarn@3.5.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsc && node ./dist/index.js",
+    "cli": "tsc && node ./dist/cli.js"
+  },
+  "bin": "./dist/cli.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "ci-info": "^3.8.0",
+    "commander": "^10.0.0",
+    "parse-json": "^6.0.2",
+    "write-pkg": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.3",
+    "@types/parse-json": "^4.0.0",
+    "read-pkg-up": "^9.1.0",
+    "rome": "^11.0.0",
+    "typescript": "^5.0.2"
+  },
+  "vendorDependencies": {
+    "Coloris": {
+      "name": "Coloris",
+      "version": "v0.18.0",
+      "repository": "https://github.com/mdbassit/Coloris",
+      "files": [
+        "dist/coloris.min.js",
+        "dist/coloris.min.css",
+        "LICENSE"
+      ],
+      "vendorFolder": "{vendorFolder}/Colors"
+    }
+  },
+  "vendorConfig": {
+    "vendorFolder": "VENDOR"
+  }
+}
