@@ -1,33 +1,23 @@
-import { Command } from 'commander';
+import { Command } from '@commander-js/extra-typings';
 const program = new Command();
 
 import { isCI } from 'ci-info';
 
-import { error, isGitHubUrl, ownerAndNameFromRepoUrl } from './lib/utils.js';
+import {
+  error,
+  getPackageJson,
+  isGitHubUrl,
+  ownerAndNameFromRepoUrl,
+} from './lib/utils.js';
 
 import { sync, install, uninstall } from './lib/commands.js';
 import { getConfig } from './lib/config.js';
 
 const vendorOptions = await getConfig();
 
-const listCmd = new Command('list')
-  .alias('ls')
-  .alias('l')
-  .option('-o, --outdated', 'Show only outdated packages')
-  .action((outdatedOnly = false) => {
-    outdatedOnly ? outdated() : list();
-  });
-
-const outdatedCmd = new Command('outdated')
-  .alias('o')
-  .alias('out')
-  .action(() => {
-    outdated();
-  });
-
 const installCmd = new Command('install')
-  .alias('i')
   .alias('add')
+  .alias('i')
   .alias('a')
   .argument('<url>', 'GitHub repo URL')
   .argument('[version]', 'Version to install')
@@ -42,25 +32,27 @@ const installCmd = new Command('install')
         error('Invalid GitHub URL');
       }
 
-      if (!name) {
+      if (typeof name !== 'string' || name.length === 0) {
         name = ownerAndNameFromRepoUrl(url).name;
       }
 
-      installOne({ url, files, version, name: name });
-    } else if (!url) {
+      installOne({ url, files, version, name });
+    } else if (!url && files) {
       error('url arg is missing');
-    } else if (!files) {
+    } else if (!files && url) {
       error('files arg is missing');
+    } else {
+      syncAll();
     }
   });
 
 const uninstallCmd = new Command('uninstall')
-  .alias('un')
   .alias('remove')
-  .alias('rm')
-  .alias('r')
   .alias('delete')
   .alias('del')
+  .alias('rm')
+  .alias('un')
+  .alias('r')
   .argument('[names...]', 'Package names to uninstall')
   .action((names) => {
     if (names.length === 0) {
@@ -73,9 +65,9 @@ const uninstallCmd = new Command('uninstall')
   });
 
 const updateCmd = new Command('update')
-  .alias('u')
-  .alias('up')
   .alias('upgrade')
+  .alias('up')
+  .alias('u')
   .argument('[names...]')
   .action((names) => {
     if (names.length === 0) {
@@ -87,35 +79,30 @@ const updateCmd = new Command('update')
     }
   });
 
-const syncCmd = new Command('sync')
-  .alias('s')
-  .alias('syn')
-  .action(() => {
-    syncAll();
-  });
+const syncCmd = new Command('sync').alias('s').action(syncAll);
 
 program
   .addCommand(installCmd)
   .addCommand(uninstallCmd)
   .addCommand(updateCmd)
   .addCommand(syncCmd)
-  .addCommand(listCmd)
-  .addCommand(outdatedCmd)
+  .version(
+    (await getPackageJson(import.meta.url)).packageJson.version || 'unknown',
+    '-v, --version',
+    'output the current version',
+  )
   // TODO add ci option (which will print pr details to stdout on update)
   .option('-c, --ci', 'CI mode', isCI)
   .parse();
 
-// [X] done
 function upgradeAll() {
   sync(vendorOptions, true);
 }
 
-// [X] done
 function syncAll() {
   sync(vendorOptions, false);
 }
 
-// [X] done
 function installOne({
   url,
   name,
@@ -131,22 +118,24 @@ function installOne({
   });
 }
 
-// [X] done
 function uninstallOne(name: string) {
   uninstall(name, vendorOptions);
 }
 
-// [ ] TODO
 function upgradeOne(name: string) {
-  console.log('upgrading', name);
-}
+  // @ts-expect-error
+  const dep = vendorOptions.pkgJson.vendorDependencies?.[name];
+  if (!dep) {
+    error(`No dependency found with name ${name}`);
+  } else if (!dep.repository) {
+    error(`No repository found for dependency ${name}`);
+  } else if (!dep.files) {
+    error(`No files found for dependency ${name}`);
+  }
 
-// [ ] TODO
-function list() {
-  console.log('list');
-}
-
-// [ ] TODO
-function outdated() {
-  console.log('outdated');
+  installOne({
+    url: dep.repository,
+    files: dep.files,
+    name,
+  });
 }

@@ -10,6 +10,10 @@ import path from 'node:path';
 
 import parseJson from 'parse-json';
 
+import { realpathSync } from 'node:fs';
+
+import { type ReadResult, readPackageUp } from 'read-pkg-up';
+
 export function assert(condition: boolean, message: string): asserts condition {
   if (!condition) {
     error(message);
@@ -99,4 +103,19 @@ export function getDependencyFolder({
       config.vendorFolder,
     dependency.vendorFolder ? '' : dependency.name || backupName,
   );
+}
+
+export async function getPackageJson(
+  folderPath = path.dirname(realpathSync(process.argv[1])),
+): Promise<ReadResult> {
+  const pkg = await readPackageUp({
+    cwd: folderPath,
+    normalize: false,
+  });
+
+  if (!pkg) {
+    error('Could not find package.json');
+  }
+
+  return pkg;
 }

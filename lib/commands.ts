@@ -61,9 +61,6 @@ export async function uninstall(
   // @ts-expect-error
   pkgJson.vendorDependencies[name] = undefined;
   // @ts-expect-error
-  //delete pkgJson.vendorDependencies[name];
-  console.log(pkgJson.vendorDependencies);
-    // @ts-expect-error
   await writePackage(pkgPath, pkgJson);
 
   success(`Uninstalled ${name}`);

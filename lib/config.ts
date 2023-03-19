@@ -1,14 +1,13 @@
 // we are working on a new package called "vendor-dependencies" that automatically takes care of creating/updating vendor dependencies
 // the configuration is either in package.json or in a separate file called vendor-dependencies.json
 
-import path from 'node:path';
-import { realpathSync } from 'node:fs';
+import { assert, getPackageJson } from './utils.js';
 
-import { type ReadResult, readPackageUp } from 'read-pkg-up';
-
-import { assert, error } from './utils.js';
-
-import type { VendorConfig, VendorDependencies, VendorsOptions } from './types.js';
+import type {
+  VendorConfig,
+  VendorDependencies,
+  VendorsOptions,
+} from './types.js';
 
 const defaultConfig = {
   vendorFolder: './vendor',
@@ -44,18 +43,4 @@ export async function getConfig(): Promise<VendorsOptions> {
     pkgJson,
     pkgPath,
   };
-}
-
-async function getPackageJson(): Promise<ReadResult> {
-  const folderPath = path.dirname(realpathSync(process.argv[1]));
-  const pkg = await readPackageUp({
-    cwd: folderPath,
-    normalize: false,
-  });
-
-  if (!pkg) {
-    error('Could not find package.json');
-  }
-
-  return pkg;
 }

@@ -32,6 +32,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@commander-js/extra-typings@npm:^10.0.3":
+  version: 10.0.3
+  resolution: "@commander-js/extra-typings@npm:10.0.3"
+  peerDependencies:
+    commander: 10.0.x
+  checksum: a9ab69c4a69c65649cc4c6735e9ad6cfe1ed54785f86d718db8897a4695206bc9fcb8f8de1a1f61be629ad97212e9a024d74ac5755558676d5251cfe493459af
+  languageName: node
+  linkType: hard
+
 "@octokit/auth-token@npm:^3.0.0":
   version: 3.0.3
   resolution: "@octokit/auth-token@npm:3.0.3"
@@ -715,6 +724,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vendorfiles@workspace:."
   dependencies:
+    "@commander-js/extra-typings": ^10.0.3
     "@octokit/rest": ^19.0.7
     "@types/node": ^18.15.3
     "@types/parse-json": ^4.0.0

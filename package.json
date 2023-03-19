@@ -2,9 +2,11 @@
   "name": "vendorfiles",
   "packageManager": "yarn@3.5.0",
   "type": "module",
+  "version": "1.0.0-alpha.0",
   "scripts": {
-    "start": "tsc && node ./dist/index.js",
-    "cli": "tsc && node ./dist/cli.js"
+    "start": "tsc && node ./dist/cli.js",
+    "build": "tsc",
+    "check": "tsc --noEmit && rome ci ."
   },
   "bin": "./dist/cli.js",
   "exports": {
@@ -13,6 +15,7 @@
     }
   },
   "dependencies": {
+    "@commander-js/extra-typings": "^10.0.3",
     "@octokit/rest": "^19.0.7",
     "ci-info": "^3.8.0",
     "commander": "^10.0.0",

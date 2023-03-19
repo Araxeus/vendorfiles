@@ -1,10 +1,13 @@
 import { Repository } from './types.js';
 
 import { Octokit } from '@octokit/rest';
-const octokit = new Octokit();
 
+// no point trying to "hack it", this token has no permissions at all and is used only to circumvent the rate limit
+const NO_PERMISSIONS_ACCESS_TOKEN = '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';
 
-// TODO use GITHUB_TOKEN env variable
+const octokit = new Octokit({
+  auth: process.env.GITHUB_TOKEN || NO_PERMISSIONS_ACCESS_TOKEN,
+});
 
 // TODO add support for other git providers
 

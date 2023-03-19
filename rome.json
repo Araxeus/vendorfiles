@@ -1,4 +1,10 @@
 {
+  "files": {
+    "ignore": [
+      "./.pnp.*",
+      "dist/*"
+    ]
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "single"
