@@ -214,10 +214,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.15.3":
-  version: 18.15.3
-  resolution: "@types/node@npm:18.15.3"
-  checksum: 31b1d92475a82c30de29aa6c0771b18a276552d191283b4423ba2d61b3f01159bf0d02576c0b7cc834b043997893800db6bb47f246083ed85aa45e79c80875d7
+"@types/node@npm:^18.15.4":
+  version: 18.15.4
+  resolution: "@types/node@npm:18.15.4"
+  checksum: c37648cf0a3f6804878750f6acb1bd1e08aabe81099741be09710f114925db0c7d65b5018a39902addb2ac0f985ff6020e2d66227f7e290b55a06121c9630740
   languageName: node
   linkType: hard
 
@@ -303,6 +303,13 @@ __metadata:
   version: 7.0.1
   resolution: "detect-indent@npm:7.0.1"
   checksum: cbf3f0b1c3c881934ca94428e1179b26ab2a587e0d719031d37a67fb506d49d067de54ff057cb1e772e75975fed5155c01cd4518306fee60988b1486e3fc7768
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.0.3":
+  version: 16.0.3
+  resolution: "dotenv@npm:16.0.3"
+  checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
   languageName: node
   linkType: hard
 
@@ -726,10 +733,11 @@ __metadata:
   dependencies:
     "@commander-js/extra-typings": ^10.0.3
     "@octokit/rest": ^19.0.7
-    "@types/node": ^18.15.3
+    "@types/node": ^18.15.4
     "@types/parse-json": ^4.0.0
     ci-info: ^3.8.0
     commander: ^10.0.0
+    dotenv: ^16.0.3
     parse-json: ^6.0.2
     read-pkg-up: ^9.1.0
     rome: ^11.0.0

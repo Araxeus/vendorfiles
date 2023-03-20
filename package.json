@@ -2,10 +2,10 @@
   "name": "vendorfiles",
   "packageManager": "yarn@3.5.0",
   "type": "module",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "scripts": {
     "start": "tsc && node ./dist/cli.js",
-    "test": "tsc && node ./dist/index.js",
+    "test": "tsc && node ./dist/test.js",
     "build": "tsc",
     "check": "tsc --noEmit && rome ci ."
   },
@@ -22,17 +22,30 @@
     "@octokit/rest": "^19.0.7",
     "ci-info": "^3.8.0",
     "commander": "^10.0.0",
+    "dotenv": "^16.0.3",
     "parse-json": "^6.0.2",
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.3",
+    "@types/node": "^18.15.4",
     "@types/parse-json": "^4.0.0",
     "read-pkg-up": "^9.1.0",
     "rome": "^11.0.0",
     "typescript": "^5.0.2"
   },
   "vendorDependencies": {
+    "Cooltipz.css": {
+      "name": "Cooltipz.css",
+      "version": "v2.2.1",
+      "repository": "https://github.com/jackdomleo7/Cooltipz.css",
+      "files": [
+        "cooltipz.min.css",
+        {
+          "LICENSE": "COOLTIPZ_LICENSE"
+        }
+      ],
+      "vendorFolder": "{vendorFolder}"
+    },
     "Coloris": {
       "name": "Coloris",
       "version": "v0.18.0",
@@ -40,12 +53,14 @@
       "files": [
         "dist/coloris.min.js",
         "dist/coloris.min.css",
-        "LICENSE"
+        {
+          "LICENSE": "COLORIS_LICENSE"
+        }
       ],
-      "vendorFolder": "{vendorFolder}/Colors"
+      "vendorFolder": "{vendorFolder}"
     }
   },
   "vendorConfig": {
-    "vendorFolder": "VENDOR"
+    "vendorFolder": "./vendor"
   }
 }
