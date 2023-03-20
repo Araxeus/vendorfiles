@@ -736,7 +736,7 @@ __metadata:
     typescript: ^5.0.2
     write-pkg: ^5.1.0
   bin:
-    vendorfiles: ./dist/cli.js
+    vendor: ./dist/cli.js
   languageName: unknown
   linkType: soft
 

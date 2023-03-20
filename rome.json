@@ -2,7 +2,7 @@
   "files": {
     "ignore": [
       "./.pnp.*",
-      "dist/*"
+      "./dist/*"
     ]
   },
   "javascript": {
@@ -13,7 +13,7 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentSize": 2
+    "indentSize": 4
   },
   "linter": {
     "enabled": true,

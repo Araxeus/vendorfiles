@@ -5,10 +5,13 @@
   "version": "1.0.0-alpha.0",
   "scripts": {
     "start": "tsc && node ./dist/cli.js",
+    "test": "tsc && node ./dist/index.js",
     "build": "tsc",
     "check": "tsc --noEmit && rome ci ."
   },
-  "bin": "./dist/cli.js",
+  "bin": {
+    "vendor": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js"
