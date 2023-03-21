@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { writePackage } from 'write-pkg';
 import github from './github.js';
-import { ownerAndNameFromRepoUrl, writeLockfile, checkIfNeedsUpdate, error, info, success, validateVendorDependency, getDependencyFolder, getFilesFromLockfile, readLockfile, flatFiles, } from './utils.js';
+import { ownerAndNameFromRepoUrl, writeLockfile, checkIfNeedsUpdate, error, info, success, validateVendorDependency, getDependencyFolder, getFilesFromLockfile, readLockfile, flatFiles, deleteFileAndEmptyFolders, } from './utils.js';
 import { existsSync } from 'node:fs';
 export async function sync({ config, dependencies, pkgPath, pkgJson }, { shouldUpdate = false, force = false, } = {}) {
     for (const [name, dependency] of Object.entries(dependencies)) {
@@ -37,7 +37,7 @@ export async function uninstall(name, { dependencies, config, pkgPath, pkgJson }
         lockfile = await readLockfile(lockfilePath);
         for (const file of flatFiles(lockfile[name].files)) {
             try {
-                await fs.rm(path.join(depDirectory, file), { force: true });
+                await deleteFileAndEmptyFolders(depDirectory, file);
             }
             catch { }
         }
@@ -46,27 +46,27 @@ export async function uninstall(name, { dependencies, config, pkgPath, pkgJson }
     const depFiles = flatFiles(dep.files);
     for (const file of depFiles) {
         try {
-            await fs.rm(path.join(depDirectory, file), { force: true });
+            await deleteFileAndEmptyFolders(depDirectory, file);
         }
         catch { }
     }
     // check if name is the only key in the lockfile
-    // if so, delete the lockfile, otherwise, remove the dependency from the lockfile
     if (lockfile?.[name] && Object.keys(lockfile).length === 1) {
-        // delete the lockfile
+        // if so, delete the lockfile
         await fs.rm(lockfilePath, { force: true });
+        if ((await fs.readdir(depDirectory)).length === 0) {
+            await fs.rm(depDirectory, { recursive: true, force: true });
+        }
     }
     else if (lockfile?.[name]) {
-        // @ts-expect-error
+        // if not, remove the dependency from the lockfile
+        // @ts-expect-error Type 'undefined' is not assignable to type 'VendorLock'
         lockfile[name] = undefined;
         await fs.writeFile(lockfilePath, JSON.stringify(lockfile, null, 2));
     }
-    if ((await fs.readdir(depDirectory)).length === 0) {
-        await fs.rm(depDirectory, { recursive: true, force: true });
-    }
-    // @ts-expect-error
+    // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
     pkgJson.vendorDependencies[name] = undefined;
-    // @ts-expect-error
+    // @ts-expect-error 'PackageJson' is not assignable to parameter of type 'JsonObject'
     await writePackage(pkgPath, pkgJson);
     success(`Uninstalled ${name}`);
 }
@@ -104,11 +104,11 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
     const filesFromLockfile = await getFilesFromLockfile(lockfilePath, dependency.name);
     for (const file of filesFromLockfile) {
         if (existsSync(path.join(depDirectory, file))) {
-            await fs.rm(path.join(depDirectory, file));
+            await deleteFileAndEmptyFolders(depDirectory, file);
         }
     }
     const allFiles = dependency.files.flatMap((file) => 
-    // @ts-expect-error
+    // @ts-expect-error Type 'string' is not assignable to type '[string, string]'
     typeof file === 'object' ? Object.entries(file) : file);
     await Promise.all(allFiles.map(async (file) => {
         let input;
@@ -139,8 +139,17 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
             error(`File ${file} from ${dependency.repository} is not a string`);
         }
         const savePath = path.join(depDirectory, output);
-        await fs.writeFile(savePath, downloadedFile, 'utf-8').then(() => {
+        const folderPath = path.dirname(savePath);
+        if (!existsSync(folderPath)) {
+            await fs.mkdir(folderPath, { recursive: true });
+        }
+        await fs
+            .writeFile(savePath, downloadedFile, 'utf-8')
+            .then(() => {
             info(`Saved ${savePath}`);
+        })
+            .catch((err) => {
+            error(`Could not save ${savePath}:\n${err}`);
         });
     }));
     await writeLockfile(dependency.name, {
@@ -149,9 +158,9 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
         files: dependency.files,
     }, lockfilePath);
     const old_version = dependency.version;
-    // @ts-expect-error
+    // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
     if (shouldUpdate || !pkgJson.vendorDependencies[dependency.name]?.version) {
-        // @ts-expect-error
+        // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
         pkgJson.vendorDependencies[dependency.name] = {
             name: dependency.name,
             version: newVersion,
@@ -159,7 +168,7 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
             files: dependency.files,
             vendorFolder: dependency.vendorFolder,
         };
-        // @ts-expect-error
+        // @ts-expect-error 'PackageJson' is not assignable to parameter of type 'JsonObject'
         await writePackage(pkgPath, pkgJson);
     }
     if (shouldUpdate) {

@@ -7,8 +7,8 @@ import {
     VendorLock,
 } from './types.js';
 
-import { readFile, writeFile } from 'node:fs/promises';
-import { existsSync, realpathSync } from 'node:fs';
+import { readFile, writeFile, realpath, rm, readdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 import parseJson from 'parse-json';
@@ -136,10 +136,12 @@ export async function checkIfNeedsUpdate({
                 }
             } else {
                 for (const [input, output] of Object.entries(file)) {
-                    if (!thisFiles.some(
-                      (f) => typeof f === 'object' && f[input] === output,
-                  ) && existsSync(path.join(depPath, output),
-                    )) {
+                    if (
+                        !thisFiles.some(
+                            (f) => typeof f === 'object' && f[input] === output,
+                        ) &&
+                        existsSync(path.join(depPath, output))
+                    ) {
                         return true;
                     }
                 }
@@ -150,6 +152,30 @@ export async function checkIfNeedsUpdate({
     }
 
     return false;
+}
+
+export async function deleteFileAndEmptyFolders(
+    cwd: string,
+    relativeFilepath: string,
+) {
+    cwd = await realpath(cwd);
+    const filepath = path.join(cwd, relativeFilepath);
+    // Delete the file
+    await rm(filepath);
+
+    // Traverse up the directory tree
+    let dir = path.dirname(filepath);
+    while (path.relative(cwd, dir) !== '.') {
+        // Check if the directory is empty
+        if ((await readdir(dir)).length === 0) {
+            await rm(dir, { recursive: true, force: true });
+        } else {
+            // Stop traversing if the directory is not empty
+            break;
+        }
+        // Move up to the parent directory
+        dir = path.resolve(dir, '..');
+    }
 }
 
 export function flatFiles(files: FilesArray) {
@@ -263,9 +289,8 @@ export function getDependencyFolder({
     );
 }
 
-export async function getPackageJson(
-    folderPath = path.dirname(realpathSync(process.argv[1])),
-): Promise<ReadResult> {
+export async function getPackageJson(folderPath?: string): Promise<ReadResult> {
+    folderPath ||= path.dirname(await realpath(process.argv[1]));
     const pkg = await readPackageUp({
         cwd: folderPath,
         normalize: false,

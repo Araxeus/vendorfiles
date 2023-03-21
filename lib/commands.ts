@@ -24,6 +24,7 @@ import {
     getFilesFromLockfile,
     readLockfile,
     flatFiles,
+    deleteFileAndEmptyFolders,
 } from './utils.js';
 import { existsSync } from 'node:fs';
 
@@ -75,7 +76,7 @@ export async function uninstall(
         lockfile = await readLockfile(lockfilePath);
         for (const file of flatFiles(lockfile[name].files)) {
             try {
-                await fs.rm(path.join(depDirectory, file), { force: true });
+                await deleteFileAndEmptyFolders(depDirectory, file);
             } catch {}
         }
     } catch {}
@@ -84,7 +85,7 @@ export async function uninstall(
 
     for (const file of depFiles) {
         try {
-            await fs.rm(path.join(depDirectory, file), { force: true });
+            await deleteFileAndEmptyFolders(depDirectory, file);
         } catch {}
     }
 
@@ -92,15 +93,15 @@ export async function uninstall(
     if (lockfile?.[name] && Object.keys(lockfile).length === 1) {
         // if so, delete the lockfile
         await fs.rm(lockfilePath, { force: true });
+
+        if ((await fs.readdir(depDirectory)).length === 0) {
+            await fs.rm(depDirectory, { recursive: true, force: true });
+        }
     } else if (lockfile?.[name]) {
         // if not, remove the dependency from the lockfile
         // @ts-expect-error Type 'undefined' is not assignable to type 'VendorLock'
         lockfile[name] = undefined;
         await fs.writeFile(lockfilePath, JSON.stringify(lockfile, null, 2));
-    }
-
-    if ((await fs.readdir(depDirectory)).length === 0) {
-        await fs.rm(depDirectory, { recursive: true, force: true });
     }
 
     // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
@@ -174,7 +175,7 @@ export async function install({
     );
     for (const file of filesFromLockfile) {
         if (existsSync(path.join(depDirectory, file))) {
-            await fs.rm(path.join(depDirectory, file));
+            await deleteFileAndEmptyFolders(depDirectory, file);
         }
     }
 
@@ -220,9 +221,20 @@ export async function install({
 
             const savePath = path.join(depDirectory, output);
 
-            await fs.writeFile(savePath, downloadedFile, 'utf-8').then(() => {
-                info(`Saved ${savePath}`);
-            });
+            const folderPath = path.dirname(savePath);
+
+            if (!existsSync(folderPath)) {
+                await fs.mkdir(folderPath, { recursive: true });
+            }
+
+            await fs
+                .writeFile(savePath, downloadedFile, 'utf-8')
+                .then(() => {
+                    info(`Saved ${savePath}`);
+                })
+                .catch((err) => {
+                    error(`Could not save ${savePath}:\n${err}`);
+                });
         }),
     );
 

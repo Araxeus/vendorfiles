@@ -1,5 +1,5 @@
-import { readFile, writeFile } from 'node:fs/promises';
-import { existsSync, realpathSync } from 'node:fs';
+import { readFile, writeFile, realpath, rm, readdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import parseJson from 'parse-json';
 import { readPackageUp } from 'read-pkg-up';
@@ -82,7 +82,8 @@ export async function checkIfNeedsUpdate({ lockfilePath, name, newVersion, }) {
             }
             else {
                 for (const [input, output] of Object.entries(file)) {
-                    if (!thisFiles.some((f) => typeof f === 'object' && f[input] === output) && existsSync(path.join(depPath, output))) {
+                    if (!thisFiles.some((f) => typeof f === 'object' && f[input] === output) &&
+                        existsSync(path.join(depPath, output))) {
                         return true;
                     }
                 }
@@ -93,6 +94,26 @@ export async function checkIfNeedsUpdate({ lockfilePath, name, newVersion, }) {
         return true;
     }
     return false;
+}
+export async function deleteFileAndEmptyFolders(cwd, relativeFilepath) {
+    cwd = await realpath(cwd);
+    const filepath = path.join(cwd, relativeFilepath);
+    // Delete the file
+    await rm(filepath);
+    // Traverse up the directory tree
+    let dir = path.dirname(filepath);
+    while (path.relative(cwd, dir) !== '.') {
+        // Check if the directory is empty
+        if ((await readdir(dir)).length === 0) {
+            await rm(dir, { recursive: true, force: true });
+        }
+        else {
+            // Stop traversing if the directory is not empty
+            break;
+        }
+        // Move up to the parent directory
+        dir = path.resolve(dir, '..');
+    }
 }
 export function flatFiles(files) {
     return files.flatMap((file) => typeof file === 'string' ? path.basename(file) : Object.values(file));
@@ -158,7 +179,8 @@ export function validateVendorDependency(name, dependency) {
 export function getDependencyFolder({ dependency, config, pkgPath, backupName, }) {
     return path.join(path.dirname(pkgPath), dependency.vendorFolder?.replace('{vendorFolder}', config.vendorFolder) || config.vendorFolder, dependency.vendorFolder ? '' : dependency.name || backupName);
 }
-export async function getPackageJson(folderPath = path.dirname(realpathSync(process.argv[1]))) {
+export async function getPackageJson(folderPath) {
+    folderPath ||= path.dirname(await realpath(process.argv[1]));
     const pkg = await readPackageUp({
         cwd: folderPath,
         normalize: false,

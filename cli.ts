@@ -96,6 +96,7 @@ const syncCmd = new Command('sync')
     .action(({ force }) => syncAll(!!force));
 
 program
+    .name('vendor')
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
     .addCommand(updateCmd)

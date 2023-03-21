@@ -80,6 +80,7 @@ const syncCmd = new Command('sync')
     .option('-f, --force', 'Force sync')
     .action(({ force }) => syncAll(!!force));
 program
+    .name('vendor')
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
     .addCommand(updateCmd)
@@ -113,7 +114,7 @@ function uninstallOne(name) {
     uninstall(name, vendorOptions);
 }
 function upgradeOne(name) {
-    // @ts-expect-error
+    // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
     const dep = vendorOptions.pkgJson.vendorDependencies?.[name];
     if (!dep) {
         error(`No dependency found with name ${name}`);

@@ -2,7 +2,8 @@
   "files": {
     "ignore": [
       "./.pnp.*",
-      "./dist/*"
+      "./dist/*",
+      "./vendor/*"
     ]
   },
   "javascript": {
