@@ -1,5 +1,9 @@
 # vendorfiles
 
+[![NPM Version](https://img.shields.io/npm/v/vendorfiles)](https://www.npmjs.com/package/vendorfiles)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Araxeus/custom-electron-prompt/blob/main/LICENSE)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Araxeus/custom-electron-prompt)
+
 `vendorfiles` is a tool that simplifies the management of vendor files in your project.
 
 ## Installation
@@ -16,11 +20,11 @@ npm install -g vendorfiles
 npm install vendorfiles
 ```
 
-## Usage
+## Configuration
 
-> There are some secret undocumented features, but I will document them later. For now, you can look at the source code or examples.
+In your package.json file, you can define your vendor files under the `vendorDependencies` key.
 
-In your package.json file, you can define your vendor files under the `vendorDependencies` key. Here's an example:
+you can then run `vendor sync` to sync your vendor files with the config file.
 
 ```json
 {
@@ -39,7 +43,54 @@ In your package.json file, you can define your vendor files under the `vendorDep
 }
 ```
 
-In the near future, this configuration will be moved under the vendor key in package.json or in a separate cosmiconfig file.
+The vendor directory defaults to the `vendor` folder in your project root. You can change this by defining a `vendorFolder` key in the `vendorConfig` object.
+
+```json
+"vendorConfig": {
+   "vendorFolder": "./my-vendors"
+},
+```
+
+You can also define a `vendorFolder` key in the `vendorDependencies` object to change the folder where the files will be installed. if not defined it will default to the name of the dependency.
+
+You can also use `{vendorfolder}` to refer to the vendor folder defined in the `vendorConfig` object.
+
+here's an advanced example:
+
+```json
+"vendorConfig": {
+  "vendorFolder": "./my-vendors"
+},
+"vendorDependencies": {
+  "Cooltipz.css": {
+    "version": "v2.2.1",
+    "repository": "https://github.com/jackdomleo7/Cooltipz.css",
+    "files": [
+      "cooltipz.min.css",
+      {
+        "LICENSE": "COOLTIPZ_LICENSE"
+      }
+    ],
+    "vendorFolder": "{vendorFolder}/Cooltipz"
+  },
+  "Coloris": {
+    "name": "Coloris",
+    "version": "v0.18.0",
+    "repository": "https://github.com/mdbassit/Coloris",
+    "files": [
+      "dist/coloris.min.js",
+      "dist/coloris.min.css",
+      {
+        "LICENSE": "COLORIS_LICENSE",
+        "README.md": "COLORIS_README.md"
+      }
+    ],
+    "vendorFolder": "{vendorFolder}"
+  }
+}
+```
+
+> In the near future, this configuration will be moved under the vendor key in package.json or in a separate cosmiconfig file.
 
 ## Commands
 
@@ -135,3 +186,5 @@ Examples:
     vendor uninstall React
     vendor uninstall React youtube-music
 ```
+
+> There are some secret undocumented features, but I will document them later. For now, you can look at the source code or examples.
