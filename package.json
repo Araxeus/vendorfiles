@@ -2,13 +2,16 @@
   "name": "vendorfiles",
   "packageManager": "yarn@3.5.0",
   "type": "module",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "scripts": {
     "start": "tsc && node ./dist/cli.js",
     "test": "tsc && node ./dist/test.js",
     "build": "tsc",
     "check": "tsc --noEmit && rome ci ."
   },
+  "files": [
+    "dist"
+  ],
   "bin": {
     "vendor": "./dist/cli.js"
   },
@@ -24,18 +27,17 @@
     "commander": "^10.0.0",
     "dotenv": "^16.0.3",
     "parse-json": "^6.0.2",
+    "read-pkg-up": "^9.1.0",
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^18.15.5",
     "@types/parse-json": "^4.0.0",
-    "read-pkg-up": "^9.1.0",
     "rome": "^11.0.0",
     "typescript": "^5.0.2"
   },
   "vendorDependencies": {
     "Cooltipz.css": {
-      "name": "Cooltipz.css",
       "version": "v2.2.1",
       "repository": "https://github.com/jackdomleo7/Cooltipz.css",
       "files": [

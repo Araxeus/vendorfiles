@@ -26,7 +26,6 @@ In your package.json file, you can define your vendor files under the `vendorDep
 {
     "vendorDependencies": {
         "Cooltipz": {
-            "name": "Cooltipz.css",
             "version": "v2.2.0",
             "repository": "https://github.com/jackdomleo7/Cooltipz.css",
             "files": ["cooltipz.min.css", "LICENSE"]
