@@ -143,7 +143,7 @@ function uninstallOne(name: string) {
 }
 
 function upgradeOne(name: string) {
-    // @ts-expect-error
+    // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
     const dep = vendorOptions.pkgJson.vendorDependencies?.[name];
     if (!dep) {
         error(`No dependency found with name ${name}`);

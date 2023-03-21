@@ -42,7 +42,7 @@ export type FileInputOutput = {
 export type VendorLock = {
     version: string;
     repository: string;
-    files: string[];
+    files: FilesArray;
 };
 
 export type Repository = {

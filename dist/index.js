@@ -9,3 +9,6 @@ export * from './lib/utils.js';
 // TODO: add docs
 // TODO: add examples
 // TODO: add github actions
+// TODO? add multiple config locations (cosmiconfig)
+// TODO? add support for glob patterns
+// TODO? allow install from release assets (need to be able to unzip, tar, etc.)

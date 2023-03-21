@@ -54,7 +54,8 @@
         "dist/coloris.min.js",
         "dist/coloris.min.css",
         {
-          "LICENSE": "COLORIS_LICENSE"
+          "LICENSE": "COLORIS_LICENSE",
+          "README.md": "COLORIS_README.md"
         }
       ],
       "vendorFolder": "{vendorFolder}"

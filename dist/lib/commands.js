@@ -35,7 +35,7 @@ export async function uninstall(name, { dependencies, config, pkgPath, pkgJson }
     let lockfile;
     try {
         lockfile = await readLockfile(lockfilePath);
-        for (const file of lockfile[name].files) {
+        for (const file of flatFiles(lockfile[name].files)) {
             try {
                 await fs.rm(path.join(depDirectory, file), { force: true });
             }
@@ -119,7 +119,7 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
         }
         else if (typeof file === 'string') {
             input = file;
-            output = file;
+            output = path.basename(file);
         }
         else {
             error(`File ${file} is not a string or an array`);
@@ -138,7 +138,7 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
         if (!(typeof downloadedFile === 'string')) {
             error(`File ${file} from ${dependency.repository} is not a string`);
         }
-        const savePath = path.join(depDirectory, path.basename(output));
+        const savePath = path.join(depDirectory, output);
         await fs.writeFile(savePath, downloadedFile, 'utf-8').then(() => {
             info(`Saved ${savePath}`);
         });
@@ -146,7 +146,7 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
     await writeLockfile(dependency.name, {
         version: newVersion || 'latest',
         repository: dependency.repository,
-        files: flatFiles(dependency.files),
+        files: dependency.files,
     }, lockfilePath);
     const old_version = dependency.version;
     // @ts-expect-error

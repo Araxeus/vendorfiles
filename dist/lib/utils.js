@@ -27,10 +27,17 @@ export function isGitHubUrl(url) {
 }
 export async function writeLockfile(name, data, filepath) {
     let lockfile;
+    data.files = consolidateObjectsInFilesArray(data.files).map((file) => typeof file === 'string' ? path.basename(file) : file);
     try {
         lockfile = await readLockfile(filepath);
-        const previousFiles = Object.entries(lockfile).flatMap(([n, { files }]) => (n === name ? [] : { depName: n, files }));
-        data.files?.forEach((file) => {
+        const previousFiles = Object.entries(lockfile).flatMap(([n, { files }]) => n === name
+            ? []
+            : {
+                depName: n,
+                files: flatFiles(files),
+            });
+        const newFiles = flatFiles(data.files);
+        newFiles?.forEach((file) => {
             previousFiles.forEach(({ depName, files }) => {
                 if (files.includes(file)) {
                     warning(`Duplicate file in lockfile! "${file}" is being added to ${name} but already exists in ${depName}`);
@@ -58,7 +65,8 @@ export async function checkIfNeedsUpdate({ lockfilePath, name, newVersion, }) {
             }
         }
         const { dependencies, config, pkgPath } = await getConfig();
-        const thisFiles = flatFiles(dependencies[name].files);
+        const thisFiles = dependencies[name].files;
+        const bareFilePath = thisFiles.map((file) => typeof file === 'string' ? path.basename(file) : file);
         const depPath = getDependencyFolder({
             dependency: dependencies[name],
             config,
@@ -66,9 +74,18 @@ export async function checkIfNeedsUpdate({ lockfilePath, name, newVersion, }) {
             backupName: name,
         });
         for (const file of thisLockFiles) {
-            if (!(thisFiles.includes(file) &&
-                existsSync(path.join(depPath, file)))) {
-                return true;
+            if (typeof file === 'string') {
+                if (!(bareFilePath.includes(file) &&
+                    existsSync(path.join(depPath, file)))) {
+                    return true;
+                }
+            }
+            else {
+                for (const [input, output] of Object.entries(file)) {
+                    if (!thisFiles.some((f) => typeof f === 'object' && f[input] === output) && existsSync(path.join(depPath, output))) {
+                        return true;
+                    }
+                }
             }
         }
     }
@@ -117,7 +134,7 @@ export async function readLockfile(filepath) {
 export async function getFilesFromLockfile(filepath, name) {
     try {
         const lockfile = await readLockfile(filepath);
-        return lockfile[name].files;
+        return flatFiles(lockfile[name].files);
     }
     catch {
         return [];
@@ -150,6 +167,20 @@ export async function getPackageJson(folderPath = path.dirname(realpathSync(proc
         error('Could not find package.json');
     }
     return pkg;
+}
+export function consolidateObjectsInFilesArray(arr) {
+    const obj = {};
+    const newArr = arr.filter((item) => {
+        if (typeof item === 'object' && !Array.isArray(item)) {
+            Object.assign(obj, item);
+            return false;
+        }
+        return true;
+    });
+    if (Object.keys(obj).length !== 0) {
+        newArr.push(obj);
+    }
+    return newArr;
 }
 export function trimStartMatches(str, match) {
     if (!str)

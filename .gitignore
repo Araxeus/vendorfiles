@@ -10,3 +10,4 @@
 # !.yarn/cache
 .pnp.*
 .env
+vendor/*
