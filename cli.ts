@@ -57,7 +57,9 @@ const installCmd = new Command('install')
         }
     })
     .summary('Install a dependency')
-    .description('Install a dependency. origin can be a GitHub repo URL or owner/repo format or name of repo to search for.\nFiles have to be provided with -f or --files <files...>')
+    .description(
+        'Install a dependency. origin can be a GitHub repo URL or owner/repo format or name of repo to search for.\nFiles have to be provided with -f or --files <files...>',
+    )
     .addHelpText(
         'after',
         `
@@ -111,7 +113,9 @@ const updateCmd = new Command('update')
         }
     })
     .summary('Update dependencies')
-    .description('Update all/selected dependencies to their latest version (from GitHub Releases))')
+    .description(
+        'Update all/selected dependencies to their latest version (from GitHub Releases))',
+    )
     .addHelpText(
         'after',
         `
@@ -139,7 +143,7 @@ Examples:
 
 program
     .name('vendor')
-    .usage("command [options]")
+    .usage('command [options]')
     .addCommand(syncCmd)
     .addCommand(updateCmd)
     .addCommand(installCmd)
