@@ -2,7 +2,7 @@
   "name": "vendorfiles",
   "packageManager": "yarn@3.5.0",
   "type": "module",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "scripts": {
     "start": "tsc && node ./dist/cli.js",
     "test": "tsc && node ./dist/test.js",
@@ -27,7 +27,7 @@
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.4",
+    "@types/node": "^18.15.5",
     "@types/parse-json": "^4.0.0",
     "read-pkg-up": "^9.1.0",
     "rome": "^11.0.0",

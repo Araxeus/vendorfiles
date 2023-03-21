@@ -214,10 +214,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.15.4":
-  version: 18.15.4
-  resolution: "@types/node@npm:18.15.4"
-  checksum: c37648cf0a3f6804878750f6acb1bd1e08aabe81099741be09710f114925db0c7d65b5018a39902addb2ac0f985ff6020e2d66227f7e290b55a06121c9630740
+"@types/node@npm:^18.15.5":
+  version: 18.15.5
+  resolution: "@types/node@npm:18.15.5"
+  checksum: 5fbf3453bd5ce1402bb2964e55d928fc8a8a7de5451b1b0fe66587fecb8a3eb86854ca9cefa5076a5971e2cff00e1773ceeb5d872a54f6c6ddfbbc1064b4e91a
   languageName: node
   linkType: hard
 
@@ -733,7 +733,7 @@ __metadata:
   dependencies:
     "@commander-js/extra-typings": ^10.0.3
     "@octokit/rest": ^19.0.7
-    "@types/node": ^18.15.4
+    "@types/node": ^18.15.5
     "@types/parse-json": ^4.0.0
     ci-info: ^3.8.0
     commander: ^10.0.0
