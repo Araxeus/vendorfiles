@@ -14,7 +14,7 @@
   ],
   "packageManager": "yarn@3.5.0",
   "type": "module",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "scripts": {
     "start": "tsc && node ./dist/cli.js",
     "test": "tsc && node ./dist/test.js",
