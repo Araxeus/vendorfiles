@@ -41,7 +41,15 @@ const installCmd = new Command('install')
     else {
         syncAll(true);
     }
-});
+})
+    .summary('Install a dependency')
+    .description('Install a dependency. origin can be a GitHub repo URL or owner/repo format or name of repo to search for.\nFiles have to be provided with -f or --files <files...>')
+    .addHelpText('after', `
+Examples:
+  vendor install React -n MyReact -f README.md
+  vendor install Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
+  vendor install https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
+`);
 const uninstallCmd = new Command('uninstall')
     .alias('remove')
     .alias('delete')
@@ -59,7 +67,14 @@ const uninstallCmd = new Command('uninstall')
             uninstallOne(name);
         });
     }
-});
+})
+    .summary('Uninstall dependencies')
+    .description('Uninstall all/selected dependencies')
+    .addHelpText('after', `
+Examples:
+    vendor uninstall React
+    vendor uninstall React youtube-music
+`);
 const updateCmd = new Command('update')
     .alias('upgrade')
     .alias('up')
@@ -74,17 +89,33 @@ const updateCmd = new Command('update')
             upgradeOne(name);
         });
     }
-});
+})
+    .summary('Update dependencies')
+    .description('Update all/selected dependencies to their latest version (from GitHub Releases))')
+    .addHelpText('after', `
+Examples:
+    vendor update
+    vendor update React
+    vendor update React Express
+`);
 const syncCmd = new Command('sync')
     .alias('s')
     .option('-f, --force', 'Force sync')
-    .action(({ force }) => syncAll(!!force));
+    .action(({ force }) => syncAll(!!force))
+    .summary('Sync config file')
+    .description('Sync all dependencies in the config file')
+    .addHelpText('after', `
+Examples:
+    vendor sync
+    vendor sync -f
+`);
 program
     .name('vendor')
+    .usage("command [options]")
+    .addCommand(syncCmd)
+    .addCommand(updateCmd)
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
-    .addCommand(updateCmd)
-    .addCommand(syncCmd)
     .version((await getPackageJson(import.meta.url)).packageJson.version ||
     'unknown', '-v, --version', 'output the current version')
     // TODO add ci option (which will print pr details to stdout on update)
