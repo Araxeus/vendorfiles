@@ -290,7 +290,9 @@ export function getDependencyFolder({
 }
 
 export async function getPackageJson(folderPath?: string): Promise<ReadResult> {
-    folderPath ||= path.dirname(await realpath(process.argv[1]));
+    folderPath ||= await realpath(
+        process.env.INIT_CWD || process.env.PWD || process.cwd(),
+    );
     const pkg = await readPackageUp({
         cwd: folderPath,
         normalize: false,

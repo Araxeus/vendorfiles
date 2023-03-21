@@ -180,7 +180,7 @@ export function getDependencyFolder({ dependency, config, pkgPath, backupName, }
     return path.join(path.dirname(pkgPath), dependency.vendorFolder?.replace('{vendorFolder}', config.vendorFolder) || config.vendorFolder, dependency.vendorFolder ? '' : dependency.name || backupName);
 }
 export async function getPackageJson(folderPath) {
-    folderPath ||= path.dirname(await realpath(process.argv[1]));
+    folderPath ||= await realpath(process.env.INIT_CWD || process.env.PWD || process.cwd());
     const pkg = await readPackageUp({
         cwd: folderPath,
         normalize: false,

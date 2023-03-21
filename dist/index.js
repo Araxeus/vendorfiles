@@ -11,6 +11,8 @@ export * from './lib/utils.js';
 // TODO: add github actions
 // TODO? add multiple config locations (cosmiconfig)
 // TODO? replace {version} in file output with version.trimStartMatch('v')
+// TODO document that {version} is trimmed of leading 'v'
+// TODO  document that  "vendorFolder": "{vendorFolder}/my-custom-folder-name" is allowed
 // TODO? allow install from release assets (need to be able to unzip, tar, etc.)
 /*
 Either:

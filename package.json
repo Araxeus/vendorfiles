@@ -2,7 +2,7 @@
   "name": "vendorfiles",
   "packageManager": "yarn@3.5.0",
   "type": "module",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "scripts": {
     "start": "tsc && node ./dist/cli.js",
     "test": "tsc && node ./dist/test.js",
