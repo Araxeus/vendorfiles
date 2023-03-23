@@ -1,7 +1,7 @@
 import { Repository } from './types.js';
 
 import { Octokit } from '@octokit/rest';
-import { error, warning } from './utils.js';
+import { error, trimStartMatches, warning } from './utils.js';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -13,8 +13,6 @@ const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN || undefined,
 });
 
-// TODO add support for other git providers
-
 export async function getFile({
     repo,
     path,
@@ -22,7 +20,7 @@ export async function getFile({
 }: {
     repo: Repository;
     path: string;
-    ref?: string;
+    ref: string;
 }) {
     return octokit.repos
         .getContent({
@@ -34,16 +32,10 @@ export async function getFile({
             },
             ref,
         })
-        .then(({ data }) => data);
-}
-
-export async function getLatestRelease({ owner, name: repo }: Repository) {
-    return octokit.repos
-        .getLatestRelease({
-            owner,
-            repo,
-        })
-        .then(({ data }) => data);
+        .then((res) => {
+            //console.log(res.data);
+            return res.data;
+        });
 }
 
 export async function findRepoUrl(name: string) {
@@ -65,8 +57,114 @@ export async function findRepoUrl(name: string) {
     return item.html_url;
 }
 
+const releases = new Map();
+async function getReleaseFromTag({
+    owner,
+    name,
+    tag,
+}: Repository & { tag: string }) {
+    const key = `${owner}/${name}/${tag}`;
+    if (releases.has(key)) {
+        return releases.get(key);
+    }
+    const res = await octokit.repos.getReleaseByTag({
+        owner,
+        repo: name,
+        tag,
+    });
+    releases.set(key, res.data);
+
+    return res.data;
+}
+export async function getLatestRelease({ owner, name: repo }: Repository) {
+    const key = `${owner}/${repo}/latest`;
+    if (releases.has(key)) {
+        return releases.get(key);
+    }
+    const res = await octokit.repos.getLatestRelease({
+        owner,
+        repo,
+    });
+
+    releases.set(key, res.data);
+    return res.data;
+}
+
+export async function downloadReleaseFile({
+    repo,
+    path,
+    version,
+    savePath,
+}: { repo: Repository; path: string; version: string, savePath: string }) {
+    const release = await (version
+        ? getReleaseFromTag({ ...repo, tag: version })
+        : getLatestRelease(repo));
+
+    if (!release) {
+        error(`Release "${version}" was not found in ${release.url}`);
+    }
+
+    const asset_id = release.assets.find(
+        (asset: { name: string }) => asset.name === path,
+    )?.id;
+
+    if (!asset_id) {
+        error(`Release asset "${path}" was not found in ${release.url}`);
+    }
+
+    const asset = await octokit.repos
+        .getReleaseAsset({
+            owner: repo.owner,
+            repo: repo.name,
+            asset_id,
+            mediaType: {
+                format: 'raw',
+            },
+        })
+        .then((res) => res.data)
+        .catch((err) => {
+            if (err.status === 404) {
+                error(`Got 404 error when trying to download release asset "${path}" from ${release.url}`);
+            }
+        });
+
+    if (!asset) {
+        error(`Release asset "${path}" failed to download from ${release.url}`);
+    }
+
+    // console.log({
+    //     asset_id,
+    //     node_id: asset.node_id,
+    // });
+
+    const requestOptions = octokit.request.endpoint(
+        'GET /repos/:owner/:repo/releases/assets/:asset_id',
+        {
+            headers: {
+                Accept: 'application/octet-stream',
+            },
+            Authorization: `token ${process.env.GITHUB_TOKEN}`,
+            owner: repo.owner,
+            repo: repo.name,
+            asset_id,
+        },
+    );
+
+    // @ts-expect-error
+    const req = await fetch(requestOptions.url, requestOptions);
+    // console.log({
+    //     req,
+    // })
+    if (!(req.ok && req.body)) {
+        error(`Release asset "${path}" failed to download from ${release.url}`);
+    }
+
+    return req.body;
+}
+
 export default {
     getFile,
     getLatestRelease,
-    findRepo: findRepoUrl,
+    downloadReleaseFile,
+    findRepoUrl,
 };

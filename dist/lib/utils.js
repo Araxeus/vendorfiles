@@ -1,9 +1,12 @@
-import { readFile, writeFile, realpath, rm, readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { readFile, writeFile, realpath, rm, readdir, mkdir, } from 'node:fs/promises';
+import { createWriteStream, existsSync } from 'node:fs';
 import path from 'node:path';
+import { Readable } from 'stream';
+import { finished } from 'stream/promises';
 import parseJson from 'parse-json';
 import { readPackageUp } from 'read-pkg-up';
 import { getConfig } from './config.js';
+import { deepStrictEqual } from 'node:assert';
 export function assert(condition, message) {
     if (!condition) {
         error(message);
@@ -25,29 +28,59 @@ export function info(message) {
 export function isGitHubUrl(url) {
     return /^https?:(?:)\/\/(?:www\.)?github\.com\/[^/]+\/[^/]+$/.test(url);
 }
+export async function saveFile(file, savePath, log = true) {
+    const folderPath = path.dirname(savePath);
+    if (!existsSync(folderPath)) {
+        await mkdir(folderPath, { recursive: true });
+    }
+    if (typeof file === 'string') {
+        await writeFile(savePath, file, 'utf-8')
+            .then(() => {
+            if (log)
+                info(`Saved ${savePath}`);
+        })
+            .catch((err) => {
+            if (log)
+                error(`Could not save ${savePath}:\n${err}`);
+        });
+    }
+    else {
+        console.log(`Saving ${savePath}...`);
+        // @ts-expect-error
+        const body = Readable.fromWeb(file);
+        const download_write_stream = createWriteStream(savePath);
+        await finished(body.pipe(download_write_stream));
+    }
+}
+export function replaceVersion(path, version) {
+    return path.replace('{version}', trimStartMatches(version, 'v'));
+}
 export async function writeLockfile(name, data, filepath) {
     let lockfile;
-    data.files = consolidateObjectsInFilesArray(data.files).map((file) => typeof file === 'string' ? path.basename(file) : file);
+    const vendorLock = {
+        version: data.version,
+        repository: data.repository,
+        files: pkgFilesToVendorlockFiles(data.files, data.version),
+    };
     try {
         lockfile = await readLockfile(filepath);
-        const previousFiles = Object.entries(lockfile).flatMap(([n, { files }]) => n === name
-            ? []
-            : {
-                depName: n,
-                files: flatFiles(files),
-            });
-        const newFiles = flatFiles(data.files);
-        newFiles?.forEach((file) => {
-            previousFiles.forEach(({ depName, files }) => {
-                if (files.includes(file)) {
-                    warning(`Duplicate file in lockfile! "${file}" is being added to ${name} but already exists in ${depName}`);
-                }
-            });
-        });
-        lockfile[name] = data;
+        // const previousFiles = lockfile[name].files;
+        // const allPreviousFiles = Object.values(lockfile).map(
+        // // now search the lockfile for duplicates (on field that !== name)
+        // for
+        // newFiles?.forEach((file) => {
+        //     previousFiles.forEach(({ depName, files }) => {
+        //         if (files.includes(file)) {
+        //             warning(
+        //                 `Duplicate file in lockfile! "${file}" is being added to ${name} but already exists in ${depName}`,
+        //             );
+        //         }
+        //     });
+        // });
+        lockfile[name] = vendorLock;
     }
     catch {
-        lockfile = { [name]: data };
+        lockfile = { [name]: vendorLock };
     }
     await writeFile(filepath, JSON.stringify(lockfile, null, 2));
 }
@@ -58,37 +91,40 @@ export async function checkIfNeedsUpdate({ lockfilePath, name, newVersion, }) {
             return true;
         }
         const allFilesFromConfig = await getAllFilesFromConfig();
-        const thisLockFiles = lockfile[name].files;
         for (const [file, n] of Object.entries(allFilesFromConfig)) {
             if (n === name && !existsSync(file)) {
                 return true;
             }
         }
-        const { dependencies, config, pkgPath } = await getConfig();
+        const thisLockFiles = lockfile[name].files;
+        const { dependencies,
+        // config, pkgPath
+         } = await getConfig();
         const thisFiles = dependencies[name].files;
-        const bareFilePath = thisFiles.map((file) => typeof file === 'string' ? path.basename(file) : file);
-        const depPath = getDependencyFolder({
-            dependency: dependencies[name],
-            config,
-            pkgPath,
-            backupName: name,
-        });
-        for (const file of thisLockFiles) {
-            if (typeof file === 'string') {
-                if (!(bareFilePath.includes(file) &&
-                    existsSync(path.join(depPath, file)))) {
-                    return true;
-                }
-            }
-            else {
-                for (const [input, output] of Object.entries(file)) {
-                    if (!thisFiles.some((f) => typeof f === 'object' && f[input] === output) &&
-                        existsSync(path.join(depPath, output))) {
-                        return true;
-                    }
-                }
-            }
+        // const bareFilePath = thisFiles.map((file) =>
+        //     typeof file === 'string' ? path.basename(file) : file,
+        // );
+        // const depPath = getDependencyFolder({
+        //     dependency: dependencies[name],
+        //     config,
+        //     pkgPath,
+        //     backupName: name,
+        // });
+        const allPkg = pkgFilesToVendorlockFiles(thisFiles, dependencies[name].version || '');
+        let deepEq = false;
+        try {
+            deepStrictEqual(allPkg, thisLockFiles);
+            deepEq = true;
         }
+        catch {
+            deepEq = false;
+            error('lockfile is not equal to config');
+        }
+        // console.log({
+        //     allPkg,
+        //     thisLockFiles,
+        //     deepEq,
+        // });
     }
     catch {
         return true;
@@ -115,14 +151,27 @@ export async function deleteFileAndEmptyFolders(cwd, relativeFilepath) {
         dir = path.resolve(dir, '..');
     }
 }
+/**
+    transform {
+        "./dist/file1": "file1",
+        "./dist/file2": "file2",
+        "archive.zip": {
+            "zip1src": "zip1",
+            "zip2src": "zip2",
+        }
+        ./dist/file3: "file3",
+    }
+
+    to [ "file1", "file2", "zip1", "zip2", "file3" ]
+**/
 export function flatFiles(files) {
-    return files.flatMap((file) => typeof file === 'string' ? path.basename(file) : Object.values(file));
+    return Object.values(files).flatMap((file) => typeof file === 'string' ? file : Object.values(file));
 }
 export async function getAllFilesFromConfig() {
     const { dependencies, config, pkgPath } = await getConfig();
     const files = {};
     for (const [name, dependency] of Object.entries(dependencies)) {
-        const filesFromConfig = flatFiles(dependency.files);
+        const filesFromConfig = flatFiles(pkgFilesToVendorlockFiles(dependency.files, dependency.version || ''));
         filesFromConfig.forEach((file) => {
             files[path.join(getDependencyFolder({
                 dependency,
@@ -174,7 +223,7 @@ export function ownerAndNameFromRepoUrl(url) {
 export function validateVendorDependency(name, dependency) {
     assert(typeof dependency.repository === 'string' &&
         isGitHubUrl(dependency.repository), `package.json key 'vendorDependencies.${name}.repository' is not a valid github url`);
-    assert(Array.isArray(dependency.files) && dependency.files.length > 0, `package.json key 'vendorDependencies.${name}.files' is a valid array`);
+    assert(Array.isArray(dependency.files) && dependency.files.length > 0, `package.json key 'vendorDependencies.${name}.files' is not a valid array`);
 }
 export function getDependencyFolder({ dependency, config, pkgPath, backupName, }) {
     return path.join(path.dirname(pkgPath), dependency.vendorFolder?.replace('{vendorFolder}', config.vendorFolder) || config.vendorFolder, dependency.vendorFolder ? '' : dependency.name || backupName);
@@ -190,19 +239,30 @@ export async function getPackageJson(folderPath) {
     }
     return pkg;
 }
-export function consolidateObjectsInFilesArray(arr) {
+// rome-ignore lint/suspicious/noExplicitAny: circular types are hard
+export function replaceVersionInObject(obj, version) {
+    if (typeof obj === 'string') {
+        return replaceVersion(obj, version);
+    }
+    if (typeof obj === 'object') {
+        Object.keys(obj).forEach((key) => {
+            obj[key] = replaceVersionInObject(obj[key], version);
+        });
+    }
+    return obj;
+}
+export function pkgFilesToVendorlockFiles(arr, version) {
     const obj = {};
-    const newArr = arr.filter((item) => {
-        if (typeof item === 'object' && !Array.isArray(item)) {
-            Object.assign(obj, item);
-            return false;
+    arr.forEach((item) => {
+        if (typeof item !== 'string') {
+            Object.assign(obj, replaceVersionInObject(item, version));
+        }
+        else {
+            Object.assign(obj, { [item]: replaceVersionInObject(path.basename(item), version) });
         }
         return true;
     });
-    if (Object.keys(obj).length !== 0) {
-        newArr.push(obj);
-    }
-    return newArr;
+    return obj;
 }
 export function trimStartMatches(str, match) {
     if (!str)

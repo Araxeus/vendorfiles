@@ -4,6 +4,7 @@ export * from './lib/github.js';
 export * from './lib/types.js';
 export * from './lib/utils.js';
 // TODO: complete release-notes.ts
+// TODO enable downloading of binary files like pictures for example "external_assets/popup-light.png"
 // TODO: add tests (also test package as imported + installed globally)
 // TODO: add spinners
 // TODO: add docs

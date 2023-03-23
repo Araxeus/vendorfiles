@@ -23,6 +23,10 @@ export type VendorDependencies = {
     [key: string]: VendorDependency;
 };
 
+export type FileInputOutput = {
+    [input: string]: string | { [input: string]: string };
+};
+
 export type FilesArray = (string | FileInputOutput)[];
 
 export type VendorDependency = {
@@ -33,17 +37,21 @@ export type VendorDependency = {
     vendorFolder?: string;
 };
 
-export type Lockfile = { [key: string]: VendorLock };
+// LOCKFILE
 
-export type FileInputOutput = {
-    [input: string]: string;
-};
+export type Lockfile = { [key: string]: VendorLock };
 
 export type VendorLock = {
     version: string;
     repository: string;
-    files: FilesArray;
+    files: VendorLockFiles;
 };
+
+export type VendorLockFiles = {
+    [key: string]: VendorLockFile;
+};
+
+export type VendorLockFile = string | { [key: string]: string };
 
 export type Repository = {
     owner: string;

@@ -111,7 +111,7 @@ Examples:
 `);
 program
     .name('vendor')
-    .usage("command [options]")
+    .usage('command [options]')
     .addCommand(syncCmd)
     .addCommand(updateCmd)
     .addCommand(installCmd)

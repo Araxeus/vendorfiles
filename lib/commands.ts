@@ -25,6 +25,9 @@ import {
     readLockfile,
     flatFiles,
     deleteFileAndEmptyFolders,
+    saveFile,
+    pkgFilesToVendorlockFiles,
+    replaceVersion,
 } from './utils.js';
 import { existsSync } from 'node:fs';
 
@@ -81,9 +84,9 @@ export async function uninstall(
         }
     } catch {}
 
-    const depFiles = flatFiles(dep.files);
-
-    for (const file of depFiles) {
+    for (const file of flatFiles(
+        pkgFilesToVendorlockFiles(dep.files, dep.version || ''),
+    )) {
         try {
             await deleteFileAndEmptyFolders(depDirectory, file);
         } catch {}
@@ -94,6 +97,7 @@ export async function uninstall(
         // if so, delete the lockfile
         await fs.rm(lockfilePath, { force: true });
 
+        // if the dependency folder is empty, delete it
         if ((await fs.readdir(depDirectory)).length === 0) {
             await fs.rm(depDirectory, { recursive: true, force: true });
         }
@@ -149,7 +153,10 @@ export async function install({
 
     if (!newVersion) {
         const latestRelease = await github.getLatestRelease(repo);
-        newVersion = latestRelease.tag_name;
+        newVersion = latestRelease.tag_name as string;
+    }
+    if (!newVersion) {
+        error(`Could not find a version for ${dependency.name}`);
     }
 
     const needUpdate =
@@ -179,16 +186,26 @@ export async function install({
         }
     }
 
-    const allFiles: (string | [string, string])[] = dependency.files.flatMap(
-        (file) =>
-            // @ts-expect-error Type 'string' is not assignable to type '[string, string]'
-            typeof file === 'object' ? Object.entries(file) : file,
+    const allFiles: (
+        | string
+        | [string, string]
+        | [string, { [input: string]: string }]
+    )[] = dependency.files.flatMap((file) =>
+        // @ts-expect-error Type 'string' is not assignable to type '[string, string]'
+        typeof file === 'object' ? Object.entries(file) : file,
     );
+
+    const ref = newVersion; // TODO DELETE
+
+    type ReleaseFileOutput = string | { [input: string]: string };
+
+    const releaseFiles: { input: string; output: ReleaseFileOutput }[] = [];
 
     await Promise.all(
         allFiles.map(async (file) => {
-            let input;
-            let output;
+            let input: string;
+            // type of parameter two
+            let output: ReleaseFileOutput;
             if (Array.isArray(file)) {
                 input = file[0];
                 output = file[1];
@@ -199,21 +216,36 @@ export async function install({
                 error(`File ${file} is not a string or an array`);
             }
 
+            if (input.startsWith('{release}/')) {
+                releaseFiles.push({ input, output });
+                return;
+            } else if (typeof output !== 'string') {
+                error(
+                    `File ${JSON.stringify(
+                        file,
+                    )}\nis not a string, and {release} is not used}`,
+                );
+            }
+
             const downloadedFile = await github
                 .getFile({
                     repo,
                     path: input,
-                    ref: newVersion,
+                    ref,
                 })
                 .catch((err) => {
                     if (err.status === 404) {
                         error(
                             `File "${file}" was not found in ${dependency.repository}`,
                         );
+                    } else {
+                        error(
+                            `Could not download file "${file}" from ${dependency.repository}: ${err.message}`,
+                        );
                     }
                 });
 
-            if (!(typeof downloadedFile === 'string')) {
+            if (typeof downloadedFile !== 'string') {
                 error(
                     `File ${file} from ${dependency.repository} is not a string`,
                 );
@@ -221,27 +253,57 @@ export async function install({
 
             const savePath = path.join(depDirectory, output);
 
-            const folderPath = path.dirname(savePath);
+            await saveFile(downloadedFile, savePath);
+        }),
+    );
 
-            if (!existsSync(folderPath)) {
-                await fs.mkdir(folderPath, { recursive: true });
+    await Promise.all(
+        // file.output is either a string that or an object which would mean that we want to extract the files from the downloaded archive
+        releaseFiles.map(async (file) => {
+            const input = replaceVersion(file.input, ref).replace('{release}/', '');
+            const output = file.output;
+
+            const savePath = path.join(
+                depDirectory,
+                typeof output === 'string'
+                    ? replaceVersion(output, ref)
+                    : Math.random().toString(36).substring(7),
+            );
+            const releaseFile = await github.downloadReleaseFile({
+                repo,
+                path: input,
+                version: ref,
+                savePath,
+            });
+            //console.log(releaseFile); // DELETE
+
+            // if releaseFile is a `Request` object, it means that it is a stream and we should pipe it to a file
+            await saveFile(releaseFile, savePath, true);
+
+            if (typeof output === 'object') {
+                try {
+                    // rome-ignore lint/suspicious/noExplicitAny: <explanation>
+                    const extractReleaseFiles = async (..._a: any) =>
+                        error('Not implemented'); // TODO
+                    await extractReleaseFiles({
+                        filePath: savePath,
+                        files: output,
+                        depDirectory,
+                    });
+                } finally {
+                    info(`Extracted ${savePath}`);
+                    await fs.rm(savePath, { force: true });
+                }
+            } else {
+                info(`Downloaded ${savePath}`);
             }
-
-            await fs
-                .writeFile(savePath, downloadedFile, 'utf-8')
-                .then(() => {
-                    info(`Saved ${savePath}`);
-                })
-                .catch((err) => {
-                    error(`Could not save ${savePath}:\n${err}`);
-                });
         }),
     );
 
     await writeLockfile(
         dependency.name,
         {
-            version: newVersion || 'latest',
+            version: newVersion,
             repository: dependency.repository,
             files: dependency.files,
         },
