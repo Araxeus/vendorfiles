@@ -1,8 +1,11 @@
 name: Check
 
 on:
-  - push
-  - pull_request
+  push:
+    branches: [main]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [main]
 
 jobs:
   Check:
@@ -13,6 +16,8 @@ jobs:
 
       - name: Run Checks
         run: yarn check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run build
         run: yarn build

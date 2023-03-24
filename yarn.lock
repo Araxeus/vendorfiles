@@ -1044,14 +1044,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unarchive@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "unarchive@npm:1.1.0"
+"unarchive@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "unarchive@npm:1.1.1"
   dependencies:
     compressing: ^1.8.0
     file-type: ^18.2.1
-    rome: ^11.0.0
-  checksum: bebf45d9c18f660a8694adf3715d1f9bc0320f6c1c3bac03b7834b88c204b56a1b5e3c96b271959e2020c1e0eb700da058ef221d8143d1360f196457c98e475e
+  checksum: 1c9972d3edf5eab3b5317433f1f378f89efa29646da2eff9e6aff21349149edefd90888038bb0b7189c1d5b2081a1d54a0ea94db19d1e94d081ae7e72abe4456
   languageName: node
   linkType: hard
 
@@ -1094,7 +1093,7 @@ __metadata:
     read-pkg-up: ^9.1.0
     rome: ^11.0.0
     typescript: ^5.0.2
-    unarchive: ^1.1.0
+    unarchive: ^1.1.1
     write-pkg: ^5.1.0
   bin:
     vendor: ./dist/cli.js

@@ -299,10 +299,12 @@ export async function install({
                         );
                     }
 
+                    const inputOutput = Array.isArray(output)
+                        ? output.map((o) => [o, o])
+                        : Object.entries(output);
+
                     // move files
-                    for (let [inputPath, outputPath] of Object.entries(
-                        output,
-                    )) {
+                    for (let [inputPath, outputPath] of inputOutput) {
                         inputPath = path.join(randomFolderName, inputPath);
                         outputPath = path.join(
                             depDirectory,

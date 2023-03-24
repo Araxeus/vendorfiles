@@ -34,7 +34,7 @@
     "test": "tsc && node ./dist/test.js",
     "build": "tsc",
     "format": "rome format . --write",
-    "check": "tsc --noEmit && rome ci .",
+    "check": "tsc --noEmit && rome ci . && yarn start sync",
     "publish": "yarn check && yarn npm publish"
   },
   "dependencies": {
@@ -45,7 +45,7 @@
     "dotenv": "^16.0.3",
     "parse-json": "^6.0.2",
     "read-pkg-up": "^9.1.0",
-    "unarchive": "^1.1.0",
+    "unarchive": "^1.1.1",
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
@@ -55,6 +55,21 @@
     "typescript": "^5.0.2"
   },
   "vendorDependencies": {
+    "fzf": {
+      "version": "0.38.0",
+      "repository": "https://github.com/junegunn/fzf",
+      "files": [
+        "LICENSE",
+        {
+          "{release}/fzf-{version}-linux_amd64.tar.gz": [
+            "fzf"
+          ],
+          "{release}/fzf-{version}-windows_amd64.zip": {
+            "fzf.exe": "my-custom-fzf.exe"
+          }
+        }
+      ]
+    },
     "youtube-volume-scroll": {
       "name": "youtube-volume-scroll",
       "version": "v3.1.0",
