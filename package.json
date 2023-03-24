@@ -2,12 +2,12 @@
   "name": "vendorfiles",
   "author": "Araxeus",
   "description": "A CLI tool to manage vendor files",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "license": "MIT",
   "repository": "https://github.com/Araxeus/vendorfiles",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=17.0.0"
   },
   "packageManager": "yarn@3.5.0",
   "files": [
@@ -33,9 +33,10 @@
     "start": "tsc && node ./dist/cli.js",
     "test": "tsc && node ./dist/test.js",
     "build": "tsc",
-    "check": "tsc --noEmit && rome ci ."
+    "format": "rome format . --write",
+    "check": "tsc --noEmit && rome ci .",
+    "publish": "yarn check && yarn npm publish"
   },
-
   "dependencies": {
     "@commander-js/extra-typings": "^10.0.3",
     "@octokit/rest": "^19.0.7",
@@ -44,15 +45,32 @@
     "dotenv": "^16.0.3",
     "parse-json": "^6.0.2",
     "read-pkg-up": "^9.1.0",
+    "unarchive": "^1.1.0",
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.5",
+    "@types/node": "^18.15.7",
     "@types/parse-json": "^4.0.0",
     "rome": "^11.0.0",
     "typescript": "^5.0.2"
   },
   "vendorDependencies": {
+    "youtube-volume-scroll": {
+      "name": "youtube-volume-scroll",
+      "version": "v3.1.0",
+      "repository": "https://github.com/Araxeus/Youtube-Volume-Scroll",
+      "files": [
+        "external_assets/popup-light.png",
+        "{release}/youtube-volume-scroll_{version}_chromium.crx",
+        {
+          "LICENSE": "ytvs_LICENSE",
+          "{release}/youtube-volume-scroll_{version}_firefox.xpi": {
+            "style.css": "ytvs_{version}_style.css",
+            "META-INF/cose.sig": "ytvs_{version}_cose.sig"
+          }
+        }
+      ]
+    },
     "Cooltipz.css": {
       "version": "v2.2.1",
       "repository": "https://github.com/jackdomleo7/Cooltipz.css",

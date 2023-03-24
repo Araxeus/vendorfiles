@@ -1,6 +1,4 @@
 import { Command } from '@commander-js/extra-typings';
-const program = new Command();
-
 import { isCI } from 'ci-info';
 
 import {
@@ -9,12 +7,13 @@ import {
     isGitHubUrl,
     ownerAndNameFromRepoUrl,
 } from './lib/utils.js';
-
 import { sync, install, uninstall } from './lib/commands.js';
 import { getConfig } from './lib/config.js';
 import { findRepoUrl } from './lib/github.js';
 
 const vendorOptions = await getConfig();
+
+const program = new Command();
 
 const installCmd = new Command('install')
     .alias('add')
@@ -100,6 +99,7 @@ Examples:
 
 const updateCmd = new Command('update')
     .alias('upgrade')
+    .alias('bump')
     .alias('up')
     .alias('u')
     .argument('[names...]')

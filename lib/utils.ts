@@ -1,15 +1,27 @@
-import {
+import type {
     FilesArray,
     Lockfile,
     Repository,
     VendorConfig,
     VendorDependency,
     VendorLock,
+    VendorLockFiles,
 } from './types.js';
 
-import { readFile, writeFile, realpath, rm, readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import {
+    readFile,
+    writeFile,
+    realpath,
+    rm,
+    readdir,
+    mkdir,
+} from 'node:fs/promises';
+import { createWriteStream, existsSync } from 'node:fs';
 import path from 'node:path';
+import { deepStrictEqual } from 'node:assert';
+import type { ReadableStream } from 'stream/web';
+import { Readable } from 'node:stream';
+import { finished } from 'node:stream/promises';
 
 import parseJson from 'parse-json';
 
@@ -43,45 +55,67 @@ export function isGitHubUrl(url: string): boolean {
     return /^https?:(?:)\/\/(?:www\.)?github\.com\/[^/]+\/[^/]+$/.test(url);
 }
 
+export async function readableToFile(
+    file: ReadableStream,
+    savePath: string,
+    log = true,
+) {
+    await mkdir(path.dirname(savePath), { recursive: true });
+
+    const body = Readable.fromWeb(file);
+    const download_write_stream = createWriteStream(savePath);
+    await finished(body.pipe(download_write_stream))
+        .then(() => {
+            if (log) info(`Saved ${savePath}`);
+        })
+        .catch((err) => {
+            if (log) error(`Could not save ${savePath}:\n${err}`);
+        });
+}
+
+export function replaceVersion(path: string, version: string) {
+    return path.replace('{version}', trimStartMatches(version, 'v'));
+}
+
 export async function writeLockfile(
     name: string,
-    data: VendorLock,
+    data: {
+        version: string;
+        repository: string;
+        files: FilesArray;
+    },
     filepath: string,
 ): Promise<void> {
     let lockfile: Lockfile;
-
-    data.files = consolidateObjectsInFilesArray(data.files).map((file) =>
-        typeof file === 'string' ? path.basename(file) : file,
-    );
+    const vendorLock: VendorLock = {
+        version: data.version,
+        repository: data.repository,
+        files: pkgFilesToVendorlockFiles(data.files, data.version),
+    };
 
     try {
         lockfile = await readLockfile(filepath);
 
-        const previousFiles = Object.entries(lockfile).flatMap(
-            ([n, { files }]) =>
-                n === name
-                    ? []
-                    : {
-                          depName: n,
-                          files: flatFiles(files),
-                      },
-        );
+        // const previousFiles = lockfile[name].files;
 
-        const newFiles = flatFiles(data.files);
+        // const allPreviousFiles = Object.values(lockfile).map(
 
-        newFiles?.forEach((file) => {
-            previousFiles.forEach(({ depName, files }) => {
-                if (files.includes(file)) {
-                    warning(
-                        `Duplicate file in lockfile! "${file}" is being added to ${name} but already exists in ${depName}`,
-                    );
-                }
-            });
-        });
+        // // now search the lockfile for duplicates (on field that !== name)
+        // for
 
-        lockfile[name] = data;
+        // newFiles?.forEach((file) => {
+        //     previousFiles.forEach(({ depName, files }) => {
+        //         if (files.includes(file)) {
+        //             warning(
+        //                 `Duplicate file in lockfile! "${file}" is being added to ${name} but already exists in ${depName}`,
+        //             );
+        //         }
+        //     });
+        // });
+
+        lockfile[name] = vendorLock;
     } catch {
-        lockfile = { [name]: data };
+        lockfile = { [name]: vendorLock };
     }
     await writeFile(filepath, JSON.stringify(lockfile, null, 2));
 }
@@ -103,50 +137,49 @@ export async function checkIfNeedsUpdate({
 
         const allFilesFromConfig = await getAllFilesFromConfig();
 
-        const thisLockFiles = lockfile[name].files;
-
         for (const [file, n] of Object.entries(allFilesFromConfig)) {
             if (n === name && !existsSync(file)) {
                 return true;
             }
         }
 
-        const { dependencies, config, pkgPath } = await getConfig();
+        const thisLockFiles = lockfile[name].files;
+
+        const {
+            dependencies,
+            // config, pkgPath
+        } = await getConfig();
         const thisFiles = dependencies[name].files;
-        const bareFilePath = thisFiles.map((file) =>
-            typeof file === 'string' ? path.basename(file) : file,
+        // const bareFilePath = thisFiles.map((file) =>
+        //     typeof file === 'string' ? path.basename(file) : file,
+        // );
+
+        // const depPath = getDependencyFolder({
+        //     dependency: dependencies[name],
+        //     config,
+        //     pkgPath,
+        //     backupName: name,
+        // });
+
+        const allPkg = pkgFilesToVendorlockFiles(
+            thisFiles,
+            dependencies[name].version || '',
         );
 
-        const depPath = getDependencyFolder({
-            dependency: dependencies[name],
-            config,
-            pkgPath,
-            backupName: name,
-        });
-
-        for (const file of thisLockFiles) {
-            if (typeof file === 'string') {
-                if (
-                    !(
-                        bareFilePath.includes(file) &&
-                        existsSync(path.join(depPath, file))
-                    )
-                ) {
-                    return true;
-                }
-            } else {
-                for (const [input, output] of Object.entries(file)) {
-                    if (
-                        !thisFiles.some(
-                            (f) => typeof f === 'object' && f[input] === output,
-                        ) &&
-                        existsSync(path.join(depPath, output))
-                    ) {
-                        return true;
-                    }
-                }
-            }
+        let deepEq = false;
+        try {
+            deepStrictEqual(allPkg, thisLockFiles);
+            deepEq = true;
+        } catch {
+            deepEq = false;
+            error('lockfile is not equal to config');
         }
+
+        // console.log({
+        //     allPkg,
+        //     thisLockFiles,
+        //     deepEq,
+        // });
     } catch {
         return true;
     }
@@ -178,9 +211,23 @@ export async function deleteFileAndEmptyFolders(
     }
 }
 
-export function flatFiles(files: FilesArray) {
-    return files.flatMap((file) =>
-        typeof file === 'string' ? path.basename(file) : Object.values(file),
+/**
+    transform {
+        "./dist/file1": "file1",
+        "./dist/file2": "file2",
+        "archive.zip": {
+            "zip1src": "zip1",
+            "zip2src": "zip2",
+        }
+        ./dist/file3: "file3",
+    }
+
+    to [ "file1", "file2", "zip1", "zip2", "file3" ]    
+**/
+
+export function flatFiles(files: VendorLockFiles) {
+    return Object.values(files).flatMap((file) =>
+        typeof file === 'string' ? file : Object.values(file),
     );
 }
 
@@ -189,7 +236,12 @@ export async function getAllFilesFromConfig() {
     const files: Record<string, string> = {};
 
     for (const [name, dependency] of Object.entries(dependencies)) {
-        const filesFromConfig = flatFiles(dependency.files);
+        const filesFromConfig = flatFiles(
+            pkgFilesToVendorlockFiles(
+                dependency.files,
+                dependency.version || '',
+            ),
+        );
 
         filesFromConfig.forEach((file) => {
             files[
@@ -264,7 +316,7 @@ export function validateVendorDependency(
     );
     assert(
         Array.isArray(dependency.files) && dependency.files.length > 0,
-        `package.json key 'vendorDependencies.${name}.files' is a valid array`,
+        `package.json key 'vendorDependencies.${name}.files' is not a valid array`,
     );
 }
 
@@ -305,21 +357,36 @@ export async function getPackageJson(folderPath?: string): Promise<ReadResult> {
     return pkg;
 }
 
-export function consolidateObjectsInFilesArray(arr: FilesArray) {
+// rome-ignore lint/suspicious/noExplicitAny: circular types are hard
+export function replaceVersionInObject(obj: any, version: string) {
+    if (typeof obj === 'string') {
+        return replaceVersion(obj, version);
+    }
+    if (typeof obj === 'object') {
+        Object.keys(obj).forEach((key) => {
+            obj[key] = replaceVersionInObject(obj[key], version);
+        });
+    }
+    return obj;
+}
+
+export function pkgFilesToVendorlockFiles(
+    arr: FilesArray,
+    version: string,
+): VendorLockFiles {
     const obj = {};
-    const newArr = arr.filter((item) => {
-        if (typeof item === 'object' && !Array.isArray(item)) {
-            Object.assign(obj, item);
-            return false;
+    arr.forEach((item) => {
+        if (typeof item !== 'string') {
+            Object.assign(obj, replaceVersionInObject(item, version));
+        } else {
+            Object.assign(obj, {
+                [item]: replaceVersionInObject(path.basename(item), version),
+            });
         }
         return true;
     });
 
-    if (Object.keys(obj).length !== 0) {
-        newArr.push(obj);
-    }
-
-    return newArr;
+    return obj;
 }
 
 export function trimStartMatches(
@@ -347,4 +414,8 @@ export function trimMatches(str: string | undefined, match: string): string {
 
 export function getDuplicates<T>(arr: T[]): T[] {
     return arr.filter((item, index) => arr.indexOf(item) !== index);
+}
+
+export function random() {
+    return Math.random().toString(36).substring(7);
 }
