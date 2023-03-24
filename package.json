@@ -33,6 +33,7 @@
     "start": "tsc && node ./dist/cli.js",
     "test": "tsc && node ./dist/test.js",
     "build": "tsc",
+    "format": "rome format . --write",
     "check": "tsc --noEmit && rome ci ."
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "dotenv": "^16.0.3",
     "parse-json": "^6.0.2",
     "read-pkg-up": "^9.1.0",
+    "unarchive": "^1.1.0",
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
@@ -61,7 +63,10 @@
         "{release}/youtube-volume-scroll_{version}_chromium.crx",
         {
           "LICENSE": "ytvs_LICENSE",
-          "{release}/youtube-volume-scroll_{version}_firefox.xpi": "ytvs_{version}_firefox.xpi"
+          "{release}/youtube-volume-scroll_{version}_firefox.xpi": {
+            "style.css": "ytvs_{version}_style.css",
+            "META-INF/cose.sig": "ytvs_{version}_cose.sig"
+          }
         }
       ]
     },

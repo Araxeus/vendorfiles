@@ -38,6 +38,9 @@ export async function getFile({ repo, path, ref, }) {
         owner: repo.owner,
         repo: repo.name,
         path,
+        Authorization: process.env.GITHUB_TOKEN
+            ? `token ${process.env.GITHUB_TOKEN}`
+            : undefined,
         mediaType: {
             format: 'raw',
         },
@@ -65,7 +68,9 @@ export async function downloadReleaseFile({ repo, path, version, }) {
         headers: {
             Accept: 'application/octet-stream',
         },
-        Authorization: `token ${process.env.GITHUB_TOKEN}`,
+        Authorization: process.env.GITHUB_TOKEN
+            ? `token ${process.env.GITHUB_TOKEN}`
+            : undefined,
         owner: repo.owner,
         repo: repo.name,
         asset_id,

@@ -1,0 +1,18 @@
+name: Check
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  Check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Yarn PnP Setup
+        uses: Araxeus/setup-yarn-pnp-action@v1
+
+      - name: Run Checks
+        run: yarn check
+
+      - name: Run build
+        run: yarn build

@@ -61,6 +61,9 @@ export async function getFile({
         owner: repo.owner,
         repo: repo.name,
         path,
+        Authorization: process.env.GITHUB_TOKEN
+            ? `token ${process.env.GITHUB_TOKEN}`
+            : undefined,
         mediaType: {
             format: 'raw',
         },
@@ -85,7 +88,6 @@ export async function downloadReleaseFile({
     repo: Repository;
     path: string;
     version: string;
-    savePath: string;
 }): Promise<ReadableStream<Uint8Array>> {
     const release = await (version
         ? getReleaseFromTag({ ...repo, tag: version })
@@ -109,7 +111,9 @@ export async function downloadReleaseFile({
             headers: {
                 Accept: 'application/octet-stream',
             },
-            Authorization: `token ${process.env.GITHUB_TOKEN}`,
+            Authorization: process.env.GITHUB_TOKEN
+                ? `token ${process.env.GITHUB_TOKEN}`
+                : undefined,
             owner: repo.owner,
             repo: repo.name,
             asset_id,

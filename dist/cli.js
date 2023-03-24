@@ -77,6 +77,7 @@ Examples:
 `);
 const updateCmd = new Command('update')
     .alias('upgrade')
+    .alias('bump')
     .alias('up')
     .alias('u')
     .argument('[names...]')

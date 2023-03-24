@@ -29,10 +29,7 @@ export function isGitHubUrl(url) {
     return /^https?:(?:)\/\/(?:www\.)?github\.com\/[^/]+\/[^/]+$/.test(url);
 }
 export async function readableToFile(file, savePath, log = true) {
-    const folderPath = path.dirname(savePath);
-    if (!existsSync(folderPath)) {
-        await mkdir(folderPath, { recursive: true });
-    }
+    await mkdir(path.dirname(savePath), { recursive: true });
     const body = Readable.fromWeb(file);
     const download_write_stream = createWriteStream(savePath);
     await finished(body.pipe(download_write_stream))
@@ -280,4 +277,7 @@ export function trimMatches(str, match) {
 }
 export function getDuplicates(arr) {
     return arr.filter((item, index) => arr.indexOf(item) !== index);
+}
+export function random() {
+    return Math.random().toString(36).substring(7);
 }
