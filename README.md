@@ -53,44 +53,93 @@ The vendor directory defaults to the `vendor` folder in your project root. You c
 
 You can also define a `vendorFolder` key in the `vendorDependencies` object to change the folder where the files will be installed. if not defined it will default to the name of the dependency.
 
-You can also use `{vendorfolder}` to refer to the vendor folder defined in the `vendorConfig` object.
-
-here's an advanced example:
+this key can use the `{vendorfolder}` placeholder to refer to the vendor folder defined in the `vendorConfig` object.
 
 ```json
-"vendorConfig": {
-  "vendorFolder": "./my-vendors"
-},
-"vendorDependencies": {
-  "Cooltipz.css": {
-    "version": "v2.2.1",
-    "repository": "https://github.com/jackdomleo7/Cooltipz.css",
-    "files": [
-      "cooltipz.min.css",
-      {
-        "LICENSE": "COOLTIPZ_LICENSE"
-      }
-    ],
-    "vendorFolder": "{vendorFolder}/Cooltipz"
-  },
-  "Coloris": {
-    "name": "Coloris",
-    "version": "v0.18.0",
-    "repository": "https://github.com/mdbassit/Coloris",
-    "files": [
-      "dist/coloris.min.js",
-      "dist/coloris.min.css",
-      {
-        "LICENSE": "COLORIS_LICENSE",
-        "README.md": "COLORIS_README.md"
-      }
-    ],
-    "vendorFolder": "{vendorFolder}"
-  }
+{
+    "vendorConfig": {
+      "vendorFolder": "./my-vendors"
+    },
+    "vendorDependencies": {
+        "Cooltipz": {
+            "version": "v2.2.0",
+            "repository": "https://github.com/jackdomleo7/Cooltipz.css",
+            "files": ["cooltipz.min.css", "LICENSE"],
+            "vendorFolder": "{vendorFolder}/Cooltipz" // this will output the files in ./my-vendors/Cooltipz
+        },
+        "Coloris": {
+            "version": "v0.17.1",
+            "repository": "https://github.com/mdbassit/Coloris",
+            "files": ["dist/coloris.min.js", "dist/coloris.min.css", "LICENSE"],
+            "vendorFolder": "{vendorFolder}" // this will output the files inside ./my-vendors/
+        }
+    }
 }
 ```
 
-> In the near future, this configuration will be moved under the vendor key in package.json or in a separate cosmiconfig file.
+if you want to rename/move the files, you can use an object with the source file as key and the destination file as value.
+
+```json
+{
+    "vendorDependencies": {
+        "Cooltipz": {
+            "version": "v2.2.0",
+            "repository": "https://github.com/mdbassit/Coloris",
+            "files": [
+                "dist/coloris.min.js",
+                "dist/coloris.min.css",
+                {
+                    "LICENSE": "../licenses/COLORIS_LICENSE"
+                }
+            ]
+        }
+    }
+}
+```
+
+if you want to download release assets from a GitHub repository you can use the `{release}/` placeholder in the file path.
+
+then you can also use the `{version}` placeholder to refer to the version of the dependency. (trailing <kbd>v</kbd> is removed)
+  
+```json
+{
+    "vendorDependencies": {
+        "fzf": {
+            "version": "0.38.0",
+            "repository": "https://github.com/junegunn/fzf",
+            "files": [
+                "LICENSE",
+                "{release}/fzf-{version}-linux_amd64.tar.gz ",
+                {
+                    "{release}/fzf-{version}-windows_amd64.zip": "fzf-windows.zip"
+                }
+            ]
+        }
+    }
+}
+```
+
+if you want to extract files from a compressed archive, you can specify an object with the archive path as key and the files to extract as value. here's an example:
+
+```json
+{
+    "vendorDependencies": {
+        "fzf": {
+            "version": "0.38.0",
+            "repository": "https://github.com/junegunn/fzf",
+            "files": [
+                "LICENSE",
+                {
+                    "{release}/fzf-{version}-linux_amd64.tar.gz": [ "fzf" ],
+                    "{release}/fzf-{version}-windows_amd64.tar.gz": {
+                        "fzf.exe": "my-custom-fzf.exe"
+                    }
+                }
+            ]
+        }
+    }
+}
+```
 
 ## Commands
 
@@ -186,5 +235,3 @@ Examples:
     vendor uninstall React
     vendor uninstall React youtube-music
 ```
-
-> There are some secret undocumented features, but I will document them later. For now, you can look at the source code or examples.
