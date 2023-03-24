@@ -2,7 +2,7 @@
   "name": "vendorfiles",
   "author": "Araxeus",
   "description": "A CLI tool to manage vendor files",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "license": "MIT",
   "repository": "https://github.com/Araxeus/vendorfiles",
@@ -34,7 +34,8 @@
     "test": "tsc && node ./dist/test.js",
     "build": "tsc",
     "format": "rome format . --write",
-    "check": "tsc --noEmit && rome ci ."
+    "check": "tsc --noEmit && rome ci .",
+    "publish": "yarn check && yarn npm publish"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^10.0.3",
