@@ -243,7 +243,9 @@ export async function install({
                         );
                     } else {
                         error(
-                            `${err.toString()}:\nCould not download file "${typeof file === 'string' ? file : file[0]}" from ${dependency.repository}`,
+                            `${err.toString()}:\nCould not download file "${
+                                typeof file === 'string' ? file : file[0]
+                            }" from ${dependency.repository}`,
                         );
                     }
                 });
@@ -288,7 +290,10 @@ export async function install({
                     try {
                         await unarchive(archivePath, randomFolderName);
                     } catch {
-                        await fs.rm(tempFolder, { force: true, recursive: true });
+                        await fs.rm(tempFolder, {
+                            force: true,
+                            recursive: true,
+                        });
                         error(
                             `file "${input}" cannot be extracted.\nplease check that it's either a zip | tar | tar.gz`,
                         );
@@ -310,7 +315,10 @@ export async function install({
                             });
                             await fs.rename(inputPath, outputPath);
                         } catch (e) {
-                            await fs.rm(tempFolder, { force: true, recursive: true });
+                            await fs.rm(tempFolder, {
+                                force: true,
+                                recursive: true,
+                            });
                             error(
                                 `Error while moving file "${inputPath}" to "${outputPath}":\n${e}`,
                             );
