@@ -13,6 +13,8 @@ jobs:
 
       - name: Run Checks
         run: yarn check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run build
         run: yarn build
