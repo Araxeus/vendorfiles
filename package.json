@@ -45,7 +45,7 @@
     "dotenv": "^16.0.3",
     "parse-json": "^6.0.2",
     "read-pkg-up": "^9.1.0",
-    "unarchive": "^1.1.0",
+    "unarchive": "^1.1.1",
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
