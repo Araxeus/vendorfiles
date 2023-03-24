@@ -1,8 +1,3 @@
-import path from 'node:path';
-import fs from 'node:fs/promises';
-
-import { writePackage } from 'write-pkg';
-
 import type {
     Lockfile,
     VendorConfig,
@@ -10,6 +5,12 @@ import type {
     VendorsOptions,
 } from './types.js';
 import type { PackageJson } from 'read-pkg-up';
+
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+
+import { writePackage } from 'write-pkg';
 
 import github from './github.js';
 import {
@@ -25,11 +26,10 @@ import {
     readLockfile,
     flatFiles,
     deleteFileAndEmptyFolders,
-    saveFile,
+    readableToFile,
     pkgFilesToVendorlockFiles,
     replaceVersion,
 } from './utils.js';
-import { existsSync } from 'node:fs';
 
 export async function sync(
     { config, dependencies, pkgPath, pkgJson }: VendorsOptions,
@@ -245,22 +245,19 @@ export async function install({
                     }
                 });
 
-            if (typeof downloadedFile !== 'string') {
-                error(
-                    `File ${file} from ${dependency.repository} is not a string`,
-                );
-            }
-
             const savePath = path.join(depDirectory, output);
 
-            await saveFile(downloadedFile, savePath);
+            await readableToFile(downloadedFile, savePath);
         }),
     );
 
     await Promise.all(
         // file.output is either a string that or an object which would mean that we want to extract the files from the downloaded archive
         releaseFiles.map(async (file) => {
-            const input = replaceVersion(file.input, ref).replace('{release}/', '');
+            const input = replaceVersion(file.input, ref).replace(
+                '{release}/',
+                '',
+            );
             const output = file.output;
 
             const savePath = path.join(
@@ -278,7 +275,7 @@ export async function install({
             //console.log(releaseFile); // DELETE
 
             // if releaseFile is a `Request` object, it means that it is a stream and we should pipe it to a file
-            await saveFile(releaseFile, savePath, true);
+            await readableToFile(releaseFile, savePath, true);
 
             if (typeof output === 'object') {
                 try {
@@ -294,8 +291,6 @@ export async function install({
                     info(`Extracted ${savePath}`);
                     await fs.rm(savePath, { force: true });
                 }
-            } else {
-                info(`Downloaded ${savePath}`);
             }
         }),
     );

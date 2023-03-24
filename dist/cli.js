@@ -1,11 +1,11 @@
 import { Command } from '@commander-js/extra-typings';
-const program = new Command();
 import { isCI } from 'ci-info';
 import { error, getPackageJson, isGitHubUrl, ownerAndNameFromRepoUrl, } from './lib/utils.js';
 import { sync, install, uninstall } from './lib/commands.js';
 import { getConfig } from './lib/config.js';
 import { findRepoUrl } from './lib/github.js';
 const vendorOptions = await getConfig();
+const program = new Command();
 const installCmd = new Command('install')
     .alias('add')
     .alias('i')

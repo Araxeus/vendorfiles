@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": "https://github.com/Araxeus/vendorfiles",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=17.0.0"
   },
   "packageManager": "yarn@3.5.0",
   "files": [
@@ -46,7 +46,7 @@
     "write-pkg": "^5.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.6",
+    "@types/node": "^18.15.7",
     "@types/parse-json": "^4.0.0",
     "rome": "^11.0.0",
     "typescript": "^5.0.2"

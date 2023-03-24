@@ -1,12 +1,12 @@
 import { readFile, writeFile, realpath, rm, readdir, mkdir, } from 'node:fs/promises';
 import { createWriteStream, existsSync } from 'node:fs';
 import path from 'node:path';
-import { Readable } from 'stream';
-import { finished } from 'stream/promises';
+import { deepStrictEqual } from 'node:assert';
+import { Readable } from 'node:stream';
+import { finished } from 'node:stream/promises';
 import parseJson from 'parse-json';
 import { readPackageUp } from 'read-pkg-up';
 import { getConfig } from './config.js';
-import { deepStrictEqual } from 'node:assert';
 export function assert(condition, message) {
     if (!condition) {
         error(message);
@@ -28,29 +28,22 @@ export function info(message) {
 export function isGitHubUrl(url) {
     return /^https?:(?:)\/\/(?:www\.)?github\.com\/[^/]+\/[^/]+$/.test(url);
 }
-export async function saveFile(file, savePath, log = true) {
+export async function readableToFile(file, savePath, log = true) {
     const folderPath = path.dirname(savePath);
     if (!existsSync(folderPath)) {
         await mkdir(folderPath, { recursive: true });
     }
-    if (typeof file === 'string') {
-        await writeFile(savePath, file, 'utf-8')
-            .then(() => {
-            if (log)
-                info(`Saved ${savePath}`);
-        })
-            .catch((err) => {
-            if (log)
-                error(`Could not save ${savePath}:\n${err}`);
-        });
-    }
-    else {
-        console.log(`Saving ${savePath}...`);
-        // @ts-expect-error
-        const body = Readable.fromWeb(file);
-        const download_write_stream = createWriteStream(savePath);
-        await finished(body.pipe(download_write_stream));
-    }
+    const body = Readable.fromWeb(file);
+    const download_write_stream = createWriteStream(savePath);
+    await finished(body.pipe(download_write_stream))
+        .then(() => {
+        if (log)
+            info(`Saved ${savePath}`);
+    })
+        .catch((err) => {
+        if (log)
+            error(`Could not save ${savePath}:\n${err}`);
+    });
 }
 export function replaceVersion(path, version) {
     return path.replace('{version}', trimStartMatches(version, 'v'));
@@ -258,7 +251,9 @@ export function pkgFilesToVendorlockFiles(arr, version) {
             Object.assign(obj, replaceVersionInObject(item, version));
         }
         else {
-            Object.assign(obj, { [item]: replaceVersionInObject(path.basename(item), version) });
+            Object.assign(obj, {
+                [item]: replaceVersionInObject(path.basename(item), version),
+            });
         }
         return true;
     });

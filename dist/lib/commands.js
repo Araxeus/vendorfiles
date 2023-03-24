@@ -1,9 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { writePackage } from 'write-pkg';
 import github from './github.js';
-import { ownerAndNameFromRepoUrl, writeLockfile, checkIfNeedsUpdate, error, info, success, validateVendorDependency, getDependencyFolder, getFilesFromLockfile, readLockfile, flatFiles, deleteFileAndEmptyFolders, saveFile, pkgFilesToVendorlockFiles, replaceVersion, } from './utils.js';
-import { existsSync } from 'node:fs';
+import { ownerAndNameFromRepoUrl, writeLockfile, checkIfNeedsUpdate, error, info, success, validateVendorDependency, getDependencyFolder, getFilesFromLockfile, readLockfile, flatFiles, deleteFileAndEmptyFolders, readableToFile, pkgFilesToVendorlockFiles, replaceVersion, } from './utils.js';
 export async function sync({ config, dependencies, pkgPath, pkgJson }, { shouldUpdate = false, force = false, } = {}) {
     for (const [name, dependency] of Object.entries(dependencies)) {
         validateVendorDependency(name, dependency);
@@ -151,11 +151,8 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
                 error(`Could not download file "${file}" from ${dependency.repository}: ${err.message}`);
             }
         });
-        if (typeof downloadedFile !== 'string') {
-            error(`File ${file} from ${dependency.repository} is not a string`);
-        }
         const savePath = path.join(depDirectory, output);
-        await saveFile(downloadedFile, savePath);
+        await readableToFile(downloadedFile, savePath);
     }));
     await Promise.all(
     // file.output is either a string that or an object which would mean that we want to extract the files from the downloaded archive
@@ -173,7 +170,7 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
         });
         //console.log(releaseFile); // DELETE
         // if releaseFile is a `Request` object, it means that it is a stream and we should pipe it to a file
-        await saveFile(releaseFile, savePath, true);
+        await readableToFile(releaseFile, savePath, true);
         if (typeof output === 'object') {
             try {
                 // rome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -188,9 +185,6 @@ export async function install({ dependency, pkgPath, pkgJson, config, shouldUpda
                 info(`Extracted ${savePath}`);
                 await fs.rm(savePath, { force: true });
             }
-        }
-        else {
-            info(`Downloaded ${savePath}`);
         }
     }));
     await writeLockfile(dependency.name, {
