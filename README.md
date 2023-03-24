@@ -131,7 +131,7 @@ if you want to extract files from a compressed archive, you can specify an objec
                 "LICENSE",
                 {
                     "{release}/fzf-{version}-linux_amd64.tar.gz": [ "fzf" ],
-                    "{release}/fzf-{version}-windows_amd64.tar.gz": {
+                    "{release}/fzf-{version}-windows_amd64.zip": {
                         "fzf.exe": "my-custom-fzf.exe"
                     }
                 }

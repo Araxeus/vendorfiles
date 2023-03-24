@@ -55,6 +55,21 @@
     "typescript": "^5.0.2"
   },
   "vendorDependencies": {
+    "fzf": {
+      "version": "0.38.0",
+      "repository": "https://github.com/junegunn/fzf",
+      "files": [
+        "LICENSE",
+        {
+          "{release}/fzf-{version}-linux_amd64.tar.gz": [
+            "fzf"
+          ],
+          "{release}/fzf-{version}-windows_amd64.zip": {
+            "fzf.exe": "my-custom-fzf.exe"
+          }
+        }
+      ]
+    },
     "youtube-volume-scroll": {
       "name": "youtube-volume-scroll",
       "version": "v3.1.0",

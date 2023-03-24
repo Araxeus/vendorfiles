@@ -37,8 +37,7 @@ export type VendorDependency = {
     vendorFolder?: string;
 };
 
-// LOCKFILE
-
+// LOCKFILE TYPES
 export type Lockfile = { [key: string]: VendorLock };
 
 export type VendorLock = {
