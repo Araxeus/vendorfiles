@@ -12,6 +12,7 @@ import {
 import { sync, install, uninstall } from './lib/commands.js';
 import { getConfig } from './lib/config.js';
 import { findRepoUrl } from './lib/github.js';
+import { FilesArray } from './lib/types.js';
 
 const vendorOptions = await getConfig();
 
@@ -29,8 +30,8 @@ const installCmd = new Command('install')
     .option('-n, --name [name]', 'Name to write in dependencies')
     .option('-f, --files <files...>', 'Files to install')
     .action(async (source, version, { name, files }) => {
-        if (source && files) {
-            let url;
+        if (source) {
+            let url: string;
             if (isGitHubUrl(source)) {
                 url = source;
             } else if (source.match(/^[^/]+\/[^/]+$/)) {
@@ -48,11 +49,20 @@ const installCmd = new Command('install')
                 name = ownerAndNameFromRepoUrl(url).name;
             }
 
-            installOne({ url, files, version, name });
-        } else if (source && !files) {
-            error(
-                'you must provide files to install with -f or --files <files...>',
-            );
+            const deps =
+                vendorOptions.dependencies[name] ||
+                Object.values(vendorOptions.dependencies).find(
+                    (dep) => dep.repository === url,
+                ) ||
+                {};
+
+            if (!(files || deps?.files)) {
+                error(
+                    'you must provide files to install with -f or --files <files...>',
+                );
+            }
+
+            installOne({ url, files: files || deps.files, version, name });
         } else {
             syncAll(true);
         }
@@ -116,7 +126,7 @@ const updateCmd = new Command('update')
     })
     .summary('Update dependencies')
     .description(
-        'Update all/selected dependencies to their latest version (from GitHub Releases))',
+        'Update all/selected dependencies to their latest version (the tag of the latest release)',
     )
     .addHelpText(
         'after',
@@ -152,8 +162,7 @@ program
     .addCommand(uninstallCmd)
 
     .version(
-        (await getPackageJson(import.meta.url)).packageJson.version ||
-            'unknown',
+        (await getPackageJson()).version || 'unknown',
         '-v, --version',
         'output the current version',
     )
@@ -179,13 +188,19 @@ function installOne({
     name,
     version,
     files,
-}: { url: string; files: string[]; version?: string; name?: string }) {
+}: { url: string; files: FilesArray; version?: string; name?: string }) {
     install({
-        dependency: { repository: url, files, version, name },
+        dependency: (name && vendorOptions.dependencies[name]) || {
+            repository: url,
+            files,
+            version,
+            name,
+        },
         config: vendorOptions.config,
-        pkgPath: vendorOptions.pkgPath,
-        pkgJson: vendorOptions.pkgJson,
-        shouldUpdate: !!version,
+        configFile: vendorOptions.configFile,
+        configFileSettings: vendorOptions.configFileSettings,
+        shouldUpdate: !version,
+        newVersion: version,
     });
 }
 
@@ -194,8 +209,7 @@ function uninstallOne(name: string) {
 }
 
 function upgradeOne(name: string) {
-    // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
-    const dep = vendorOptions.pkgJson.vendorDependencies?.[name];
+    const dep = vendorOptions.configFile.vendorDependencies?.[name];
     if (!dep) {
         error(`No dependency found with name ${name}`);
     } else if (!dep.repository) {

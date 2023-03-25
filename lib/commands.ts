@@ -1,19 +1,20 @@
 import type {
+    ConfigFile,
+    ConfigFileSettings,
     Lockfile,
     VendorConfig,
     VendorDependency,
     VendorsOptions,
 } from './types.js';
-import type { PackageJson } from 'read-pkg-up';
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import os from 'node:os';
 
-import { writePackage } from 'write-pkg';
 import { unarchive } from 'unarchive';
 
+import { writeConfig } from './config.js';
 import github from './github.js';
 import {
     ownerAndNameFromRepoUrl,
@@ -29,13 +30,13 @@ import {
     flatFiles,
     deleteFileAndEmptyFolders,
     readableToFile,
-    pkgFilesToVendorlockFiles,
+    configFilesToVendorlockFiles,
     replaceVersion,
     random,
 } from './utils.js';
 
 export async function sync(
-    { config, dependencies, pkgPath, pkgJson }: VendorsOptions,
+    { config, dependencies, configFile, configFileSettings }: VendorsOptions,
     {
         shouldUpdate = false,
         force = false,
@@ -48,8 +49,8 @@ export async function sync(
 
         await install({
             dependency,
-            pkgPath,
-            pkgJson,
+            configFile,
+            configFileSettings,
             config,
             shouldUpdate,
             force,
@@ -59,21 +60,25 @@ export async function sync(
 
 export async function uninstall(
     name: string,
-    { dependencies, config, pkgPath, pkgJson }: VendorsOptions,
+    { dependencies, config, configFile, configFileSettings }: VendorsOptions,
 ) {
     const dep = dependencies[name];
     if (!dep) {
-        error(`Dependency ${name} not found in package.json`);
+        error(`Dependency ${name} not found in ${configFileSettings.path}`);
     }
 
     const depDirectory = dep
         ? getDependencyFolder({
               dependency: dep,
               config,
-              pkgPath,
+              configPath: configFileSettings.path,
               backupName: name,
           })
-        : path.join(path.dirname(pkgPath), config.vendorFolder, name);
+        : path.join(
+              path.dirname(configFileSettings.path),
+              config.vendorFolder,
+              name,
+          );
 
     const lockfilePath = path.join(depDirectory, 'vendor-lock.json');
     let lockfile: Lockfile | undefined;
@@ -88,7 +93,7 @@ export async function uninstall(
     } catch {}
 
     for (const file of flatFiles(
-        pkgFilesToVendorlockFiles(dep.files, dep.version || ''),
+        configFilesToVendorlockFiles(dep.files, dep.version || ''),
     )) {
         try {
             await deleteFileAndEmptyFolders(depDirectory, file);
@@ -111,26 +116,29 @@ export async function uninstall(
         await fs.writeFile(lockfilePath, JSON.stringify(lockfile, null, 2));
     }
 
-    // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
-    pkgJson.vendorDependencies[name] = undefined;
-    // @ts-expect-error 'PackageJson' is not assignable to parameter of type 'JsonObject'
-    await writePackage(pkgPath, pkgJson);
+    // @ts-expect-error Type 'undefined' is not assignable to type 'VendorDependency'
+    configFile.vendorDependencies[name] = undefined;
+
+    await writeConfig({
+        configFile,
+        configFileSettings,
+    });
 
     success(`Uninstalled ${name}`);
 }
 
 export async function install({
     dependency,
-    pkgPath,
-    pkgJson,
+    configFile,
+    configFileSettings,
     config,
     shouldUpdate,
     force,
     newVersion,
 }: {
     dependency: VendorDependency;
-    pkgPath: string;
-    pkgJson: PackageJson;
+    configFile: ConfigFile;
+    configFileSettings: ConfigFileSettings;
     config: VendorConfig;
     shouldUpdate?: boolean;
     force?: boolean;
@@ -143,7 +151,7 @@ export async function install({
     const depDirectory = getDependencyFolder({
         dependency,
         config,
-        pkgPath,
+        configPath: configFileSettings.path,
         backupName: dependency.name,
     });
 
@@ -198,7 +206,7 @@ export async function install({
         typeof file === 'object' ? Object.entries(file) : file,
     );
 
-    const ref = newVersion; // TODO DELETE
+    const ref = newVersion; // TODO delete this after typescript bug is fixed (newVersion is not a string)
 
     type ReleaseFileOutput = string | { [input: string]: string };
 
@@ -282,7 +290,7 @@ export async function install({
 
                     // save archive to temp folder
                     const archivePath = path.join(tempFolder, input);
-                    await readableToFile(releaseFile, archivePath);
+                    await readableToFile(releaseFile, archivePath, false);
 
                     // extract archive
                     const randomFolderName = path.join(tempFolder, random());
@@ -316,6 +324,7 @@ export async function install({
                                 recursive: true,
                             });
                             await fs.rename(inputPath, outputPath);
+                            info(`Saved ${outputPath}`);
                         } catch (e) {
                             await fs.rm(tempFolder, {
                                 force: true,
@@ -333,7 +342,6 @@ export async function install({
                 await readableToFile(
                     releaseFile,
                     path.join(depDirectory, replaceVersion(output, ref)),
-                    true,
                 );
             }
         }),
@@ -351,18 +359,18 @@ export async function install({
 
     const old_version = dependency.version;
 
-    // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
-    if (shouldUpdate || !pkgJson.vendorDependencies[dependency.name]?.version) {
-        // @ts-expect-error Property 'vendorDependencies' does not exist on type 'PackageJson'
-        pkgJson.vendorDependencies[dependency.name] = {
+    if (newVersion !== old_version) {
+        configFile.vendorDependencies[dependency.name] = {
             name: dependency.name,
             version: newVersion,
             repository: dependency.repository,
             files: dependency.files,
             vendorFolder: dependency.vendorFolder,
         } as VendorDependency;
-        // @ts-expect-error 'PackageJson' is not assignable to parameter of type 'JsonObject'
-        await writePackage(pkgPath, pkgJson);
+        await writeConfig({
+            configFile,
+            configFileSettings,
+        });
     }
 
     if (shouldUpdate) {

@@ -7,6 +7,7 @@ import type {
     VendorLock,
     VendorLockFiles,
 } from './types.js';
+import type { PackageJson } from 'type-fest';
 
 import {
     readFile,
@@ -25,7 +26,6 @@ import { finished } from 'node:stream/promises';
 
 import parseJson from 'parse-json';
 
-import { type ReadResult, readPackageUp } from 'read-pkg-up';
 import { getConfig } from './config.js';
 
 export function assert(condition: boolean, message: string): asserts condition {
@@ -90,28 +90,11 @@ export async function writeLockfile(
     const vendorLock: VendorLock = {
         version: data.version,
         repository: data.repository,
-        files: pkgFilesToVendorlockFiles(data.files, data.version),
+        files: configFilesToVendorlockFiles(data.files, data.version),
     };
 
     try {
         lockfile = await readLockfile(filepath);
-
-        // const previousFiles = lockfile[name].files;
-
-        // const allPreviousFiles = Object.values(lockfile).map(
-
-        // // now search the lockfile for duplicates (on field that !== name)
-        // for
-
-        // newFiles?.forEach((file) => {
-        //     previousFiles.forEach(({ depName, files }) => {
-        //         if (files.includes(file)) {
-        //             warning(
-        //                 `Duplicate file in lockfile! "${file}" is being added to ${name} but already exists in ${depName}`,
-        //             );
-        //         }
-        //     });
-        // });
 
         lockfile[name] = vendorLock;
     } catch {
@@ -145,41 +128,15 @@ export async function checkIfNeedsUpdate({
 
         const thisLockFiles = lockfile[name].files;
 
-        const {
-            dependencies,
-            // config, pkgPath
-        } = await getConfig();
+        const { dependencies } = await getConfig();
         const thisFiles = dependencies[name].files;
-        // const bareFilePath = thisFiles.map((file) =>
-        //     typeof file === 'string' ? path.basename(file) : file,
-        // );
 
-        // const depPath = getDependencyFolder({
-        //     dependency: dependencies[name],
-        //     config,
-        //     pkgPath,
-        //     backupName: name,
-        // });
-
-        const allPkg = pkgFilesToVendorlockFiles(
+        const expectedLockFiles = configFilesToVendorlockFiles(
             thisFiles,
             dependencies[name].version || '',
         );
 
-        let deepEq = false;
-        try {
-            deepStrictEqual(allPkg, thisLockFiles);
-            deepEq = true;
-        } catch {
-            deepEq = false;
-            error('lockfile is not equal to config');
-        }
-
-        // console.log({
-        //     allPkg,
-        //     thisLockFiles,
-        //     deepEq,
-        // });
+        deepStrictEqual(expectedLockFiles, thisLockFiles);
     } catch {
         return true;
     }
@@ -224,7 +181,6 @@ export async function deleteFileAndEmptyFolders(
 
     to [ "file1", "file2", "zip1", "zip2", "file3" ]    
 **/
-
 export function flatFiles(files: VendorLockFiles) {
     return Object.values(files).flatMap((file) =>
         typeof file === 'string' ? file : Object.values(file),
@@ -232,12 +188,12 @@ export function flatFiles(files: VendorLockFiles) {
 }
 
 export async function getAllFilesFromConfig() {
-    const { dependencies, config, pkgPath } = await getConfig();
+    const { dependencies, config, configFileSettings } = await getConfig();
     const files: Record<string, string> = {};
 
     for (const [name, dependency] of Object.entries(dependencies)) {
         const filesFromConfig = flatFiles(
-            pkgFilesToVendorlockFiles(
+            configFilesToVendorlockFiles(
                 dependency.files,
                 dependency.version || '',
             ),
@@ -249,7 +205,7 @@ export async function getAllFilesFromConfig() {
                     getDependencyFolder({
                         dependency,
                         config,
-                        pkgPath,
+                        configPath: configFileSettings.path,
                         backupName: name,
                     }),
                     file,
@@ -264,23 +220,6 @@ export async function getAllFilesFromConfig() {
 export async function readLockfile(filepath: string): Promise<Lockfile> {
     return parseJson(await readFile(filepath, 'utf-8'));
 }
-
-// export async function getAllFilesFromLockfile(
-//     filepath: string,
-// ): Promise<string[]> {
-//     try {
-//         const lockfile = await readLockfile(filepath);
-//         return getAllFilesFromActualLockfile(lockfile);
-//     } catch {
-//         return [];
-//     }
-// }
-
-// function getAllFilesFromActualLockfile(lockfile: Lockfile): string[] {
-//     return Object.entries(lockfile).flatMap(([_, { files }]) =>
-//         files.map((file) => path.basename(file)),
-//     );
-// }
 
 export async function getFilesFromLockfile(
     filepath: string,
@@ -312,27 +251,27 @@ export function validateVendorDependency(
     assert(
         typeof dependency.repository === 'string' &&
             isGitHubUrl(dependency.repository),
-        `package.json key 'vendorDependencies.${name}.repository' is not a valid github url`,
+        `config key 'vendorDependencies.${name}.repository' is not a valid github url`,
     );
     assert(
         Array.isArray(dependency.files) && dependency.files.length > 0,
-        `package.json key 'vendorDependencies.${name}.files' is not a valid array`,
+        `config key 'vendorDependencies.${name}.files' is not a valid array`,
     );
 }
 
 export function getDependencyFolder({
     dependency,
     config,
-    pkgPath,
+    configPath,
     backupName,
 }: {
     dependency: VendorDependency;
     config: VendorConfig;
-    pkgPath: string;
+    configPath: string;
     backupName: string;
 }): string {
     return path.join(
-        path.dirname(pkgPath),
+        path.dirname(configPath),
         dependency.vendorFolder?.replace(
             '{vendorFolder}',
             config.vendorFolder,
@@ -341,14 +280,10 @@ export function getDependencyFolder({
     );
 }
 
-export async function getPackageJson(folderPath?: string): Promise<ReadResult> {
-    folderPath ||= await realpath(
-        process.env.INIT_CWD || process.env.PWD || process.cwd(),
+export async function getPackageJson(): Promise<PackageJson> {
+    const pkg = parseJson(
+        await readFile(new URL('../../package.json', import.meta.url), 'utf-8'),
     );
-    const pkg = await readPackageUp({
-        cwd: folderPath,
-        normalize: false,
-    });
 
     if (!pkg) {
         error('Could not find package.json');
@@ -370,7 +305,7 @@ export function replaceVersionInObject(obj: any, version: string) {
     return obj;
 }
 
-export function pkgFilesToVendorlockFiles(
+export function configFilesToVendorlockFiles(
     arr: FilesArray,
     version: string,
 ): VendorLockFiles {
