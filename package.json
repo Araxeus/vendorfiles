@@ -39,19 +39,21 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^10.0.3",
+    "@ltd/j-toml": "^1.38.0",
     "@octokit/rest": "^19.0.7",
     "ci-info": "^3.8.0",
     "commander": "^10.0.0",
+    "detect-indent": "^7.0.1",
     "dotenv": "^16.0.3",
     "parse-json": "^6.0.2",
-    "read-pkg-up": "^9.1.0",
     "unarchive": "^1.1.1",
-    "write-pkg": "^5.1.0"
+    "yaml": "^2.2.1"
   },
   "devDependencies": {
-    "@types/node": "^18.15.7",
+    "@types/node": "^18.15.9",
     "@types/parse-json": "^4.0.0",
     "rome": "^11.0.0",
+    "type-fest": "^3.7.0",
     "typescript": "^5.0.2"
   },
   "vendorDependencies": {

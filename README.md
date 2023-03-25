@@ -1,10 +1,14 @@
-# vendorfiles
+# Vendorfiles
 
 [![NPM Version](https://img.shields.io/npm/v/vendorfiles)](https://www.npmjs.com/package/vendorfiles)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Araxeus/vendorfiles/blob/main/LICENSE)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Araxeus/vendorfiles)
 
-`vendorfiles` is a tool that simplifies the management of vendor files in your project.
+Welcome to Vendorfiles, the package manager that streamlines the process of installing and updating files from a GitHub repository, while also providing version control.
+
+Whether you need to manage CSS, JavaScript, images, binaries, or any other type of file, Vendorfiles makes it easy to keep your dependencies up-to-date and organized.
+
+But that's not all - Vendorfiles is not limited to managing text files - it can also be used to install applications. By creating a vendorfile configuration inside a folder in your `$env.path`, and adding a repository such as fzf, you can specify the binary file you need from the zipped release asset. With this setup, it's easy to install, update, or delete the application and enjoy all the benefits of version control.
 
 ## Installation
 
@@ -22,9 +26,17 @@ npm install vendorfiles
 
 ## Configuration
 
-In your package.json file, you can define your vendor files under the `vendorDependencies` key.
+Vendorfiles will look for a configuration file in the following order:
 
-you can then run `vendor sync` to sync your vendor files with the config file.
+1. vendor.toml
+2. vendor.yml
+3. vendor.yaml
+4. vendor.json
+5. package.json
+
+To sync your vendor files with the config file, simply define your vendor files under the `vendorDependencies` key in your config file and run the command `vendor sync`.
+
+The following examples are in JSON format, but you can also use TOML or YAML. For more examples, see [the examples folder](./examples/)
 
 ```json
 {
@@ -43,7 +55,9 @@ you can then run `vendor sync` to sync your vendor files with the config file.
 }
 ```
 
-The vendor directory defaults to the `vendor` folder in your project root. You can change this by defining a `vendorFolder` key in the `vendorConfig` object.
+By default, Vendorfiles will create a directory named `vendor` in your project root.
+
+You can change this by defining a `vendorFolder` key in a `vendorConfig` object:
 
 ```json
 "vendorConfig": {
@@ -51,11 +65,11 @@ The vendor directory defaults to the `vendor` folder in your project root. You c
 },
 ```
 
-You can also define a `vendorFolder` key in the `vendorDependencies` object to change the folder where the files will be installed. if not defined it will default to the name of the dependency.
+You can also define a `vendorFolder` key in each dependency to change the folder where its files will be installed. if this key is not defined, the folder will default to the dependency's name.
 
-this key can use the `{vendorfolder}` placeholder to refer to the vendor folder defined in the `vendorConfig` object.
+This key can use the `{vendorfolder}` placeholder to refer to the vendor folder defined in the `vendorConfig` object.
 
-```json
+```json5
 {
     "vendorConfig": {
       "vendorFolder": "./my-vendors"
@@ -77,7 +91,7 @@ this key can use the `{vendorfolder}` placeholder to refer to the vendor folder 
 }
 ```
 
-if you want to rename/move the files, you can use an object with the source file as key and the destination file as value.
+To rename or move files, you can specify an object with the source file as the key and the destination file as the value, as shown in the example below:
 
 ```json
 {
@@ -97,9 +111,11 @@ if you want to rename/move the files, you can use an object with the source file
 }
 ```
 
-if you want to download release assets from a GitHub repository you can use the `{release}/` placeholder in the file path.
+### GitHub Releases
 
-then you can also use the `{version}` placeholder to refer to the version of the dependency. (trailing <kbd>v</kbd> is removed)
+You can download release assets by using the `{release}/` placeholder in the file path.
+
+Additionally, you can use the `{version}` placeholder to refer to the version of the dependency, without the trailing `v`. Here's an example:
   
 ```json
 {
@@ -119,7 +135,7 @@ then you can also use the `{version}` placeholder to refer to the version of the
 }
 ```
 
-if you want to extract files from a compressed archive, you can specify an object with the archive path as key and the files to extract as value. here's an example:
+To extract files from a compressed release archive, you can define an object that specifies the archive path as the key and the files to extract as the value. Here's an example:
 
 ```json
 {
@@ -143,17 +159,8 @@ if you want to extract files from a compressed archive, you can specify an objec
 
 ## Commands
 
-vendorfiles provides various commands for managing your vendor files.
-
-### Supported Commands and Options
-
 ```text
 Usage: vendor command [options]
-
-Options:
-  -v, --version                               output the current version
-  -c, --ci                                    CI mode (default: false)
-  -h, --help                                  display help for command
 
 Commands:
   sync|s [options]                            Sync config file
@@ -161,6 +168,11 @@ Commands:
   install|add [options] <url/name> [version]  Install a dependency
   uninstall|remove [names...]                 Uninstall dependencies
   help [command]                              display help for command
+
+Options:
+  -v, --version                               output the current version
+  -c, --ci                                    CI mode (default: false)
+  -h, --help                                  display help for command
 ```
 
 ### Sync
@@ -184,7 +196,7 @@ Examples:
 ```text
 Usage: vendor update|upgrade [options] [names...]
 
-Update all/selected dependencies to their latest version (from GitHub Releases))
+Update all/selected dependencies to their latest version (the tag of the latest release)
 
 Options:
   -h, --help  display help for command

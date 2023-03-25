@@ -1,0 +1,18 @@
+{
+  "vendorDependencies": {
+    "fzf": {
+      "name": "fzf",
+      "version": "0.37.0",
+      "repository": "https://github.com/junegunn/fzf",
+      "files": [
+        "LICENSE",
+        {
+          "{release}/fzf-{version}-windows_amd64.zip": [
+            "fzf.exe"
+          ]
+        }
+      ],
+      "vendorFolder": "{vendorFolder}/fzf-json"
+    }
+  }
+}

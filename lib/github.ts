@@ -70,7 +70,7 @@ export async function getFile({
         ref,
     });
 
-    // @ts-expect-error
+    // @ts-expect-error octokit type for requestOptions clashes with fetch
     const req = await fetch(requestOptions.url, requestOptions);
 
     if (!(req.ok && req.body)) {
@@ -120,7 +120,7 @@ export async function downloadReleaseFile({
         },
     );
 
-    // @ts-expect-error
+    // @ts-expect-error octokit type for requestOptions clashes with fetch
     const req = await fetch(requestOptions.url, requestOptions);
 
     if (!(req.ok && req.body)) {

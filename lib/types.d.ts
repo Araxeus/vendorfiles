@@ -1,22 +1,24 @@
-import { PackageJson } from 'read-pkg-up';
-
 export type VendorsOptions = {
     dependencies: VendorDependencies;
     config: VendorConfig;
-    pkgPath: string;
-    pkgJson: PackageJson;
+    configFile: ConfigFile;
+    configFileSettings: ConfigFileSettings;
+};
+
+export type ConfigFile = {
+    vendorConfig: VendorConfig;
+    vendorDependencies: VendorDependencies;
+    [key: string]: unknown;
+};
+
+export type ConfigFileSettings = {
+    format: 'toml' | 'yml' | 'json';
+    path: string;
+    indent?: number | string;
 };
 
 export type VendorConfig = {
     vendorFolder: string;
-};
-
-export type InstallOptions = {
-    dependency: VendorDependency;
-    pkgPath: string;
-    pkgJson: PackageJson;
-    config: VendorConfig;
-    shouldUpdate?: boolean;
 };
 
 export type VendorDependencies = {
