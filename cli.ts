@@ -4,7 +4,7 @@ import { Command } from '@commander-js/extra-typings';
 import { isCI } from 'ci-info';
 
 import {
-    error,
+    assert,
     getPackageJson,
     isGitHubUrl,
     ownerAndNameFromRepoUrl,
@@ -41,9 +41,7 @@ const installCmd = new Command('install')
                 url = await findRepoUrl(source);
             }
 
-            if (!isGitHubUrl(url)) {
-                error(`Invalid GitHub URL "${url}"`);
-            }
+            assert(isGitHubUrl(url), `Invalid GitHub URL "${url}"`);
 
             if (typeof name !== 'string' || name.length === 0) {
                 name = ownerAndNameFromRepoUrl(url).name;
@@ -56,11 +54,10 @@ const installCmd = new Command('install')
                 ) ||
                 {};
 
-            if (!(files || deps?.files)) {
-                error(
-                    'you must provide files to install with -f or --files <files...>',
-                );
-            }
+            assert(
+                !!files && !!deps?.files,
+                'you must provide files to install with -f or --files <files...>',
+            );
 
             installOne({ url, files: files || deps.files, version, name });
         } else {
@@ -90,13 +87,11 @@ const uninstallCmd = new Command('uninstall')
     .alias('r')
     .argument('[names...]', 'Package names to uninstall')
     .action((names) => {
-        if (names.length === 0) {
-            error('No package names provided');
-        } else {
-            names.forEach((name: string) => {
-                uninstallOne(name);
-            });
-        }
+        assert(names.length > 0, 'No package names provided');
+
+        names.forEach((name: string) => {
+            uninstallOne(name);
+        });
     })
     .summary('Uninstall dependencies')
     .description('Uninstall all/selected dependencies')
@@ -210,13 +205,9 @@ function uninstallOne(name: string) {
 
 function upgradeOne(name: string) {
     const dep = vendorOptions.configFile.vendorDependencies?.[name];
-    if (!dep) {
-        error(`No dependency found with name ${name}`);
-    } else if (!dep.repository) {
-        error(`No repository found for dependency ${name}`);
-    } else if (!dep.files) {
-        error(`No files found for dependency ${name}`);
-    }
+    assert(!!dep, `No dependency found with name ${name}`);
+    assert(!!dep.repository, `No repository found for dependency ${name}`);
+    assert(!!dep.files, `No files found for dependency ${name}`);
 
     installOne({
         url: dep.repository,

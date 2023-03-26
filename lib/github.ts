@@ -1,7 +1,7 @@
 import type { Repository } from './types.js';
 import type { ReadableStream } from 'stream/web';
 
-import { error, warning } from './utils.js';
+import { assert, warning } from './utils.js';
 
 import { Octokit } from '@octokit/rest';
 import * as dotenv from 'dotenv';
@@ -93,17 +93,18 @@ export async function downloadReleaseFile({
         ? getReleaseFromTag({ ...repo, tag: version })
         : getLatestRelease(repo));
 
-    if (!release) {
-        error(`Release "${version}" was not found in ${release.url}`);
-    }
+    assert(!!release, `Release "${version}" was not found in ${release.url}`);
+
+    assert(release.assets, `Release assets were not found in ${release.url}`);
 
     const asset_id = release.assets.find(
         (asset: { name: string }) => asset.name === path,
     )?.id;
 
-    if (!asset_id) {
-        error(`Release asset "${path}" was not found in ${release.url}`);
-    }
+    assert(
+        !!asset_id,
+        `Release asset "${path}" was not found in ${release.url}`,
+    );
 
     const requestOptions = octokit.request.endpoint(
         'GET /repos/:owner/:repo/releases/assets/:asset_id',
@@ -123,9 +124,10 @@ export async function downloadReleaseFile({
     // @ts-expect-error octokit type for requestOptions clashes with fetch
     const req = await fetch(requestOptions.url, requestOptions);
 
-    if (!(req.ok && req.body)) {
-        error(`Release asset "${path}" failed to download from ${release.url}`);
-    }
+    assert(
+        !!req.ok && !!req.body,
+        `Release asset "${path}" failed to download from ${release.url}`,
+    );
 
     return req.body as ReadableStream<Uint8Array>;
 }
@@ -138,13 +140,12 @@ export async function findRepoUrl(name: string) {
 
     const item = res.data.items[0];
 
-    if (!item) {
-        error(`No results found for "${name}"`);
-    }
+    assert(!!item, `No results found for "${name}"`);
 
-    if (item.name.toLowerCase() !== name.toLowerCase()) {
-        error(`No results found for "${name}"\nDid you mean ${item.name}?`);
-    }
+    assert(
+        item.name.toLowerCase() === name.toLowerCase(),
+        `No results found for "${name}"\nDid you mean ${item.name}?`,
+    )
 
     return item.html_url;
 }
