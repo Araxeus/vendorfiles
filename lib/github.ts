@@ -1,15 +1,22 @@
 import type { Repository } from './types.js';
-import type { ReadableStream } from 'stream/web';
 
 import { assert, warning, success, error } from './utils.js';
 
-import open from 'open';
 import { Octokit } from '@octokit/rest';
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
-import * as dotenv from 'dotenv';
 import { g, s } from './auth.js';
-dotenv.config();
+import open from 'open';
+import * as dotenv from 'dotenv';
+import getEnvPaths from 'env-paths';
+import _fetch from 'make-fetch-happen';
 
+const envPaths = getEnvPaths('vendorfiles');
+const fetch = _fetch.defaults({
+    cachePath: envPaths.cache,
+    //cache: 'default',
+});
+
+dotenv.config();
 const token = g();
 
 let _octokit: Octokit;
@@ -70,7 +77,7 @@ export async function getFile({
     repo: Repository;
     path: string;
     ref: string;
-}): Promise<ReadableStream<Uint8Array>> {
+}) {
     const requestOptions = octokit().repos.getContent.endpoint({
         owner: repo.owner,
         repo: repo.name,
@@ -82,14 +89,14 @@ export async function getFile({
         ref,
     });
 
-    // @ts-expect-error octokit type for requestOptions clashes with fetch
+    // @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
     const req = await fetch(requestOptions.url, requestOptions);
 
     if (!(req.ok && req.body)) {
         throw 'Request failed';
     }
 
-    return req.body as ReadableStream<Uint8Array>;
+    return req.body;
 }
 
 export async function downloadReleaseFile({
@@ -100,7 +107,7 @@ export async function downloadReleaseFile({
     repo: Repository;
     path: string;
     version: string;
-}): Promise<ReadableStream<Uint8Array>> {
+}) {
     const release = await (version
         ? getReleaseFromTag({ ...repo, tag: version })
         : getLatestRelease(repo));
@@ -131,7 +138,7 @@ export async function downloadReleaseFile({
         },
     );
 
-    // @ts-expect-error octokit type for requestOptions clashes with fetch
+    // @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
     const req = await fetch(requestOptions.url, requestOptions);
 
     assert(
@@ -139,7 +146,7 @@ export async function downloadReleaseFile({
         `Release asset "${path}" failed to download from ${release.url}`,
     );
 
-    return req.body as ReadableStream<Uint8Array>;
+    return req.body;
 }
 
 export async function findRepoUrl(name: string) {
@@ -162,8 +169,8 @@ export async function findRepoUrl(name: string) {
 
 export async function login(token?: string) {
     if (token) {
-        // check if token is valid
         const res = await fetch('https://api.github.com', {
+            cache: 'no-store',
             method: 'HEAD',
             headers: {
                 Authorization: `bearer ${token}`,

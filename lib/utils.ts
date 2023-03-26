@@ -20,8 +20,6 @@ import {
 import { createWriteStream, existsSync } from 'node:fs';
 import path from 'node:path';
 import { deepStrictEqual } from 'node:assert';
-import type { ReadableStream } from 'stream/web';
-import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
 
 import parseJson from 'parse-json';
@@ -56,13 +54,12 @@ export function isGitHubUrl(url: string): boolean {
 }
 
 export async function readableToFile(
-    file: ReadableStream,
+    body: NodeJS.ReadableStream,
     savePath: string,
     log = true,
 ) {
     await mkdir(path.dirname(savePath), { recursive: true });
 
-    const body = Readable.fromWeb(file);
     const download_write_stream = createWriteStream(savePath);
     await finished(body.pipe(download_write_stream))
         .then(() => {
