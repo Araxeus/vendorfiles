@@ -49,12 +49,15 @@
     "commander": "^10.0.0",
     "detect-indent": "^7.0.1",
     "dotenv": "^16.0.3",
+    "env-paths": "^3.0.0",
+    "make-fetch-happen": "^11.0.3",
     "open": "^9.1.0",
     "parse-json": "^6.0.2",
     "unarchive": "^1.1.1",
     "yaml": "^2.2.1"
   },
   "devDependencies": {
+    "@types/make-fetch-happen": "^10.0.1",
     "@types/node": "^18.15.10",
     "@types/parse-json": "^4.0.0",
     "cpy-cli": "^4.2.0",

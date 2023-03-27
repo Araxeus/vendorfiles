@@ -243,7 +243,7 @@ export async function install({
                     ref,
                 })
                 .catch((err) => {
-                    if (err.status === 404) {
+                    if (err?.status === 404) {
                         error(
                             `File "${file}" was not found in ${dependency.repository}`,
                         );
