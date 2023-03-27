@@ -10,15 +10,21 @@ Whether you need to manage CSS, JavaScript, images, binaries, or any other type 
 
 But that's not all - Vendorfiles is not limited to managing text files - it can also be used to install applications. By creating a vendorfile configuration inside a folder in your `$env.path`, and adding a repository such as fzf, you can specify the binary file you need from the zipped release asset. With this setup, it's easy to install, update, or delete the application and enjoy all the benefits of version control.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+
 ## Installation
 
-### Global
+Global
 
 ```bash
 npm install -g vendorfiles
 ```
 
-### Local
+Local
 
 ```bash
 npm install vendorfiles
@@ -203,7 +209,7 @@ Options:
 
 Examples:
     vendor update
-    vendor update React
+    vendor bump React
     vendor update React Express
 ```
 
@@ -226,8 +232,8 @@ Options:
 
 Examples:
   vendor install React -n MyReact -f README.md
-  vendor install Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
-  vendor install https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
+  vendor add Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
+  vendor i https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
 ```
 
 ### Uninstall
@@ -245,5 +251,23 @@ Options:
 
 Examples:
     vendor uninstall React
-    vendor uninstall React youtube-music
+    vendor remove React youtube-music
+```
+
+### Login
+
+```text
+Usage: vendor login|auth [options] [token]
+
+Login to GitHub to increase rate limit
+
+Arguments:
+  token       GitHub token (leave empty to login via browser)
+
+Options:
+  -h, --help  display help for command
+
+Examples:
+    vendor login
+    vendor auth <token>
 ```

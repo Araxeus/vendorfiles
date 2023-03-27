@@ -3,7 +3,8 @@
     "ignore": [
       "./.pnp.*",
       "./dist/*",
-      "./vendor/*"
+      "./vendor/*",
+      "./lib/auth.js"
     ]
   },
   "javascript": {

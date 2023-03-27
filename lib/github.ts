@@ -1,18 +1,32 @@
 import type { Repository } from './types.js';
 import type { ReadableStream } from 'stream/web';
 
-import { error, warning } from './utils.js';
+import { assert, warning, success, error } from './utils.js';
 
+import open from 'open';
 import { Octokit } from '@octokit/rest';
+import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import * as dotenv from 'dotenv';
+import { g, s } from './auth.js';
 dotenv.config();
 
-if (!process.env.GITHUB_TOKEN)
-    warning('GITHUB_TOKEN env variable was not found, you may be rate limited');
+const token = g();
 
-const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN || undefined,
-});
+let _octokit: Octokit;
+const octokit = () => {
+    if (!_octokit) {
+        if (!token) {
+            warning(
+                'You may be rate limited, run `vendor login` or use a GITHUB_TOKEN env variable',
+            );
+        }
+
+        _octokit = new Octokit({
+            auth: token,
+        });
+    }
+    return _octokit;
+};
 
 const releases = new Map();
 async function getReleaseFromTag({
@@ -24,7 +38,7 @@ async function getReleaseFromTag({
     if (releases.has(key)) {
         return releases.get(key);
     }
-    const res = await octokit.repos.getReleaseByTag({
+    const res = await octokit().repos.getReleaseByTag({
         owner,
         repo: name,
         tag,
@@ -39,7 +53,7 @@ export async function getLatestRelease({ owner, name: repo }: Repository) {
     if (releases.has(key)) {
         return releases.get(key);
     }
-    const res = await octokit.repos.getLatestRelease({
+    const res = await octokit().repos.getLatestRelease({
         owner,
         repo,
     });
@@ -57,13 +71,11 @@ export async function getFile({
     path: string;
     ref: string;
 }): Promise<ReadableStream<Uint8Array>> {
-    const requestOptions = octokit.repos.getContent.endpoint({
+    const requestOptions = octokit().repos.getContent.endpoint({
         owner: repo.owner,
         repo: repo.name,
         path,
-        Authorization: process.env.GITHUB_TOKEN
-            ? `token ${process.env.GITHUB_TOKEN}`
-            : undefined,
+        Authorization: token ? `bearer ${token}` : undefined,
         mediaType: {
             format: 'raw',
         },
@@ -93,27 +105,26 @@ export async function downloadReleaseFile({
         ? getReleaseFromTag({ ...repo, tag: version })
         : getLatestRelease(repo));
 
-    if (!release) {
-        error(`Release "${version}" was not found in ${release.url}`);
-    }
+    assert(!!release, `Release "${version}" was not found in ${release.url}`);
+
+    assert(release.assets, `Release assets were not found in ${release.url}`);
 
     const asset_id = release.assets.find(
         (asset: { name: string }) => asset.name === path,
     )?.id;
 
-    if (!asset_id) {
-        error(`Release asset "${path}" was not found in ${release.url}`);
-    }
+    assert(
+        !!asset_id,
+        `Release asset "${path}" was not found in ${release.url}`,
+    );
 
-    const requestOptions = octokit.request.endpoint(
+    const requestOptions = octokit().request.endpoint(
         'GET /repos/:owner/:repo/releases/assets/:asset_id',
         {
             headers: {
                 Accept: 'application/octet-stream',
             },
-            Authorization: process.env.GITHUB_TOKEN
-                ? `token ${process.env.GITHUB_TOKEN}`
-                : undefined,
+            Authorization: token ? `bearer ${token}` : undefined,
             owner: repo.owner,
             repo: repo.name,
             asset_id,
@@ -123,33 +134,85 @@ export async function downloadReleaseFile({
     // @ts-expect-error octokit type for requestOptions clashes with fetch
     const req = await fetch(requestOptions.url, requestOptions);
 
-    if (!(req.ok && req.body)) {
-        error(`Release asset "${path}" failed to download from ${release.url}`);
-    }
+    assert(
+        !!req.ok && !!req.body,
+        `Release asset "${path}" failed to download from ${release.url}`,
+    );
 
     return req.body as ReadableStream<Uint8Array>;
 }
 
 export async function findRepoUrl(name: string) {
-    const res = await octokit.search.repos({
+    const res = await octokit().search.repos({
         q: name,
         per_page: 1,
     });
 
     const item = res.data.items[0];
 
-    if (!item) {
-        error(`No results found for "${name}"`);
-    }
+    assert(!!item, `No results found for "${name}"`);
 
-    if (item.name.toLowerCase() !== name.toLowerCase()) {
-        error(`No results found for "${name}"\nDid you mean ${item.name}?`);
-    }
+    assert(
+        item.name.toLowerCase() === name.toLowerCase(),
+        `No results found for "${name}"\nDid you mean ${item.name}?`,
+    );
 
     return item.html_url;
 }
 
+export async function login(token?: string) {
+    if (token) {
+        // check if token is valid
+        const res = await fetch('https://api.github.com', {
+            method: 'HEAD',
+            headers: {
+                Authorization: `bearer ${token}`,
+            },
+        });
+
+        assert(res.status !== 401, 'Invalid token');
+        assert(res.status !== 403, 'Token is rate limited');
+        assert(res.ok, 'Something went wrong, try again later');
+        await s(token);
+        success('Token saved successfully');
+        return;
+    }
+    try {
+        const auth = createOAuthDeviceAuth({
+            clientType: 'oauth-app',
+            clientId: '39d3104ecbbfd876dfa5',
+            scopes: [],
+            async onVerification(verification) {
+                console.log(
+                    `First, copy your one-time code: ${verification.user_code}`,
+                );
+                console.log(
+                    'Then press [Enter] to continue in your web browser',
+                );
+                await new Promise((resolve) => {
+                    process.stdin.once('data', resolve);
+                });
+                console.log('Opening your web browser...');
+                await open(verification.verification_uri);
+            },
+        });
+
+        const tokenAuthentication = await auth({
+            type: 'oauth',
+        });
+
+        await s(tokenAuthentication.token);
+
+        success('Logged in successfully');
+    } catch (e) {
+        error(e as string);
+    } finally {
+        process.exit(0);
+    }
+}
+
 export default {
+    login,
     getFile,
     getLatestRelease,
     downloadReleaseFile,

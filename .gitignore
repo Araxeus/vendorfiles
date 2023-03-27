@@ -2,7 +2,7 @@
 .env
 dist/*
 vendor/*
-dist/index.js
+lib/auth-original.js
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

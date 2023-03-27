@@ -235,9 +235,8 @@ export async function getFilesFromLockfile(
 
 export function ownerAndNameFromRepoUrl(url: string): Repository {
     const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
-    if (!match) {
-        error(`Invalid GitHub URL: ${url}`);
-    }
+    assert(!!match, `Invalid GitHub URL: ${url}`);
+
     return {
         owner: match[1],
         name: match[2],
@@ -281,13 +280,11 @@ export function getDependencyFolder({
 }
 
 export async function getPackageJson(): Promise<PackageJson> {
-    const pkg = parseJson(
+    const pkg: PackageJson = parseJson(
         await readFile(new URL('../../package.json', import.meta.url), 'utf-8'),
     );
 
-    if (!pkg) {
-        error('Could not find package.json');
-    }
+    assert(!!pkg, 'Could not find package.json');
 
     return pkg;
 }

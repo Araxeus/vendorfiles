@@ -33,6 +33,7 @@ import {
     configFilesToVendorlockFiles,
     replaceVersion,
     random,
+    assert,
 } from './utils.js';
 
 export async function sync(
@@ -63,9 +64,7 @@ export async function uninstall(
     { dependencies, config, configFile, configFileSettings }: VendorsOptions,
 ) {
     const dep = dependencies[name];
-    if (!dep) {
-        error(`Dependency ${name} not found in ${configFileSettings.path}`);
-    }
+    assert(!!dep, `Dependency ${name} not found in ${configFileSettings.path}`);
 
     const depDirectory = dep
         ? getDependencyFolder({
@@ -166,9 +165,8 @@ export async function install({
         const latestRelease = await github.getLatestRelease(repo);
         newVersion = latestRelease.tag_name as string;
     }
-    if (!newVersion) {
-        error(`Could not find a version for ${dependency.name}`);
-    }
+
+    assert(!!newVersion, `Could not find a version for ${dependency.name}`);
 
     const needUpdate =
         force ||

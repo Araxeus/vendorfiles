@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
+import type { FilesArray } from './lib/types.js';
+
 import { Command } from '@commander-js/extra-typings';
 import { isCI } from 'ci-info';
 
 import {
-    error,
+    assert,
     getPackageJson,
     isGitHubUrl,
     ownerAndNameFromRepoUrl,
 } from './lib/utils.js';
 import { sync, install, uninstall } from './lib/commands.js';
 import { getConfig } from './lib/config.js';
-import { findRepoUrl } from './lib/github.js';
-import { FilesArray } from './lib/types.js';
+import { findRepoUrl, login } from './lib/github.js';
 
 const vendorOptions = await getConfig();
 
@@ -41,9 +42,7 @@ const installCmd = new Command('install')
                 url = await findRepoUrl(source);
             }
 
-            if (!isGitHubUrl(url)) {
-                error(`Invalid GitHub URL "${url}"`);
-            }
+            assert(isGitHubUrl(url), `Invalid GitHub URL "${url}"`);
 
             if (typeof name !== 'string' || name.length === 0) {
                 name = ownerAndNameFromRepoUrl(url).name;
@@ -56,11 +55,10 @@ const installCmd = new Command('install')
                 ) ||
                 {};
 
-            if (!(files || deps?.files)) {
-                error(
-                    'you must provide files to install with -f or --files <files...>',
-                );
-            }
+            assert(
+                !!files && !!deps?.files,
+                'you must provide files to install with -f or --files <files...>',
+            );
 
             installOne({ url, files: files || deps.files, version, name });
         } else {
@@ -76,8 +74,8 @@ const installCmd = new Command('install')
         `
 Examples:
   vendor install React -n MyReact -f README.md
-  vendor install Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
-  vendor install https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
+  vendor add Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
+  vendor i https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
 `,
     );
 
@@ -90,13 +88,11 @@ const uninstallCmd = new Command('uninstall')
     .alias('r')
     .argument('[names...]', 'Package names to uninstall')
     .action((names) => {
-        if (names.length === 0) {
-            error('No package names provided');
-        } else {
-            names.forEach((name: string) => {
-                uninstallOne(name);
-            });
-        }
+        assert(names.length > 0, 'No package names provided');
+
+        names.forEach((name: string) => {
+            uninstallOne(name);
+        });
     })
     .summary('Uninstall dependencies')
     .description('Uninstall all/selected dependencies')
@@ -105,7 +101,7 @@ const uninstallCmd = new Command('uninstall')
         `
 Examples:
     vendor uninstall React
-    vendor uninstall React youtube-music
+    vendor remove React youtube-music
 `,
     );
 
@@ -133,7 +129,7 @@ const updateCmd = new Command('update')
         `
 Examples:
     vendor update
-    vendor update React
+    vendor bump React
     vendor update React Express
 `,
     );
@@ -153,6 +149,21 @@ Examples:
 `,
     );
 
+const loginCmd = new Command('login')
+    .alias('auth')
+    .argument('[token]', 'GitHub token (leave empty to login via browser)')
+    .action((token) => login(token))
+    .summary('Login to GitHub')
+    .description('Login to GitHub to increase rate limit')
+    .addHelpText(
+        'after',
+        `
+Examples:
+    vendor login
+    vendor auth <token>
+`,
+    );
+
 program
     .name('vendor')
     .usage('command [options]')
@@ -160,6 +171,7 @@ program
     .addCommand(updateCmd)
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
+    .addCommand(loginCmd)
 
     .version(
         (await getPackageJson()).version || 'unknown',
@@ -210,13 +222,9 @@ function uninstallOne(name: string) {
 
 function upgradeOne(name: string) {
     const dep = vendorOptions.configFile.vendorDependencies?.[name];
-    if (!dep) {
-        error(`No dependency found with name ${name}`);
-    } else if (!dep.repository) {
-        error(`No repository found for dependency ${name}`);
-    } else if (!dep.files) {
-        error(`No files found for dependency ${name}`);
-    }
+    assert(!!dep, `No dependency found with name ${name}`);
+    assert(!!dep.repository, `No repository found for dependency ${name}`);
+    assert(!!dep.files, `No files found for dependency ${name}`);
 
     installOne({
         url: dep.repository,
