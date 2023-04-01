@@ -22,6 +22,7 @@ But that's not all - Vendorfiles is not limited to managing text files - it can 
   - [Install](#install)
   - [Uninstall](#uninstall)
   - [Login](#login)
+- [GitHub Action](#github-action)
 
 ## Installation
 
@@ -296,3 +297,16 @@ Examples:
     vendor login
     vendor auth <token>
 ```
+
+## GitHub Action
+
+You can use the [vendorfiles-action](https://github.com/marketplace/actions/vendorfiles-updater) to automatically update your dependencies.
+
+```yaml
+- uses: Araxeus/vendorfiles-action@v1
+    with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    package-manager: yarn
+```
+
+More information can be found in the [action's readme](https://github.com/Araxeus/vendorfiles-action#readme).

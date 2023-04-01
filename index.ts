@@ -18,20 +18,14 @@ export type {
     VendorsOptions,
 } from './lib/types.d.ts';
 
-// TODO:
-
 // Soon™:
 // > add a --config option to specify a folder where to look for the config file
-// > complete release-notes.ts
-// > add github actions
-// > "outdated" command
-// > "list" command
+// > complete release-notes.ts (add to https://github.com/Araxeus/vendorfiles-action)
 
 // Later:
-// > "dry run" mode
-// > some kind of cache
 // > Nice documentation website
 // > add spinners
 // > add tests (also test package as imported + installed globally)
 // > add support for glob patterns
+// > "dry run" mode
 // > add support for other providers like npm / git (gitlab, bitbucket, etc.)
