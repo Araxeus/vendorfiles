@@ -32,21 +32,37 @@ export function assert(condition: boolean, message: string): asserts condition {
     }
 }
 
+export function green(message: string): string {
+    return `\x1b[32m${message}\x1b[0m`;
+}
+
+export function red(message: string): string {
+    return `\x1b[31m${message}\x1b[0m`;
+}
+
+export function yellow(message: string): string {
+    return `\x1b[33m${message}\x1b[0m`;
+}
+
+export function cyan(message: string): string {
+    return `\x1b[36m${message}\x1b[0m`;
+}
+
 export function error(message: string): never {
-    console.error(`\x1b[31mERROR: ${message}\x1b[0m`);
+    console.error(red(`ERROR: ${message}`));
     process.exit(1);
 }
 
 export function warning(message: string): void {
-    console.warn(`\x1b[33mWARNING: ${message}\x1b[0m`);
+    console.warn(yellow(`WARNING: ${message}`));
 }
 
 export function success(message: string): void {
-    console.log(`\x1b[32m${message}\x1b[0m`);
+    console.log(green(`SUCCESS: ${message}`));
 }
 
 export function info(message: string): void {
-    console.log(`\x1b[36m${message}\x1b[0m`);
+    console.log(cyan(`INFO: ${message}`));
 }
 
 export function isGitHubUrl(url: string): boolean {

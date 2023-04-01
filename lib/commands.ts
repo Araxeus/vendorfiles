@@ -34,6 +34,8 @@ import {
     replaceVersion,
     random,
     assert,
+    red,
+    green,
 } from './utils.js';
 
 export async function sync(
@@ -41,7 +43,12 @@ export async function sync(
     {
         shouldUpdate = false,
         force = false,
-    }: { shouldUpdate?: boolean; force?: boolean } = {},
+        showOutdatedOnly = false,
+    }: {
+        shouldUpdate?: boolean;
+        force?: boolean;
+        showOutdatedOnly?: boolean;
+    } = {},
 ) {
     for (const [name, dependency] of Object.entries(dependencies)) {
         validateVendorDependency(name, dependency);
@@ -55,6 +62,7 @@ export async function sync(
             config,
             shouldUpdate,
             force,
+            showOutdatedOnly,
         });
     }
 }
@@ -134,6 +142,7 @@ export async function install({
     shouldUpdate,
     force,
     newVersion,
+    showOutdatedOnly,
 }: {
     dependency: VendorDependency;
     configFile: ConfigFile;
@@ -142,6 +151,7 @@ export async function install({
     shouldUpdate?: boolean;
     force?: boolean;
     newVersion?: string;
+    showOutdatedOnly?: boolean;
 }) {
     const repo = ownerAndNameFromRepoUrl(dependency.repository);
 
@@ -175,6 +185,21 @@ export async function install({
             lockfilePath,
             newVersion,
         }));
+
+    if (showOutdatedOnly) {
+        if (needUpdate) {
+            if (dependency.version && dependency.version !== newVersion) {
+                console.log(
+                    `${dependency.name} ${red(dependency.version)} -> ${green(
+                        newVersion,
+                    )}`,
+                );
+            } else {
+                console.log(`${dependency.name} ${newVersion}`);
+            }
+        }
+        return;
+    }
 
     if (!needUpdate) {
         info(`${dependency.name} is up to date`);

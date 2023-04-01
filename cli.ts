@@ -19,6 +19,64 @@ const vendorOptions = await getConfig();
 
 const program = new Command();
 
+const syncCmd = new Command('sync')
+    .alias('s')
+    .option('-f, --force', 'Force sync')
+    .action(({ force }) => syncAll(!!force))
+    .summary('Sync config file')
+    .description('Sync all dependencies in the config file')
+    .addHelpText(
+        'after',
+        `
+Examples:
+vendor sync
+vendor sync -f
+`,
+    );
+
+const updateCmd = new Command('update')
+    .alias('upgrade')
+    .alias('bump')
+    .alias('up')
+    .alias('u')
+    .argument('[names...]')
+    .action((names) => {
+        if (names.length === 0) {
+            upgradeAll();
+        } else {
+            names.forEach((name: string) => {
+                upgradeOne(name);
+            });
+        }
+    })
+    .summary('Update outdated dependencies')
+    .description(
+        'Update all/selected dependencies to their latest version (the tag of the latest release)',
+    )
+    .addHelpText(
+        'after',
+        `
+Examples:
+    vendor update
+    vendor bump React
+    vendor update React Express
+`,
+    );
+
+const outdatedCmd = new Command('outdated')
+    .alias('o')
+    .action(() => showOutdated())
+    .summary('List outdated dependencies')
+    .description('List outdated dependencies')
+    .addHelpText(
+        'after',
+        `
+Examples:
+    vendor outdated
+    vendor o
+`,
+    );
+
 const installCmd = new Command('install')
     .alias('add')
     .alias('i')
@@ -105,50 +163,6 @@ Examples:
 `,
     );
 
-const updateCmd = new Command('update')
-    .alias('upgrade')
-    .alias('bump')
-    .alias('up')
-    .alias('u')
-    .argument('[names...]')
-    .action((names) => {
-        if (names.length === 0) {
-            upgradeAll();
-        } else {
-            names.forEach((name: string) => {
-                upgradeOne(name);
-            });
-        }
-    })
-    .summary('Update dependencies')
-    .description(
-        'Update all/selected dependencies to their latest version (the tag of the latest release)',
-    )
-    .addHelpText(
-        'after',
-        `
-Examples:
-    vendor update
-    vendor bump React
-    vendor update React Express
-`,
-    );
-
-const syncCmd = new Command('sync')
-    .alias('s')
-    .option('-f, --force', 'Force sync')
-    .action(({ force }) => syncAll(!!force))
-    .summary('Sync config file')
-    .description('Sync all dependencies in the config file')
-    .addHelpText(
-        'after',
-        `
-Examples:
-    vendor sync
-    vendor sync -f
-`,
-    );
-
 const loginCmd = new Command('login')
     .alias('auth')
     .argument('[token]', 'GitHub token (leave empty to login via browser)')
@@ -169,6 +183,7 @@ program
     .usage('command [options]')
     .addCommand(syncCmd)
     .addCommand(updateCmd)
+    .addCommand(outdatedCmd)
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
     .addCommand(loginCmd)
@@ -192,6 +207,13 @@ function syncAll(force: boolean) {
     sync(vendorOptions, {
         shouldUpdate: false,
         force,
+    });
+}
+
+function showOutdated() {
+    sync(vendorOptions, {
+        shouldUpdate: true,
+        showOutdatedOnly: true,
     });
 }
 
