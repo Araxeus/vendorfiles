@@ -1,4 +1,4 @@
-# Vendorfiles
+# Vendorfiles <!-- omit from toc -->
 
 [![NPM Version](https://img.shields.io/npm/v/vendorfiles)](https://www.npmjs.com/package/vendorfiles)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Araxeus/vendorfiles/blob/main/LICENSE)
@@ -10,11 +10,18 @@ Whether you need to manage CSS, JavaScript, images, binaries, or any other type 
 
 But that's not all - Vendorfiles is not limited to managing text files - it can also be used to install applications. By creating a vendorfile configuration inside a folder in your `$env.path`, and adding a repository such as fzf, you can specify the binary file you need from the zipped release asset. With this setup, it's easy to install, update, or delete the application and enjoy all the benefits of version control.
 
-## Table of Contents
+## Table of Contents <!-- omit from toc -->
 
 - [Installation](#installation)
 - [Configuration](#configuration)
+  - [GitHub Releases](#github-releases)
 - [Commands](#commands)
+  - [Sync](#sync)
+  - [Update](#update)
+  - [Outdated](#outdated)
+  - [Install](#install)
+  - [Uninstall](#uninstall)
+  - [Login](#login)
 
 ## Installation
 
@@ -122,7 +129,7 @@ To rename or move files, you can specify an object with the source file as the k
 You can download release assets by using the `{release}/` placeholder in the file path.
 
 Additionally, you can use the `{version}` placeholder to refer to the version of the dependency, without the trailing `v`. Here's an example:
-  
+
 ```json
 {
     "vendorDependencies": {
@@ -170,9 +177,11 @@ Usage: vendor command [options]
 
 Commands:
   sync|s [options]                            Sync config file
-  update|upgrade [names...]                   Update dependencies
+  update|upgrade [names...]                   Update outdated dependencies
+  outdated|o                                  List outdated dependencies
   install|add [options] <url/name> [version]  Install a dependency
   uninstall|remove [names...]                 Uninstall dependencies
+  login|auth [token]                          Login to GitHub
   help [command]                              display help for command
 
 Options:
@@ -211,6 +220,21 @@ Examples:
     vendor update
     vendor bump React
     vendor update React Express
+```
+
+### Outdated
+
+```text
+Usage: vendor outdated|o [options]
+
+List outdated dependencies
+
+Options:
+  -h, --help  display help for command
+
+Examples:
+    vendor outdated
+    vendor o
 ```
 
 ### Install
