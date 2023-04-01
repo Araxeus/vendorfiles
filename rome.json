@@ -15,7 +15,10 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentSize": 4
+    "indentSize": 4,
+    "ignore": [
+      "*.json"
+    ]
   },
   "linter": {
     "enabled": true,
@@ -26,7 +29,8 @@
         "noUnusedVariables": "error"
       },
       "nursery": {
-        "recommended": true
+        "recommended": true,
+        "noParameterAssign": "off"
       }
     }
   }

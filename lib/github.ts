@@ -122,7 +122,7 @@ export async function downloadReleaseFile({
 
     assert(
         !!asset_id,
-        `Release asset "${path}" was not found in ${release.url}`,
+        `Release asset "${path}" was not found in ${release.url}\nDid you forget to add a "v" before the version?`,
     );
 
     const requestOptions = octokit().request.endpoint(
