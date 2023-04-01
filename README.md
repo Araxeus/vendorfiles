@@ -304,7 +304,7 @@ You can use the [vendorfiles-action](https://github.com/marketplace/actions/vend
 
 ```yaml
 - uses: Araxeus/vendorfiles-action@v1
-    with:
+  with:
     token: ${{ secrets.GITHUB_TOKEN }}
     package-manager: yarn
 ```
