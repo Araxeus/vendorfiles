@@ -26,7 +26,7 @@ export type VendorDependencies = {
 };
 
 export type FileInputOutput = {
-    [input: string]: string | { [input: string]: string };
+    [input1: string]: string | { [input2: string]: string };
 };
 
 export type FilesArray = (string | FileInputOutput)[];
