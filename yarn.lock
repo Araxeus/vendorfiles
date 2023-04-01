@@ -628,13 +628,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ci-info@npm:^3.8.0":
-  version: 3.8.0
-  resolution: "ci-info@npm:3.8.0"
-  checksum: d0a4d3160497cae54294974a7246202244fff031b0a6ea20dd57b10ec510aa17399c41a1b0982142c105f3255aff2173e5c0dd7302ee1b2f28ba3debda375098
-  languageName: node
-  linkType: hard
-
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -2647,7 +2640,6 @@ __metadata:
     "@types/make-fetch-happen": ^10.0.1
     "@types/node": ^18.15.11
     "@types/parse-json": ^4.0.0
-    ci-info: ^3.8.0
     commander: ^10.0.0
     cpy-cli: ^4.2.0
     del-cli: ^5.0.0

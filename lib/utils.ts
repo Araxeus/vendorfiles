@@ -24,7 +24,7 @@ import { finished } from 'node:stream/promises';
 
 import parseJson from 'parse-json';
 
-import { getConfig } from './config.js';
+import { getConfig, getRunOptions } from './config.js';
 
 export function assert(condition: boolean, message: string): asserts condition {
     if (!condition) {
@@ -54,14 +54,17 @@ export function error(message: string): never {
 }
 
 export function warning(message: string): void {
+    if (getRunOptions().prMode) return;
     console.warn(yellow(`WARNING: ${message}`));
 }
 
 export function success(message: string): void {
+    if (getRunOptions().prMode) return;
     console.log(green(`SUCCESS: ${message}`));
 }
 
 export function info(message: string): void {
+    if (getRunOptions().prMode) return;
     console.log(cyan(`INFO: ${message}`));
 }
 
@@ -322,10 +325,13 @@ export function configFilesToVendorlockFiles(
     const obj = {};
     arr.forEach((item) => {
         if (typeof item !== 'string') {
-            Object.assign(obj, replaceVersionInObject(item, version));
+            Object.assign(
+                obj,
+                replaceVersionInObject(structuredClone(item), version),
+            );
         } else {
             Object.assign(obj, {
-                [item]: replaceVersionInObject(path.basename(item), version),
+                [item]: replaceVersion(path.basename(item), version),
             });
         }
         return true;

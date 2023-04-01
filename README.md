@@ -214,6 +214,7 @@ Usage: vendor update|upgrade [options] [names...]
 Update all/selected dependencies to their latest version (the tag of the latest release)
 
 Options:
+  -pr|--pr    Output pull request text for gh action (default: false)
   -h, --help  display help for command
 
 Examples:

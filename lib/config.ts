@@ -22,6 +22,16 @@ const defaultConfig = {
     vendorFolder: './vendor',
 };
 
+const runOptions = {
+    prMode: false,
+};
+export function getRunOptions(): typeof runOptions {
+    return runOptions;
+}
+export function setRunOptions(flags: typeof runOptions) {
+    Object.assign(runOptions, flags);
+}
+
 // function to get the configuration
 
 async function findFirstFile(folderPath: string, files: string[]) {
@@ -101,7 +111,7 @@ export async function getConfig(): Promise<VendorsOptions> {
     );
 
     const dependencies: VendorDependencies =
-        configFile.data.vendorDependencies || {};
+        structuredClone(configFile.data.vendorDependencies) || {};
     assert(
         typeof dependencies === 'object',
         `Invalid vendorDependencies key in ${configFile.path}`,
