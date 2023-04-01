@@ -3,7 +3,6 @@
 import type { FilesArray } from './lib/types.js';
 
 import { Command } from '@commander-js/extra-typings';
-import { isCI } from 'ci-info';
 
 import {
     assert,
@@ -12,7 +11,7 @@ import {
     ownerAndNameFromRepoUrl,
 } from './lib/utils.js';
 import { sync, install, uninstall } from './lib/commands.js';
-import { getConfig } from './lib/config.js';
+import { getConfig, setRunOptions } from './lib/config.js';
 import { findRepoUrl, login } from './lib/github.js';
 
 const vendorOptions = await getConfig();
@@ -40,9 +39,10 @@ const updateCmd = new Command('update')
     .alias('up')
     .alias('u')
     .argument('[names...]')
-    .action((names) => {
+    .option('-pr|--pr', 'Output pull request text for gh action', false)
+    .action((names, { pr }) => {
         if (names.length === 0) {
-            upgradeAll();
+            upgradeAll(pr);
         } else {
             names.forEach((name: string) => {
                 upgradeOne(name);
@@ -193,11 +193,13 @@ program
         '-v, --version',
         'output the current version',
     )
-    // TODO add ci option (which will print pr details to stdout on update)
-    .option('-c, --ci', 'CI mode', isCI)
     .parse();
 
-function upgradeAll() {
+function upgradeAll(prMode: boolean) {
+    if (prMode) {
+        setRunOptions({ prMode });
+    }
+
     sync(vendorOptions, {
         shouldUpdate: true,
     });

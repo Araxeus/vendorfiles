@@ -14,7 +14,7 @@ import os from 'node:os';
 
 import { unarchive } from 'unarchive';
 
-import { writeConfig } from './config.js';
+import { getRunOptions, writeConfig } from './config.js';
 import github from './github.js';
 import {
     ownerAndNameFromRepoUrl,
@@ -50,12 +50,20 @@ export async function sync(
         showOutdatedOnly?: boolean;
     } = {},
 ) {
+    const updatedDeps: {
+        name: string;
+        url: string;
+        oldVersion: string;
+        newVersion: string;
+    }[] = [];
     for (const [name, dependency] of Object.entries(dependencies)) {
         validateVendorDependency(name, dependency);
 
         dependency.name = name;
 
-        await install({
+        const oldVersion = dependency.version;
+
+        const newVersion = await install({
             dependency,
             configFile,
             configFileSettings,
@@ -64,6 +72,32 @@ export async function sync(
             force,
             showOutdatedOnly,
         });
+
+        if (
+            shouldUpdate &&
+            !showOutdatedOnly &&
+            oldVersion &&
+            newVersion &&
+            oldVersion !== newVersion
+        ) {
+            updatedDeps.push({
+                name,
+                oldVersion,
+                newVersion,
+                url: dependency.repository,
+            });
+        }
+    }
+
+    if (getRunOptions().prMode && updatedDeps.length > 0) {
+        const updatedDepsString = updatedDeps
+            .map(
+                (dep) =>
+                    `* Bump [${dep.name}](${dep.url}) from ❌ ${dep.oldVersion} to ✅ ${dep.newVersion}`,
+            )
+            .join('\n');
+
+        process.stdout.write(updatedDepsString);
     }
 }
 
@@ -152,7 +186,7 @@ export async function install({
     force?: boolean;
     newVersion?: string;
     showOutdatedOnly?: boolean;
-}) {
+}): Promise<string | undefined> {
     const repo = ownerAndNameFromRepoUrl(dependency.repository);
 
     dependency.name ||= repo.name;
@@ -380,11 +414,10 @@ export async function install({
         lockfilePath,
     );
 
-    const old_version = dependency.version;
+    const oldVersion = dependency.version;
 
-    if (newVersion !== old_version) {
+    if (newVersion !== oldVersion) {
         configFile.vendorDependencies[dependency.name] = {
-            name: dependency.name,
             version: newVersion,
             repository: dependency.repository,
             files: dependency.files,
@@ -398,8 +431,9 @@ export async function install({
 
     if (shouldUpdate) {
         success(
-            `Updated ${dependency.name} from ${old_version} to ${newVersion}`,
+            `Updated ${dependency.name} from ${oldVersion} to ${newVersion}`,
         );
+        return newVersion;
     } else {
         success(`Installed ${dependency.name} ${newVersion}`);
     }
