@@ -56,41 +56,37 @@ async function getConfigFile(folderPath: string): Promise<
       } & ConfigFileSettings)
     | null
 > {
-    const tomlConfig = await findFirstFile(folderPath, ['vendor.toml']);
-    if (tomlConfig) {
-        return {
-            format: 'toml',
-            data: toml.parse(tomlConfig.data, {
-                joiner: EOL,
-            }) as ConfigFile,
-            path: tomlConfig.path,
-            indent: detectIndent(tomlConfig.data).indent || 2,
-        };
-    }
-
-    const ymlConfig = await findFirstFile(folderPath, [
+    const config = await findFirstFile(folderPath, [
+        'vendor.toml',
         'vendor.yml',
         'vendor.yaml',
-    ]);
-    if (ymlConfig) {
-        return {
-            format: 'yml',
-            data: yaml.parse(ymlConfig.data),
-            path: ymlConfig.path,
-            indent: detectIndent(ymlConfig.data).indent || 2,
-        };
-    }
-
-    const jsonConfig = await findFirstFile(folderPath, [
         'vendor.json',
         'package.json',
     ]);
-    if (jsonConfig) {
+    if (config) {
+        let data: ConfigFile;
+        let format: 'toml' | 'yml' | 'json';
+        if (config.path.endsWith('.toml')) {
+            data = toml.parse(config.data, {
+                joiner: EOL,
+            }) as ConfigFile;
+            format = 'toml';
+        } else if (
+            config.path.endsWith('.yml') ||
+            config.path.endsWith('.yaml')
+        ) {
+            data = yaml.parse(config.data);
+            format = 'yml';
+        } else {
+            data = parseJson(config.data);
+            format = 'json';
+        }
         return {
-            format: 'json',
-            data: parseJson(jsonConfig.data),
-            path: jsonConfig.path,
-            indent: detectIndent(jsonConfig.data).indent || 2,
+            format,
+            data,
+            path: config.path,
+            indent: detectIndent(config.data).indent || 2,
+            finalNewLine: config.data.match(/\r?\n$/)?.[0] || '',
         };
     }
 
@@ -136,6 +132,7 @@ export async function getConfig(): Promise<VendorsOptions> {
             format: configFile.format,
             path: configFile.path,
             indent: configFile.indent,
+            finalNewLine: configFile.finalNewLine,
         },
     };
 
@@ -147,8 +144,8 @@ export async function writeConfig({
     configFileSettings,
 }: { configFile: ConfigFile; configFileSettings: ConfigFileSettings }) {
     const indent = configFileSettings.indent;
-    switch (configFileSettings.format) {
-        case 'toml':
+    const stringify = {
+        toml: (configFile: ConfigFile) => {
             Object.keys(configFile.vendorDependencies).forEach((key) => {
                 if (configFile.vendorDependencies[key]) {
                     configFile.vendorDependencies[key] = Section(
@@ -156,30 +153,23 @@ export async function writeConfig({
                     );
                 }
             });
-            await writeFile(
-                configFileSettings.path,
-                // @ts-expect-error toml doesn't understand that the ConfigFile type is just an object
-                toml.stringify(configFile, {
-                    newline: EOL,
-                    indent: configFileSettings.indent,
-                    newlineAround: 'section',
-                }),
-            );
-            break;
-        case 'yml':
-            await writeFile(
-                configFileSettings.path,
-                yaml.stringify(configFile, {
-                    indent:
-                        typeof indent === 'number' ? indent : indent?.length,
-                }),
-            );
-            break;
-        case 'json':
-            await writeFile(
-                configFileSettings.path,
-                JSON.stringify(configFile, null, indent),
-            );
-            break;
-    }
+            // @ts-expect-error toml doesn't understand that the ConfigFile type is just an object
+            return toml.stringify(configFile, {
+                newline: EOL,
+                indent,
+                newlineAround: 'section',
+            });
+        },
+        yml: (configFile: ConfigFile) =>
+            yaml.stringify(configFile, {
+                indent: typeof indent === 'number' ? indent : indent?.length,
+            }),
+        json: (configFile: ConfigFile) =>
+            JSON.stringify(configFile, null, indent),
+    };
+    const data = stringify[configFileSettings.format](configFile);
+    await writeFile(
+        configFileSettings.path,
+        data + configFileSettings.finalNewLine,
+    );
 }
