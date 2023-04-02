@@ -24,11 +24,12 @@ const defaultConfig = {
 
 const runOptions = {
     prMode: false,
+    configFolder: '',
 };
 export function getRunOptions(): typeof runOptions {
     return runOptions;
 }
-export function setRunOptions(flags: typeof runOptions) {
+export function setRunOptions(flags: Partial<typeof runOptions>) {
     Object.assign(runOptions, flags);
 }
 
@@ -101,7 +102,10 @@ export async function getConfig(): Promise<VendorsOptions> {
     if (res) return res;
 
     const folderPath = await realpath(
-        process.env.INIT_CWD || process.env.PWD || process.cwd(),
+        runOptions.configFolder ||
+            process.env.INIT_CWD ||
+            process.env.PWD ||
+            process.cwd(),
     );
 
     const configFile = await getConfigFile(folderPath);

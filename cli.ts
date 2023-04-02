@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import type { FilesArray } from './lib/types.js';
+import type { FilesArray, VendorsOptions } from './lib/types.js';
 
 import { Command } from '@commander-js/extra-typings';
 
@@ -14,7 +14,7 @@ import { sync, install, uninstall } from './lib/commands.js';
 import { getConfig, setRunOptions } from './lib/config.js';
 import { findRepoUrl, login } from './lib/github.js';
 
-const vendorOptions = await getConfig();
+let vendorOptions: VendorsOptions;
 
 const program = new Command();
 
@@ -28,8 +28,8 @@ const syncCmd = new Command('sync')
         'after',
         `
 Examples:
-vendor sync
-vendor sync -f
+    vendor sync
+    vendor sync -f
 `,
     );
 
@@ -131,9 +131,9 @@ const installCmd = new Command('install')
         'after',
         `
 Examples:
-  vendor install React -n MyReact -f README.md
-  vendor add Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
-  vendor i https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
+    vendor install React -n MyReact -f README.md
+    vendor add Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
+    vendor i https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
 `,
     );
 
@@ -180,6 +180,14 @@ Examples:
 
 program
     .name('vendor')
+    .hook('preAction', async () => {
+        setRunOptions({
+            configFolder: program.getOptionValue('folder') as
+                | string
+                | undefined,
+        });
+        vendorOptions = await getConfig();
+    })
     .usage('command [options]')
     .addCommand(syncCmd)
     .addCommand(updateCmd)
@@ -187,7 +195,7 @@ program
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
     .addCommand(loginCmd)
-
+    .option('-dir, --folder [folder]', 'Folder containing the config file')
     .version(
         (await getPackageJson()).version || 'unknown',
         '-v, --version',

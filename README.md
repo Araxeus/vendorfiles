@@ -186,8 +186,8 @@ Commands:
   help [command]                              display help for command
 
 Options:
+  -dir, --folder [folder]                     Folder containing the config file
   -v, --version                               output the current version
-  -c, --ci                                    CI mode (default: false)
   -h, --help                                  display help for command
 ```
 
@@ -257,9 +257,9 @@ Options:
   -h, --help              display help for command
 
 Examples:
-  vendor install React -n MyReact -f README.md
-  vendor add Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
-  vendor i https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
+    vendor install React -n MyReact -f README.md
+    vendor add Araxeus/vendorfiles v1.0.0 -f README.md LICENSE
+    vendor i https://github.com/th-ch/youtube-music -f "{release}/YouTube-Music-{version}.exe"
 ```
 
 ### Uninstall
