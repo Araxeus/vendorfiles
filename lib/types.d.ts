@@ -14,7 +14,8 @@ export type ConfigFile = {
 export type ConfigFileSettings = {
     format: 'toml' | 'yml' | 'json';
     path: string;
-    indent?: number | string;
+    indent: number | string;
+    finalNewLine: string;
 };
 
 export type VendorConfig = {
