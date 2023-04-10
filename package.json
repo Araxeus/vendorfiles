@@ -51,7 +51,7 @@
     "env-paths": "^3.0.0",
     "make-fetch-happen": "^11.0.3",
     "open": "^9.1.0",
-    "parse-json": "^6.0.2",
+    "parse-json": "^7.0.0",
     "unarchive": "^1.1.1",
     "yaml": "^2.2.1"
   },
