@@ -114,7 +114,7 @@ const installCmd = new Command('install')
                 {};
 
             assert(
-                !!files && !!deps?.files,
+                !!files || !!deps?.files,
                 'you must provide files to install with -f or --files <files...>',
             );
 
