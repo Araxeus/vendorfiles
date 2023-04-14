@@ -11,6 +11,7 @@ import getEnvPaths from 'env-paths';
 import _fetch from 'make-fetch-happen';
 
 const envPaths = getEnvPaths('vendorfiles');
+// @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
 const fetch = _fetch.defaults({
     cachePath: envPaths.cache,
     //cache: 'default',
@@ -169,6 +170,7 @@ export async function findRepoUrl(name: string) {
 
 export async function login(token?: string) {
     if (token) {
+        // @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
         const res = await fetch('https://api.github.com', {
             cache: 'no-store',
             method: 'HEAD',

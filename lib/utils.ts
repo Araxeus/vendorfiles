@@ -234,7 +234,7 @@ export async function getAllFilesFromConfig() {
 }
 
 export async function readLockfile(filepath: string): Promise<Lockfile> {
-    return parseJson(await readFile(filepath, 'utf-8'));
+    return parseJson(await readFile(filepath, 'utf-8')) as Lockfile;
 }
 
 export async function getFilesFromLockfile(
