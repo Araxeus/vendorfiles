@@ -49,9 +49,9 @@
     "detect-indent": "^7.0.1",
     "dotenv": "^16.0.3",
     "env-paths": "^3.0.0",
-    "make-fetch-happen": "^11.0.3",
+    "make-fetch-happen": "^11.1.0",
     "open": "^9.1.0",
-    "parse-json": "^6.0.2",
+    "parse-json": "^7.0.0",
     "unarchive": "^1.1.1",
     "yaml": "^2.2.1"
   },
@@ -62,8 +62,8 @@
     "cpy-cli": "^4.2.0",
     "del-cli": "^5.0.0",
     "rome": "^12.0.0",
-    "type-fest": "^3.7.2",
-    "typescript": "^5.0.3"
+    "type-fest": "^3.8.0",
+    "typescript": "^5.0.4"
   },
   "vendorDependencies": {
     "fzf": {
