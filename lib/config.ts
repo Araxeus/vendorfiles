@@ -78,7 +78,7 @@ async function getConfigFile(folderPath: string): Promise<
             data = yaml.parse(config.data);
             format = 'yml';
         } else {
-            data = parseJson(config.data);
+            data = parseJson(config.data) as ConfigFile;
             format = 'json';
         }
         return {
