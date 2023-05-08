@@ -340,10 +340,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.15.11":
+"@types/node@npm:*":
   version: 18.16.0
   resolution: "@types/node@npm:18.16.0"
   checksum: 63e0042136663b9e85ce503a4c65406cc6621fdba63ea66c74b4b1364a9aa9bdb57cadcb76696abab177f38a819b0fa6ace9e7f1647dcb990aedb1b4bd01012f
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.1.1":
+  version: 20.1.1
+  resolution: "@types/node@npm:20.1.1"
+  checksum: 47961ee23f873c14c3f6045422ff3059f3bfb10231ef3080a7a72d7215cc8c2623fa8cedb7b246305962fa9c1e0c9e381e04b12eb3e9ec5d076025c6231ac8da
   languageName: node
   linkType: hard
 
@@ -2653,7 +2660,7 @@ __metadata:
     "@octokit/auth-oauth-device": ^4.0.4
     "@octokit/rest": ^19.0.7
     "@types/make-fetch-happen": ^10.0.1
-    "@types/node": ^18.15.11
+    "@types/node": ^20.1.1
     "@types/parse-json": ^4.0.0
     commander: ^10.0.0
     cpy-cli: ^4.2.0
