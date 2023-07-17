@@ -2565,6 +2565,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"type-fest@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "type-fest@npm:4.0.0"
+  checksum: 716f32ac341b1cf35bf08cc5cc6a11822436333966d3f4d94758112f45829efa3efb643ebc74a53e514e68a1bddab144d0153d654e072b41ba9bd98bcf841d75
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^5.0.4":
   version: 5.0.4
   resolution: "typescript@npm:5.0.4"
@@ -2665,7 +2672,7 @@ __metadata:
     open: ^9.1.0
     parse-json: ^7.0.0
     rome: ^12.0.0
-    type-fest: ^3.8.0
+    type-fest: ^4.0.0
     typescript: ^5.0.4
     unarchive: ^1.1.1
     yaml: ^2.2.1
