@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@types/make-fetch-happen": "^10.0.1",
-    "@types/node": "^18.15.11",
+    "@types/node": "^20.4.4",
     "@types/parse-json": "^4.0.0",
     "cpy-cli": "^4.2.0",
     "del-cli": "^5.0.0",
