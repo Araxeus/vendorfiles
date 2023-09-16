@@ -27,8 +27,6 @@ function maybe(name: string, value?: string | null) {
 }
 
 async function search(query: string) {
-    query ||= 'react';
-
     const res = await octokit.search.repos({
         q: query,
         per_page: 1,
