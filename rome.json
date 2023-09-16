@@ -28,9 +28,11 @@
         "noUndeclaredVariables": "error",
         "noUnusedVariables": "error"
       },
-      "nursery": {
-        "recommended": true,
+      "style": {
         "noParameterAssign": "off"
+      },
+      "nursery": {
+        "recommended": true
       }
     }
   }
