@@ -1,4 +1,3 @@
-.pnp.*
 .env
 dist/*
 vendor/*
