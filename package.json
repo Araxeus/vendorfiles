@@ -53,9 +53,9 @@
     "env-paths": "^3.0.0",
     "make-fetch-happen": "^13.0.0",
     "open": "^9.1.0",
-    "parse-json": "^7.1.0",
+    "parse-json": "^8.1.0",
     "unarchive": "^1.1.1",
-    "yaml": "^2.3.2"
+    "yaml": "^2.4.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.7.3",
