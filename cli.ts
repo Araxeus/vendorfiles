@@ -4,15 +4,15 @@ import type { FilesArray, VendorsOptions } from './lib/types.js';
 
 import { Command } from '@commander-js/extra-typings';
 
+import { install, sync, uninstall } from './lib/commands.js';
+import { getConfig, setRunOptions } from './lib/config.js';
+import { findRepoUrl, login } from './lib/github.js';
 import {
     assert,
     getPackageJson,
     isGitHubUrl,
     ownerAndNameFromRepoUrl,
 } from './lib/utils.js';
-import { sync, install, uninstall } from './lib/commands.js';
-import { getConfig, setRunOptions } from './lib/config.js';
-import { findRepoUrl, login } from './lib/github.js';
 
 let vendorOptions: VendorsOptions;
 
@@ -44,9 +44,9 @@ const updateCmd = new Command('update')
         if (names.length === 0) {
             upgradeAll(pr);
         } else {
-            names.forEach((name: string) => {
+            for (const name of names) {
                 upgradeOne(name);
-            });
+            }
         }
     })
     .summary('Update outdated dependencies')
@@ -148,9 +148,9 @@ const uninstallCmd = new Command('uninstall')
     .action((names) => {
         assert(names.length > 0, 'No package names provided');
 
-        names.forEach((name: string) => {
+        for (const name of names) {
             uninstallOne(name);
-        });
+        }
     })
     .summary('Uninstall dependencies')
     .description('Uninstall all/selected dependencies')

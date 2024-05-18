@@ -1,7 +1,9 @@
 {
+  "$schema": "https://biomejs.dev/schemas/1.7.3/schema.json",
   "files": {
     "ignore": [
       "./.pnp.*",
+      "./.yarn/*",
       "./dist/*",
       "./vendor/*",
       "./lib/auth.js"
@@ -12,10 +14,15 @@
       "quoteStyle": "single"
     }
   },
+  "json": {
+    "formatter": {
+      "enabled": false
+    }
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentSize": 4,
+    "indentWidth": 4,
     "ignore": [
       "*.json"
     ]
@@ -28,9 +35,11 @@
         "noUndeclaredVariables": "error",
         "noUnusedVariables": "error"
       },
-      "nursery": {
-        "recommended": true,
+      "style": {
         "noParameterAssign": "off"
+      },
+      "nursery": {
+        "recommended": true
       }
     }
   }

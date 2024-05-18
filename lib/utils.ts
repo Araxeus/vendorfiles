@@ -1,3 +1,4 @@
+import type { PackageJson } from 'type-fest';
 import type {
     FilesArray,
     Lockfile,
@@ -7,19 +8,18 @@ import type {
     VendorLock,
     VendorLockFiles,
 } from './types.js';
-import type { PackageJson } from 'type-fest';
 
+import { deepStrictEqual } from 'node:assert';
+import { createWriteStream, existsSync } from 'node:fs';
 import {
+    mkdir,
     readFile,
-    writeFile,
+    readdir,
     realpath,
     rm,
-    readdir,
-    mkdir,
+    writeFile,
 } from 'node:fs/promises';
-import { createWriteStream, existsSync } from 'node:fs';
 import path from 'node:path';
-import { deepStrictEqual } from 'node:assert';
 import { finished } from 'node:stream/promises';
 
 import parseJson from 'parse-json';
@@ -214,8 +214,7 @@ export async function getAllFilesFromConfig() {
                 dependency.version || '',
             ),
         );
-
-        filesFromConfig.forEach((file) => {
+        for (const file of filesFromConfig) {
             files[
                 path.join(
                     getDependencyFolder({
@@ -227,7 +226,7 @@ export async function getAllFilesFromConfig() {
                     file,
                 )
             ] = name;
-        });
+        }
     }
 
     return files;
@@ -305,15 +304,15 @@ export async function getPackageJson(): Promise<PackageJson> {
     return pkg;
 }
 
-// rome-ignore lint/suspicious/noExplicitAny: circular types are hard
+// biome-ignore lint/suspicious/noExplicitAny: circular types are hard
 export function replaceVersionInObject(obj: any, version: string) {
     if (typeof obj === 'string') {
         return replaceVersion(obj, version);
     }
     if (typeof obj === 'object') {
-        Object.keys(obj).forEach((key) => {
+        for (const key of Object.keys(obj)) {
             obj[key] = replaceVersionInObject(obj[key], version);
-        });
+        }
     }
     return obj;
 }
@@ -323,7 +322,7 @@ export function configFilesToVendorlockFiles(
     version: string,
 ): VendorLockFiles {
     const obj = {};
-    arr.forEach((item) => {
+    for (const item of arr) {
         if (typeof item !== 'string') {
             Object.assign(
                 obj,
@@ -334,8 +333,7 @@ export function configFilesToVendorlockFiles(
                 [item]: replaceVersion(path.basename(item), version),
             });
         }
-        return true;
-    });
+    }
 
     return obj;
 }

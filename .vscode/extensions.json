@@ -1,6 +1,6 @@
 {
   "recommendations": [
     "arcanis.vscode-zipfs",
-    "rome.rome"
+    "biomejs.biome"
   ]
 }

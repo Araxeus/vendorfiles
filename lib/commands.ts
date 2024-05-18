@@ -7,35 +7,35 @@ import type {
     VendorsOptions,
 } from './types.js';
 
-import path from 'node:path';
-import fs from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import fs from 'node:fs/promises';
 import os from 'node:os';
+import path from 'node:path';
 
 import { unarchive } from 'unarchive';
 
 import { getRunOptions, writeConfig } from './config.js';
 import github from './github.js';
 import {
-    ownerAndNameFromRepoUrl,
-    writeLockfile,
+    assert,
     checkIfNeedsUpdate,
+    configFilesToVendorlockFiles,
+    deleteFileAndEmptyFolders,
     error,
-    info,
-    success,
-    validateVendorDependency,
+    flatFiles,
     getDependencyFolder,
     getFilesFromLockfile,
-    readLockfile,
-    flatFiles,
-    deleteFileAndEmptyFolders,
-    readableToFile,
-    configFilesToVendorlockFiles,
-    replaceVersion,
-    random,
-    assert,
-    red,
     green,
+    info,
+    ownerAndNameFromRepoUrl,
+    random,
+    readLockfile,
+    readableToFile,
+    red,
+    replaceVersion,
+    success,
+    validateVendorDependency,
+    writeLockfile,
 } from './utils.js';
 
 export async function sync(
@@ -287,7 +287,9 @@ export async function install({
             if (input.startsWith('{release}/')) {
                 releaseFiles.push({ input, output });
                 return;
-            } else if (typeof output !== 'string') {
+            }
+
+            if (typeof output !== 'string') {
                 error(
                     `File ${JSON.stringify(
                         file,
@@ -434,7 +436,7 @@ export async function install({
             `Updated ${dependency.name} from ${oldVersion} to ${newVersion}`,
         );
         return newVersion;
-    } else {
-        success(`Installed ${dependency.name} ${newVersion}`);
     }
+
+    success(`Installed ${dependency.name} ${newVersion}`);
 }

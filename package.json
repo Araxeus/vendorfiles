@@ -2,14 +2,16 @@
   "name": "vendorfiles",
   "author": "Araxeus",
   "description": "A CLI tool to manage vendor files",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "license": "MIT",
   "repository": "https://github.com/Araxeus/vendorfiles",
   "engines": {
-    "node": ">=17.0.0"
+    "node": ">=18.0.0",
+    "npm": "please-use-yarnv4+",
+    "yarn": ">4"
   },
-  "packageManager": "yarn@3.5.0",
+  "packageManager": "yarn@4.2.2",
   "files": [
     "dist"
   ],
@@ -36,34 +38,34 @@
     "start": "yarn build && node dist/cli.js",
     "test": "yarn build && node dist/test.js",
     "build": "del-cli dist && tsc && cpy lib/auth.js lib/types.d.ts dist",
-    "format": "rome format . --write",
-    "check": "tsc --noEmit && rome ci . && yarn start sync",
+    "format": "biome format . --write",
+    "check": "tsc --noEmit && biome ci . && yarn start sync",
     "publish": "yarn check && yarn npm publish"
   },
   "dependencies": {
-    "@commander-js/extra-typings": "^10.0.3",
+    "@commander-js/extra-typings": "^12.0.1",
     "@ltd/j-toml": "^1.38.0",
-    "@octokit/auth-oauth-device": "^4.0.4",
-    "@octokit/rest": "^19.0.7",
-    "commander": "^10.0.0",
+    "@octokit/auth-oauth-device": "^7.1.1",
+    "@octokit/rest": "^20.1.1",
+    "commander": "^12.1.0",
     "detect-indent": "^7.0.1",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.4.5",
     "env-paths": "^3.0.0",
-    "make-fetch-happen": "^11.1.0",
-    "open": "^9.1.0",
-    "parse-json": "^7.0.0",
+    "make-fetch-happen": "^13.0.1",
+    "open": "^10.1.0",
+    "parse-json": "^8.1.0",
     "unarchive": "^1.1.1",
-    "yaml": "^2.2.1"
+    "yaml": "^2.4.2"
   },
   "devDependencies": {
-    "@types/make-fetch-happen": "^10.0.1",
-    "@types/node": "^18.15.11",
-    "@types/parse-json": "^4.0.0",
-    "cpy-cli": "^4.2.0",
-    "del-cli": "^5.0.0",
-    "rome": "^12.0.0",
-    "type-fest": "^3.8.0",
-    "typescript": "^5.0.4"
+    "@biomejs/biome": "^1.7.3",
+    "@types/make-fetch-happen": "^10.0.4",
+    "@types/node": "^20.12.12",
+    "@types/parse-json": "^4.0.2",
+    "cpy-cli": "^5.0.0",
+    "del-cli": "^5.1.0",
+    "type-fest": "^4.18.2",
+    "typescript": "=5.0.4"
   },
   "vendorDependencies": {
     "fzf": {

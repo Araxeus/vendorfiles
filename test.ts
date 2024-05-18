@@ -2,7 +2,7 @@
 // import { sync } from './lib/commands.js';
 // const config = await getConfig();
 
-import { trimStartMatches, error, info } from './lib/utils.js';
+import { error, info, trimStartMatches } from './lib/utils.js';
 
 const args = process.argv
     .slice(2)
@@ -27,8 +27,6 @@ function maybe(name: string, value?: string | null) {
 }
 
 async function search(query: string) {
-    query ||= 'react';
-
     const res = await octokit.search.repos({
         q: query,
         per_page: 1,
