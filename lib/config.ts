@@ -1,9 +1,9 @@
 import { assert } from './utils.js';
 
 import toml, { Section } from '@ltd/j-toml';
-import yaml from 'yaml';
 import detectIndent from 'detect-indent';
 import parseJson from 'parse-json';
+import yaml from 'yaml';
 
 import type {
     ConfigFile,
@@ -13,9 +13,9 @@ import type {
     VendorsOptions,
 } from './types.js';
 
-import { EOL } from 'os';
-import { readFile, realpath, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { readFile, realpath, writeFile } from 'node:fs/promises';
+import { EOL } from 'node:os';
 import path from 'node:path';
 
 const defaultConfig = {
@@ -146,13 +146,13 @@ export async function writeConfig({
     const indent = configFileSettings.indent;
     const stringify = {
         toml: (configFile: ConfigFile) => {
-            Object.keys(configFile.vendorDependencies).forEach((key) => {
+            for (const key of Object.keys(configFile.vendorDependencies)) {
                 if (configFile.vendorDependencies[key]) {
                     configFile.vendorDependencies[key] = Section(
                         configFile.vendorDependencies[key],
                     );
                 }
-            });
+            }
             // @ts-expect-error toml doesn't understand that the ConfigFile type is just an object
             return toml.stringify(configFile, {
                 newline: EOL,

@@ -1,14 +1,14 @@
 import type { Repository } from './types.js';
 
-import { assert, warning, success, error } from './utils.js';
+import { assert, error, success, warning } from './utils.js';
 
-import { Octokit } from '@octokit/rest';
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
-import { g, s } from './auth.js';
-import open from 'open';
+import { Octokit } from '@octokit/rest';
 import * as dotenv from 'dotenv';
 import getEnvPaths from 'env-paths';
 import _fetch from 'make-fetch-happen';
+import open from 'open';
+import { g, s } from './auth.js';
 
 const envPaths = getEnvPaths('vendorfiles');
 // @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end

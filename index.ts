@@ -1,22 +1,22 @@
 export * from './lib/commands.js';
 export * from './lib/config.js';
 export * from './lib/github.js';
-export * from './lib/utils.js';
 export type {
-    Repository,
     ConfigFile,
     ConfigFileSettings,
-    VendorConfig,
     FileInputOutput,
     FilesArray,
     Lockfile,
-    VendorLock,
-    VendorLockFiles,
-    VendorLockFile,
+    Repository,
+    VendorConfig,
     VendorDependencies,
     VendorDependency,
+    VendorLock,
+    VendorLockFile,
+    VendorLockFiles,
     VendorsOptions,
 } from './lib/types.d.ts';
+export * from './lib/utils.js';
 
 // Soon™:
 // > add a --config option to specify a folder where to look for the config file

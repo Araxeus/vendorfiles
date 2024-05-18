@@ -2,7 +2,7 @@
 // import { sync } from './lib/commands.js';
 // const config = await getConfig();
 
-import { trimStartMatches, error, info } from './lib/utils.js';
+import { error, info, trimStartMatches } from './lib/utils.js';
 
 const args = process.argv
     .slice(2)
