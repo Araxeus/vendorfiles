@@ -123,12 +123,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commander-js/extra-typings@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "@commander-js/extra-typings@npm:11.0.0"
+"@commander-js/extra-typings@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@commander-js/extra-typings@npm:12.0.1"
   peerDependencies:
-    commander: 11.0.x
-  checksum: 10/0a41147f1324b9d52875375b4c9ffb125dfe2663415d5161eee9dc42877d6db126eda234776cc8676f0414d7d041ad605017c2d92ea14c6abd38f50c0eb1196e
+    commander: ~12.0.0
+  checksum: 10/cd094ec7fa789dd91e20942727f18811b05bdd0006dfeefddbd3054e4ef89592bb20b7a1e93edfa86a77603045c714231a8ae7804ad153775258e74f9f378208
   languageName: node
   linkType: hard
 
@@ -757,10 +757,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "commander@npm:11.0.0"
-  checksum: 10/71cf453771c15d4e94afdd76a1e9bb31597dbc5f33130a1d399a4a7bc14eac765ebca7f0e077f347e5119087f6faa0017fd5e3cb6e4fc5c453853334c26162bc
+"commander@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "commander@npm:12.1.0"
+  checksum: 10/cdaeb672d979816853a4eed7f1310a9319e8b976172485c2a6b437ed0db0a389a44cfb222bfbde772781efa9f215bdd1b936f80d6b249485b465c6cb906e1f93
   languageName: node
   linkType: hard
 
@@ -2789,14 +2789,14 @@ __metadata:
   resolution: "vendorfiles@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^1.7.3"
-    "@commander-js/extra-typings": "npm:^11.0.0"
+    "@commander-js/extra-typings": "npm:^12.0.1"
     "@ltd/j-toml": "npm:^1.38.0"
     "@octokit/auth-oauth-device": "npm:^6.0.0"
     "@octokit/rest": "npm:^20.0.1"
     "@types/make-fetch-happen": "npm:^10.0.1"
     "@types/node": "npm:^20.6.2"
     "@types/parse-json": "npm:^4.0.0"
-    commander: "npm:^11.0.0"
+    commander: "npm:^12.1.0"
     cpy-cli: "npm:^5.0.0"
     del-cli: "npm:^5.1.0"
     detect-indent: "npm:^7.0.1"
