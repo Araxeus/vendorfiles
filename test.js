@@ -22,11 +22,11 @@ switch (args[0]) {
         info('Usage: test search [query]');
 }
 
-function maybe(name: string, value?: string | null) {
+function maybe(name, value) {
     return value ? { [name]: value } : {};
 }
 
-async function search(query: string) {
+async function search(query) {
     const res = await octokit.search.repos({
         q: query,
         per_page: 1,
