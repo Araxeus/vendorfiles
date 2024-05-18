@@ -7,9 +7,7 @@
   "license": "MIT",
   "repository": "https://github.com/Araxeus/vendorfiles",
   "engines": {
-    "node": ">=18.0.0",
-    "npm": "please-use-yarnv4+",
-    "yarn": ">4"
+    "node": ">=18.0.0"
   },
   "packageManager": "yarn@4.2.2",
   "files": [
