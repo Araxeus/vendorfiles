@@ -3,6 +3,7 @@
   "files": {
     "ignore": [
       "./.pnp.*",
+      "./.yarn/*",
       "./dist/*",
       "./vendor/*",
       "./lib/auth.js"
