@@ -2,7 +2,7 @@
   "name": "vendorfiles",
   "author": "Araxeus",
   "description": "A CLI tool to manage vendor files",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "type": "module",
   "license": "MIT",
   "repository": "https://github.com/Araxeus/vendorfiles",
