@@ -153,11 +153,11 @@ __metadata:
   linkType: hard
 
 "@commander-js/extra-typings@npm:^12.0.1":
-  version: 12.0.1
-  resolution: "@commander-js/extra-typings@npm:12.0.1"
+  version: 12.1.0
+  resolution: "@commander-js/extra-typings@npm:12.1.0"
   peerDependencies:
-    commander: ~12.0.0
-  checksum: 10/cd094ec7fa789dd91e20942727f18811b05bdd0006dfeefddbd3054e4ef89592bb20b7a1e93edfa86a77603045c714231a8ae7804ad153775258e74f9f378208
+    commander: ~12.1.0
+  checksum: 10/489ef40dcf18508da5d8db288fa1536e294773b8d07e4c1edee6709972fe4310e3713819ef10bdc1d234615c5cf42df6acf9ddce0b31c6c8114be704fd626971
   languageName: node
   linkType: hard
 
