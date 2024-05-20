@@ -800,9 +800,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compressing@npm:^1.8.0":
-  version: 1.9.0
-  resolution: "compressing@npm:1.9.0"
+"compressing@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "compressing@npm:1.10.0"
   dependencies:
     "@eggjs/yauzl": "npm:^2.11.0"
     flushwritable: "npm:^1.0.0"
@@ -813,7 +813,7 @@ __metadata:
     streamifier: "npm:^0.1.1"
     tar-stream: "npm:^1.5.2"
     yazl: "npm:^2.4.2"
-  checksum: 10/ddaec9cc1a6a7eef4b3f35fea28ebf6434b88398bcdb492d44fbb2b7a7bb6386a866d13a954df21f23a50f73c81bc561395a71fa1b4ab62ae5fd0a9a3403ec19
+  checksum: 10/fa14f3c838e3a3028a364f97adb6f26f0f8acdc77b579d692917c3dd37ce27c944bdb6964298e0f533c3ddfb26f489fd716368a3652896d4baf86eb6ce4996a8
   languageName: node
   linkType: hard
 
@@ -1137,14 +1137,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-type@npm:^18.2.1":
-  version: 18.2.1
-  resolution: "file-type@npm:18.2.1"
+"file-type@npm:^19.0.0":
+  version: 19.0.0
+  resolution: "file-type@npm:19.0.0"
   dependencies:
     readable-web-to-node-stream: "npm:^3.0.2"
     strtok3: "npm:^7.0.0"
     token-types: "npm:^5.0.1"
-  checksum: 10/9580707585f9bb026ccf2d5a7dca711e0939e7385aca70e93c316fdb4fe2066356a6ff6bf4b5837effe4a41015ad49544223fde46311d0e72bd151b7fe569a4e
+  checksum: 10/8befa58f769b19d4a72c214694906b83b584310575300e63c08c48f9f2cfa6cb57fb4e1d08325961938d9dde3ecc4f5737b1604ddedfd759f5a1e65e5b0ca577
   languageName: node
   linkType: hard
 
@@ -2582,12 +2582,12 @@ __metadata:
   linkType: hard
 
 "unarchive@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "unarchive@npm:1.1.1"
+  version: 1.1.2
+  resolution: "unarchive@npm:1.1.2"
   dependencies:
-    compressing: "npm:^1.8.0"
-    file-type: "npm:^18.2.1"
-  checksum: 10/268063bb5535e35242f48a1a838a9020302be52de21e44797063025381f55a1fb194328dc1ff75d01133ace8bc6146ac5111bc1efe24908ef717f132d18e7881
+    compressing: "npm:^1.10.0"
+    file-type: "npm:^19.0.0"
+  checksum: 10/71e03c741a7d0f4c9a75086335f22c8da45f7a661eb9dee829f18b12801cf7ae59bdd79b3fa99973431b58e4e248bee057cf9a503c1ff70b4801ead9b4a4728a
   languageName: node
   linkType: hard
 
