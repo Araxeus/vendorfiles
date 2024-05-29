@@ -96,16 +96,16 @@ export function replaceVersion(path: string, version: string) {
 export async function writeLockfile(
     name: string,
     data: {
-        version: string;
         repository: string;
+        version: string;
         files: FilesArray;
     },
     filepath: string,
 ): Promise<void> {
     let lockfile: Lockfile;
     const vendorLock: VendorLock = {
-        version: data.version,
         repository: data.repository,
+        version: data.version,
         files: configFilesToVendorlockFiles(data.files, data.version),
     };
 

@@ -36,6 +36,7 @@ export type VendorDependency = {
     repository: string;
     files: FilesArray;
     version?: string;
+    hashVersionFile?: string | boolean;
     name?: string;
     vendorFolder?: string;
 };

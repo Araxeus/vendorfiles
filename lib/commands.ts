@@ -206,11 +206,47 @@ export async function install({
     }
 
     if (!newVersion) {
-        const latestRelease = await github.getLatestRelease(repo);
-        newVersion = latestRelease.tag_name as string;
+        if (dependency.hashVersionFile) {
+            let hashVersionFile = dependency.hashVersionFile;
+            if (hashVersionFile === true) {
+                if (typeof dependency.files[0] === 'string') {
+                    hashVersionFile = dependency.files[0];
+                } else if (typeof dependency.files[0] === 'object') {
+                    hashVersionFile = Object.keys(dependency.files[0])[0];
+                } else {
+                    error(
+                        `files[0] is invalid for hashVersionFile, must be a string or an object - got ${typeof dependency
+                            .files[0]}`,
+                    );
+                }
+            }
+            if (typeof hashVersionFile === 'string') {
+                const fileCommitSha = await github
+                    .getFileCommitSha({
+                        repo,
+                        path: hashVersionFile,
+                    })
+                    .catch((err) => {
+                        error(
+                            `Error while getting commit sha for ${hashVersionFile}:\n${err}`,
+                        );
+                    });
+                newVersion = fileCommitSha;
+            } else {
+                error('hashVersionFile is invalid, must be a string or true');
+            }
+        } else {
+            try {
+                const latestRelease = await github.getLatestRelease(repo);
+                newVersion = latestRelease.tag_name as string;
+            } catch {
+                if (showOutdatedOnly) {
+                    error(`Could not find a version for ${dependency.name}`);
+                }
+                newVersion = '';
+            }
+        }
     }
-
-    assert(!!newVersion, `Could not find a version for ${dependency.name}`);
 
     const needUpdate =
         force ||
@@ -312,7 +348,9 @@ export async function install({
                         error(
                             `${err.toString()}:\nCould not download file "${
                                 typeof file === 'string' ? file : file[0]
-                            }" from ${dependency.repository}`,
+                            }" from ${
+                                dependency.repository
+                            } with version ${ref}`,
                         );
                     }
                 });
@@ -409,8 +447,8 @@ export async function install({
     await writeLockfile(
         dependency.name,
         {
-            version: newVersion,
             repository: dependency.repository,
+            version: newVersion,
             files: dependency.files,
         },
         lockfilePath,
@@ -419,12 +457,13 @@ export async function install({
     const oldVersion = dependency.version;
 
     if (newVersion !== oldVersion) {
-        configFile.vendorDependencies[dependency.name] = {
-            version: newVersion,
-            repository: dependency.repository,
-            files: dependency.files,
-            vendorFolder: dependency.vendorFolder,
-        } as VendorDependency;
+        const configDep = configFile.vendorDependencies[dependency.name];
+        configDep.version = newVersion;
+        configDep.repository = dependency.repository;
+        configDep.files = dependency.files;
+        configDep.vendorFolder = dependency.vendorFolder;
+        configDep.hashVersionFile = dependency.hashVersionFile;
+
         await writeConfig({
             configFile,
             configFileSettings,
