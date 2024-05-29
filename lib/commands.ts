@@ -25,6 +25,7 @@ import {
     flatFiles,
     getDependencyFolder,
     getFilesFromLockfile,
+    getNewVersion,
     green,
     info,
     ownerAndNameFromRepoUrl,
@@ -206,46 +207,7 @@ export async function install({
     }
 
     if (!newVersion) {
-        if (dependency.hashVersionFile) {
-            let hashVersionFile = dependency.hashVersionFile;
-            if (hashVersionFile === true) {
-                if (typeof dependency.files[0] === 'string') {
-                    hashVersionFile = dependency.files[0];
-                } else if (typeof dependency.files[0] === 'object') {
-                    hashVersionFile = Object.keys(dependency.files[0])[0];
-                } else {
-                    error(
-                        `files[0] is invalid for hashVersionFile, must be a string or an object - got ${typeof dependency
-                            .files[0]}`,
-                    );
-                }
-            }
-            if (typeof hashVersionFile === 'string') {
-                const fileCommitSha = await github
-                    .getFileCommitSha({
-                        repo,
-                        path: hashVersionFile,
-                    })
-                    .catch((err) => {
-                        error(
-                            `Error while getting commit sha for ${hashVersionFile}:\n${err}`,
-                        );
-                    });
-                newVersion = fileCommitSha;
-            } else {
-                error('hashVersionFile is invalid, must be a string or true');
-            }
-        } else {
-            try {
-                const latestRelease = await github.getLatestRelease(repo);
-                newVersion = latestRelease.tag_name as string;
-            } catch {
-                if (showOutdatedOnly) {
-                    error(`Could not find a version for ${dependency.name}`);
-                }
-                newVersion = '';
-            }
-        }
+        newVersion = await getNewVersion(dependency, repo, showOutdatedOnly);
     }
 
     const needUpdate =
