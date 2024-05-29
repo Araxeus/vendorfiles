@@ -84,7 +84,7 @@ export async function getFileCommitSha({
         per_page: 1,
     });
     if (!commit.data?.[0]?.sha) {
-        error(`No commits found for ${repo.owner}/${repo.name}: ${path}}`);
+        error(`No commits found for ${repo.owner}/${repo.name}: ${path}`);
     }
     return commit.data[0].sha;
 }
