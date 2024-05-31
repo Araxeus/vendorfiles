@@ -8,6 +8,7 @@ export type VendorsOptions = {
 export type ConfigFile = {
     vendorConfig: VendorConfig;
     vendorDependencies: VendorDependencies;
+    default?: DefaultOptions;
     [key: string]: unknown;
 };
 
@@ -31,6 +32,14 @@ export type FileInputOutput = {
 };
 
 export type FilesArray = (string | FileInputOutput)[];
+
+export type DefaultOptions = {
+    repository?: string;
+    files?: FilesArray;
+    hashVersionFile?: string | boolean;
+    vendorFolder?: string;
+    version?: string;
+};
 
 export type VendorDependency = {
     repository: string;

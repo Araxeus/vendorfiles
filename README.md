@@ -16,6 +16,7 @@ But that's not all - Vendorfiles is not limited to managing text files - it can 
 - [Configuration](#configuration)
   - [Versioning Dependencies](#versioning-dependencies)
   - [GitHub Releases](#github-releases)
+- [Default Configuration](#default-configuration)
 - [Commands](#commands)
   - [Sync](#sync)
   - [Update](#update)
@@ -206,6 +207,28 @@ To extract files from a compressed release archive, you can define an object tha
     }
 }
 ```
+
+## Default Configuration
+
+For shared options across dependencies, use a `default` object at the same level as `vendorConfig` and `vendorDependencies`. Here's an example:
+
+```yml
+vendorConfig:
+  vendorFolder: .
+default:
+  vendorFolder: "{vendorFolder}"
+  repository: https://github.com/nushell/nu_scripts
+  hashVersionFile: true
+vendorDependencies:
+  nu-winget-completions:
+    files: custom-completions/winget/winget-completions.nu
+    version: 912bea4588ba089aebe956349488e7f78e56061c
+  nu-cargo-completions:
+    files: custom-completions/cargo/cargo-completions.nu
+    version: afde2592a6254be7c14ccac520cb608bd1adbaf9
+```
+
+In this example, the `default` object specifies the `vendorFolder`, `repository`, and `hashVersionFile` options. These options will be applied to all dependencies listed under `vendorDependencies`, unless they are overridden in the individual dependency configuration.
 
 ## Commands
 

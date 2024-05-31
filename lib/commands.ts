@@ -419,12 +419,7 @@ export async function install({
     const oldVersion = dependency.version;
 
     if (newVersion !== oldVersion) {
-        const configDep = configFile.vendorDependencies[dependency.name];
-        configDep.version = newVersion;
-        configDep.repository = dependency.repository;
-        configDep.files = dependency.files;
-        configDep.vendorFolder = dependency.vendorFolder;
-        configDep.hashVersionFile = dependency.hashVersionFile;
+        configFile.vendorDependencies[dependency.name].version = newVersion;
 
         await writeConfig({
             configFile,

@@ -124,6 +124,19 @@ export async function getConfig(): Promise<VendorsOptions> {
         `Invalid vendorConfig key in ${configFile.path}`,
     );
 
+    const defaultOptions = configFile.data.default || {};
+
+    for (const depName of Object.keys(dependencies)) {
+        const files = dependencies[depName].files;
+        if (typeof files === 'string') {
+            dependencies[depName].files = [files];
+        }
+        for (const defaultKey of Object.keys(defaultOptions)) {
+            // @ts-expect-error expression of type 'string' can't be used to index type 'VendorDependency'
+            dependencies[depName][defaultKey] ??= defaultOptions[defaultKey];
+        }
+    }
+
     res = {
         dependencies,
         config,
