@@ -70,6 +70,25 @@ export async function getLatestRelease({ owner, name: repo }: Repository) {
     return res.data;
 }
 
+export async function getFileCommitSha({
+    repo,
+    path,
+}: {
+    repo: Repository;
+    path: string;
+}) {
+    const commit = await octokit().repos.listCommits({
+        owner: repo.owner,
+        repo: repo.name,
+        path,
+        per_page: 1,
+    });
+    if (!commit.data?.[0]?.sha) {
+        error(`No commits found for ${repo.owner}/${repo.name}: ${path}`);
+    }
+    return commit.data[0].sha;
+}
+
 export async function getFile({
     repo,
     path,
@@ -77,8 +96,9 @@ export async function getFile({
 }: {
     repo: Repository;
     path: string;
-    ref: string;
+    ref: string | undefined;
 }) {
+    ref = ref || undefined;
     const requestOptions = octokit().repos.getContent.endpoint({
         owner: repo.owner,
         repo: repo.name,
@@ -94,7 +114,7 @@ export async function getFile({
     const req = await fetch(requestOptions.url, requestOptions);
 
     if (!(req.ok && req.body)) {
-        throw 'Request failed';
+        throw `Request failed with status ${req.status}`;
     }
 
     return req.body;
@@ -223,6 +243,7 @@ export async function login(token?: string) {
 export default {
     login,
     getFile,
+    getFileCommitSha,
     getLatestRelease,
     downloadReleaseFile,
     findRepoUrl,

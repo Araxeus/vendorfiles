@@ -2,7 +2,7 @@
   "name": "vendorfiles",
   "author": "Araxeus",
   "description": "A CLI tool to manage vendor files",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "type": "module",
   "license": "MIT",
   "repository": "https://github.com/Araxeus/vendorfiles",
@@ -41,7 +41,7 @@
     "publish": "yarn check && yarn npm publish"
   },
   "dependencies": {
-    "@commander-js/extra-typings": "^12.0.1",
+    "@commander-js/extra-typings": "^12.1.0",
     "@ltd/j-toml": "^1.38.0",
     "@octokit/auth-oauth-device": "^7.1.1",
     "@octokit/rest": "^20.1.1",
@@ -52,17 +52,17 @@
     "make-fetch-happen": "^13.0.1",
     "open": "^10.1.0",
     "parse-json": "^8.1.0",
-    "unarchive": "^1.1.1",
+    "unarchive": "^1.1.2",
     "yaml": "^2.4.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.7.3",
     "@types/make-fetch-happen": "^10.0.4",
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.12.13",
     "@types/parse-json": "^4.0.2",
     "cpy-cli": "^5.0.0",
     "del-cli": "^5.1.0",
-    "type-fest": "^4.18.2",
+    "type-fest": "^4.18.3",
     "typescript": "=5.0.4"
   },
   "vendorDependencies": {

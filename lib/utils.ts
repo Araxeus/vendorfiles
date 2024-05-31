@@ -25,6 +25,7 @@ import { finished } from 'node:stream/promises';
 import parseJson from 'parse-json';
 
 import { getConfig, getRunOptions } from './config.js';
+import github from './github.js';
 
 export function assert(condition: boolean, message: string): asserts condition {
     if (!condition) {
@@ -96,16 +97,16 @@ export function replaceVersion(path: string, version: string) {
 export async function writeLockfile(
     name: string,
     data: {
-        version: string;
         repository: string;
+        version: string;
         files: FilesArray;
     },
     filepath: string,
 ): Promise<void> {
     let lockfile: Lockfile;
     const vendorLock: VendorLock = {
-        version: data.version,
         repository: data.repository,
+        version: data.version,
         files: configFilesToVendorlockFiles(data.files, data.version),
     };
 
@@ -117,6 +118,57 @@ export async function writeLockfile(
         lockfile = { [name]: vendorLock };
     }
     await writeFile(filepath, JSON.stringify(lockfile, null, 2));
+}
+
+export async function getNewVersion(
+    dependency: VendorDependency,
+    repo: Repository,
+    showOutdatedOnly?: boolean,
+): Promise<string> {
+    let newVersion: string;
+
+    if (dependency.hashVersionFile) {
+        let hashVersionFile = dependency.hashVersionFile;
+        if (hashVersionFile === true) {
+            if (typeof dependency.files[0] === 'string') {
+                hashVersionFile = dependency.files[0];
+            } else if (typeof dependency.files[0] === 'object') {
+                hashVersionFile = Object.keys(dependency.files[0])[0];
+            } else {
+                error(
+                    `files[0] is invalid for hashVersionFile, must be a string or an object - got ${typeof dependency
+                        .files[0]}`,
+                );
+            }
+        }
+        if (typeof hashVersionFile === 'string') {
+            const fileCommitSha = await github
+                .getFileCommitSha({
+                    repo,
+                    path: hashVersionFile,
+                })
+                .catch((err) => {
+                    error(
+                        `Error while getting commit sha for ${hashVersionFile}:\n${err}`,
+                    );
+                });
+            newVersion = fileCommitSha;
+        } else {
+            error('hashVersionFile is invalid, must be a string or true');
+        }
+    } else {
+        try {
+            const latestRelease = await github.getLatestRelease(repo);
+            newVersion = latestRelease.tag_name as string;
+        } catch {
+            if (showOutdatedOnly) {
+                error(`Could not find a version for ${dependency.name}`);
+            }
+            newVersion = '';
+        }
+    }
+
+    return newVersion;
 }
 
 export async function checkIfNeedsUpdate({

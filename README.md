@@ -14,7 +14,9 @@ But that's not all - Vendorfiles is not limited to managing text files - it can 
 
 - [Installation](#installation)
 - [Configuration](#configuration)
+  - [Versioning Dependencies](#versioning-dependencies)
   - [GitHub Releases](#github-releases)
+- [Default Configuration](#default-configuration)
 - [Commands](#commands)
   - [Sync](#sync)
   - [Update](#update)
@@ -125,6 +127,41 @@ To rename or move files, you can specify an object with the source file as the k
 }
 ```
 
+### Versioning Dependencies
+
+This project uses GitHub releases to determine the version of a dependency. When a new release is made on GitHub, the version of the dependency in this project is updated accordingly, and the files are based on the tag of that release.
+
+However, there is an optional `hashVersionFile` key for each dependency that allows for a different versioning strategy. If `hashVersionFile` is specified, the version is based on the latest commit hash of the file specified by hashVersionFile.
+
+The `hashVersionFile` key can be either:
+
+- A string: In this case, it should be the path to the file in the dependency repository. The version of the dependency will be the latest commit hash of this file.
+
+- A boolean: If `hashVersionFile` is set to true, the path of the first file provided in the file list for that dependency will be used. The version of the dependency will be the latest commit hash of this file.
+
+This versioning strategy allows for more granular control over the version of a dependency, as it can be updated whenever a specific file in the dependency repository changes.
+
+```json
+{
+    "vendorDependencies": {
+        "Cooltipz": {
+            "repository": "https://github.com/jackdomleo7/Cooltipz.css",
+            "version": "f6ec482ea395cead4fd849c05df6edd8da284a52",
+            "hashVersionFile": "package.json",
+            "files": ["cooltipz.min.css", "package.json"],
+        },
+        "Coloris": {
+            "repository": "https://github.com/mdbassit/Coloris",
+            "version": "v0.17.1",
+            "hashVersionFile": true,
+            "files": ["dist/coloris.min.js"],
+        }
+    }
+}
+```
+
+> in this example, the version of Cooltipz will be the latest commit hash of the `package.json` file, <br> and the version of Coloris will be the latest commit hash of the `dist/coloris.min.js` file.
+
 ### GitHub Releases
 
 You can download release assets by using the `{release}/` placeholder in the file path.
@@ -170,6 +207,28 @@ To extract files from a compressed release archive, you can define an object tha
     }
 }
 ```
+
+## Default Configuration
+
+For shared options across dependencies, use a `default` object at the same level as `vendorConfig` and `vendorDependencies`. Here's an example:
+
+```yml
+vendorConfig:
+  vendorFolder: .
+default:
+  vendorFolder: "{vendorFolder}"
+  repository: https://github.com/nushell/nu_scripts
+  hashVersionFile: true
+vendorDependencies:
+  nu-winget-completions:
+    files: custom-completions/winget/winget-completions.nu
+    version: 912bea4588ba089aebe956349488e7f78e56061c
+  nu-cargo-completions:
+    files: custom-completions/cargo/cargo-completions.nu
+    version: afde2592a6254be7c14ccac520cb608bd1adbaf9
+```
+
+In this example, the `default` object specifies the `vendorFolder`, `repository`, and `hashVersionFile` options. These options will be applied to all dependencies listed under `vendorDependencies`, unless they are overridden in the individual dependency configuration.
 
 ## Commands
 

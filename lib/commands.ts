@@ -25,6 +25,7 @@ import {
     flatFiles,
     getDependencyFolder,
     getFilesFromLockfile,
+    getNewVersion,
     green,
     info,
     ownerAndNameFromRepoUrl,
@@ -206,11 +207,8 @@ export async function install({
     }
 
     if (!newVersion) {
-        const latestRelease = await github.getLatestRelease(repo);
-        newVersion = latestRelease.tag_name as string;
+        newVersion = await getNewVersion(dependency, repo, showOutdatedOnly);
     }
-
-    assert(!!newVersion, `Could not find a version for ${dependency.name}`);
 
     const needUpdate =
         force ||
@@ -312,7 +310,9 @@ export async function install({
                         error(
                             `${err.toString()}:\nCould not download file "${
                                 typeof file === 'string' ? file : file[0]
-                            }" from ${dependency.repository}`,
+                            }" from ${
+                                dependency.repository
+                            } with version ${ref}`,
                         );
                     }
                 });
@@ -409,8 +409,8 @@ export async function install({
     await writeLockfile(
         dependency.name,
         {
-            version: newVersion,
             repository: dependency.repository,
+            version: newVersion,
             files: dependency.files,
         },
         lockfilePath,
@@ -419,12 +419,8 @@ export async function install({
     const oldVersion = dependency.version;
 
     if (newVersion !== oldVersion) {
-        configFile.vendorDependencies[dependency.name] = {
-            version: newVersion,
-            repository: dependency.repository,
-            files: dependency.files,
-            vendorFolder: dependency.vendorFolder,
-        } as VendorDependency;
+        configFile.vendorDependencies[dependency.name].version = newVersion;
+
         await writeConfig({
             configFile,
             configFileSettings,
