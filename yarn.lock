@@ -2746,11 +2746,11 @@ __metadata:
   linkType: hard
 
 "yaml@npm:^2.4.2":
-  version: 2.4.2
-  resolution: "yaml@npm:2.4.2"
+  version: 2.4.5
+  resolution: "yaml@npm:2.4.5"
   bin:
     yaml: bin.mjs
-  checksum: 10/6eafbcd68dead734035f6f72af21bd820c29214caf7d8e40c595671a3c908535cef8092b9660a1c055c5833aa148aa640e0c5fa4adb5af2dacd6d28296ccd81c
+  checksum: 10/b09bf5a615a65276d433d76b8e34ad6b4c0320b85eb3f1a39da132c61ae6e2ff34eff4624e6458d96d49566c93cf43408ba5e568218293a8c6541a2006883f64
   languageName: node
   linkType: hard
 
