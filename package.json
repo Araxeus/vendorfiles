@@ -44,7 +44,7 @@
     "@commander-js/extra-typings": "^12.1.0",
     "@ltd/j-toml": "^1.38.0",
     "@octokit/auth-oauth-device": "^7.1.1",
-    "@octokit/rest": "^20.1.1",
+    "@octokit/rest": "^21.0.1",
     "commander": "^12.1.0",
     "detect-indent": "^7.0.1",
     "dotenv": "^16.4.5",
