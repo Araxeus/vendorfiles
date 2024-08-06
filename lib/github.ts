@@ -16,7 +16,7 @@ const fetch = _fetch.defaults({
     //cache: 'default',
 });
 
-dotenv.config(); 
+dotenv.config();
 // process.env.GITHUB_TOKEN or saved token
 const token = tokenProvider.get();
 
