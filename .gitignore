@@ -1,13 +1,7 @@
-.pnp.*
 .env
 dist/*
 vendor/*
 lib/auth-original.js
 .ignore/*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+/node_modules/*
 

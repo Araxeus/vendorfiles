@@ -6,12 +6,11 @@ import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import { Octokit } from '@octokit/rest';
 import * as dotenv from 'dotenv';
 import getEnvPaths from 'env-paths';
-import _fetch from 'make-fetch-happen';
+import _fetch, { type FetchOptions } from 'make-fetch-happen';
 import open from 'open';
 import { g, s } from './auth.js';
 
 const envPaths = getEnvPaths('vendorfiles');
-// @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
 const fetch = _fetch.defaults({
     cachePath: envPaths.cache,
     //cache: 'default',
@@ -110,8 +109,7 @@ export async function getFile({
         ref,
     });
 
-    // @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
-    const req = await fetch(requestOptions.url, requestOptions);
+    const req = await fetch(requestOptions.url, requestOptions as FetchOptions);
 
     if (!(req.ok && req.body)) {
         throw `Request failed with status ${req.status}`;
@@ -159,8 +157,7 @@ export async function downloadReleaseFile({
         },
     );
 
-    // @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
-    const req = await fetch(requestOptions.url, requestOptions);
+    const req = await fetch(requestOptions.url, requestOptions as FetchOptions);
 
     assert(
         !!req.ok && !!req.body,
@@ -190,7 +187,6 @@ export async function findRepoUrl(name: string) {
 
 export async function login(token?: string) {
     if (token) {
-        // @ts-expect-error - make-fetch-happen types are either wrong or bugged on my end
         const res = await fetch('https://api.github.com', {
             cache: 'no-store',
             method: 'HEAD',

@@ -117,7 +117,7 @@ export async function writeLockfile(
     } catch {
         lockfile = { [name]: vendorLock };
     }
-    await writeFile(filepath, JSON.stringify(lockfile, null, 2));
+    await writeFile(filepath, `${JSON.stringify(lockfile, null, 2)}\n`);
 }
 
 export async function getNewVersion(

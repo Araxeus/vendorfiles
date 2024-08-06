@@ -1,9 +1,11 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.7.3/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "organizeImports": {
+		"enabled": true
+	},
   "files": {
     "ignore": [
-      "./.pnp.*",
-      "./.yarn/*",
+      "./node_modules/**",
       "./dist/*",
       "./vendor/*",
       "./lib/auth.js"
