@@ -8,7 +8,7 @@ import * as dotenv from 'dotenv';
 import getEnvPaths from 'env-paths';
 import _fetch, { type FetchOptions } from 'make-fetch-happen';
 import open from 'open';
-import { g, s } from './auth.js';
+import * as tokenProvider from './auth.js';
 
 const envPaths = getEnvPaths('vendorfiles');
 const fetch = _fetch.defaults({
@@ -16,8 +16,9 @@ const fetch = _fetch.defaults({
     //cache: 'default',
 });
 
-dotenv.config();
-const token = g();
+dotenv.config(); 
+// process.env.GITHUB_TOKEN or saved token
+const token = tokenProvider.get();
 
 let _octokit: Octokit;
 const octokit = () => {
@@ -198,7 +199,7 @@ export async function login(token?: string) {
         assert(res.status !== 401, 'Invalid token');
         assert(res.status !== 403, 'Token is rate limited');
         assert(res.ok, 'Something went wrong, try again later');
-        await s(token);
+        await tokenProvider.set(token);
         success('Token saved successfully');
         return;
     }
@@ -226,7 +227,7 @@ export async function login(token?: string) {
             type: 'oauth',
         });
 
-        await s(tokenAuthentication.token);
+        await tokenProvider.set(tokenAuthentication.token);
 
         success('Logged in successfully');
     } catch (e) {

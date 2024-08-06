@@ -35,7 +35,7 @@
     "b": "del-cli dist && tsc && bun cpy lib/auth.js lib/types.d.ts dist",
     "lint": "bun biome check --write",
     "check": "tsc --noEmit && bun biome ci && bun start sync",
-    "publish": "bun check && npm publish"
+    "release": "bun check && npm publish"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^12.1.0",

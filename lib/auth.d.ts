@@ -1,2 +1,2 @@
-export declare function g(): string | undefined;
-export declare function s(token: string): Promise<void>;
+export declare function get(): string | undefined;
+export declare function set(token: string): Promise<void>;
