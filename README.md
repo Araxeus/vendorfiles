@@ -4,11 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Araxeus/vendorfiles/blob/main/LICENSE)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Araxeus/vendorfiles)
 
-Welcome to Vendorfiles, the package manager that streamlines the process of installing and updating files from a GitHub repository, while also providing version control.
+Vendorfiles is a versatile package manager that simplifies managing external dependencies from GitHub repositories. It handles installation, updates, and version control for various file types, from web assets to application binaries.
 
-Whether you need to manage CSS, JavaScript, images, binaries, or any other type of file, Vendorfiles makes it easy to keep your dependencies up-to-date and organized.
+Key features:
 
-But that's not all - Vendorfiles is not limited to managing text files - it can also be used to install applications. By creating a vendorfile configuration inside a folder in your `$env.path`, and adding a repository such as fzf, you can specify the binary file you need from the zipped release asset. With this setup, it's easy to install, update, or delete the application and enjoy all the benefits of version control.
+- **Flexible File Management**: Install files from GitHub repositories or release assets
+- **Asset Extraction**: Extract files from zipped or tarred release assets
+- **Version Control**: Keep track of dependency versions, including support for commit-based versioning
+- **Multiple Config Formats**: Use TOML, YAML, JSON, or package.json for configuration
+- **Custom File Placement**: Specify custom paths for installed files
+- **GitHub Action**: Automate updates with an integrated GitHub Action
+- **CLI Tool**: User-friendly command line interface for easy dependency management
+
+Whether you're a web developer streamlining asset management or a power user automating application updates, Vendorfiles offers a straightforward solution with robust version control.
 
 ## Table of Contents <!-- omit from toc -->
 
