@@ -91,7 +91,10 @@ export async function readableToFile(
 }
 
 export function replaceVersion(path: string, version: string) {
-    return path.replace('{version}', trimStartMatches(version, 'v'));
+    return path.replace(
+        '{version}',
+        /\d+\.\d+\.\d+/.exec(version)?.[0] || trimStartMatches(version, 'v'),
+    );
 }
 
 export async function writeLockfile(

@@ -174,7 +174,7 @@ This versioning strategy allows for more granular control over the version of a 
 
 You can download release assets by using the `{release}/` placeholder in the file path.
 
-Additionally, you can use the `{version}` placeholder to refer to the version of the dependency, without the trailing `v`. Here's an example:
+Additionally, you can use the `{version}` placeholder to refer to the semver version of the dependency, (without the trailing `v` or `-alpha` etc). Here's an example:
 
 ```json
 {
