@@ -55,11 +55,11 @@
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
     "@types/make-fetch-happen": "^10.0.4",
-    "@types/node": "^22.1.0",
+    "@types/node": "^22.2.0",
     "@types/parse-json": "^4.0.2",
     "cpy-cli": "^5.0.0",
     "del-cli": "^5.1.0",
-    "type-fest": "^4.23.0",
+    "type-fest": "^4.24.0",
     "typescript": "^5.5.4"
   },
   "vendorDependencies": {
