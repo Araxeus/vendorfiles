@@ -53,14 +53,14 @@
     "yaml": "^2.5.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.3",
+    "@biomejs/biome": "^1.9.1",
     "@types/make-fetch-happen": "^10.0.4",
-    "@types/node": "^22.1.0",
+    "@types/node": "^22.5.5",
     "@types/parse-json": "^4.0.2",
     "cpy-cli": "^5.0.0",
     "del-cli": "^5.1.0",
-    "type-fest": "^4.23.0",
-    "typescript": "^5.5.4"
+    "type-fest": "^4.26.1",
+    "typescript": "^5.6.2"
   },
   "vendorDependencies": {
     "fzf": {
