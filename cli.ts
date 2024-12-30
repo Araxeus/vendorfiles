@@ -109,7 +109,7 @@ const installCmd = new Command('install')
             const deps =
                 vendorOptions.dependencies[name] ||
                 Object.values(vendorOptions.dependencies).find(
-                    (dep) => dep.repository === url,
+                    dep => dep.repository === url,
                 ) ||
                 {};
 
@@ -145,7 +145,7 @@ const uninstallCmd = new Command('uninstall')
     .alias('un')
     .alias('r')
     .argument('[names...]', 'Package names to uninstall')
-    .action((names) => {
+    .action(names => {
         assert(names.length > 0, 'No package names provided');
 
         for (const name of names) {
@@ -166,7 +166,7 @@ Examples:
 const loginCmd = new Command('login')
     .alias('auth')
     .argument('[token]', 'GitHub token (leave empty to login via browser)')
-    .action((token) => login(token))
+    .action(token => login(token))
     .summary('Login to GitHub')
     .description('Login to GitHub to increase rate limit')
     .addHelpText(

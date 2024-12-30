@@ -215,7 +215,7 @@ export async function login(token?: string) {
                 console.log(
                     'Then press [Enter] to continue in your web browser',
                 );
-                await new Promise((resolve) => {
+                await new Promise(resolve => {
                     process.stdin.once('data', resolve);
                 });
                 console.log('Opening your web browser...');
