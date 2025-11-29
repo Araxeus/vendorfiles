@@ -300,7 +300,7 @@ Commands:
   help [command]                              display help for command
 
 Options:
-  -d, --folder [folder]                     Folder containing the config file
+  -c, --config [file/folder path]             Config file path / Folder containing the config file
   -v, --version                               output the current version
   -h, --help                                  display help for command
 ```
