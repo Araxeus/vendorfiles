@@ -1,3 +1,10 @@
+import { existsSync } from 'node:fs';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { unarchive } from 'unarchive';
+import { getRunOptions, writeConfig } from './config.js';
+import github from './github.js';
 import type {
     ConfigFile,
     ConfigFileSettings,
@@ -6,16 +13,6 @@ import type {
     VendorDependency,
     VendorsOptions,
 } from './types.js';
-
-import { existsSync } from 'node:fs';
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-
-import { unarchive } from 'unarchive';
-
-import { getRunOptions, writeConfig } from './config.js';
-import github from './github.js';
 import {
     assert,
     checkIfNeedsUpdate,
@@ -30,8 +27,8 @@ import {
     info,
     ownerAndNameFromRepoUrl,
     random,
-    readLockfile,
     readableToFile,
+    readLockfile,
     red,
     replaceVersion,
     success,
@@ -93,7 +90,7 @@ export async function sync(
     if (getRunOptions().prMode && updatedDeps.length > 0) {
         const updatedDepsString = updatedDeps
             .map(
-                (dep) =>
+                dep =>
                     `* Bump [${dep.name}](${dep.url}) from ❌ ${dep.oldVersion} to ✅ ${dep.newVersion}`,
             )
             .join('\n');
@@ -256,7 +253,7 @@ export async function install({
         | string
         | [string, string]
         | [string, { [input: string]: string }]
-    )[] = dependency.files.flatMap((file) =>
+    )[] = dependency.files.flatMap(file =>
         // @ts-expect-error Type 'string' is not assignable to type '[string, string]'
         typeof file === 'object' ? Object.entries(file) : file,
     );
@@ -268,7 +265,7 @@ export async function install({
     const releaseFiles: { input: string; output: ReleaseFileOutput }[] = [];
 
     await Promise.all(
-        allFiles.map(async (file) => {
+        allFiles.map(async file => {
             let input: string;
             // type of parameter two
             let output: ReleaseFileOutput;
@@ -301,7 +298,7 @@ export async function install({
                     path: input,
                     ref,
                 })
-                .catch((err) => {
+                .catch(err => {
                     if (err?.status === 404) {
                         error(
                             `File "${file}" was not found in ${dependency.repository}`,
@@ -325,7 +322,7 @@ export async function install({
 
     await Promise.all(
         // file.output is either a string that or an object which would mean that we want to extract the files from the downloaded archive
-        releaseFiles.map(async (file) => {
+        releaseFiles.map(async file => {
             const input = replaceVersion(file.input, ref).replace(
                 '{release}/',
                 '',
@@ -367,7 +364,7 @@ export async function install({
                     }
 
                     const inputOutput = Array.isArray(output)
-                        ? output.map((o) => [o, o])
+                        ? output.map(o => [o, o])
                         : Object.entries(output);
 
                     // move files

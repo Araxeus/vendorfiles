@@ -1,10 +1,11 @@
-import { assert } from './utils.js';
-
+import { existsSync } from 'node:fs';
+import { readFile, realpath, writeFile } from 'node:fs/promises';
+import { EOL } from 'node:os';
+import path from 'node:path';
 import toml, { Section } from '@ltd/j-toml';
 import detectIndent from 'detect-indent';
 import parseJson from 'parse-json';
 import yaml from 'yaml';
-
 import type {
     ConfigFile,
     ConfigFileSettings,
@@ -12,11 +13,7 @@ import type {
     VendorDependencies,
     VendorsOptions,
 } from './types.js';
-
-import { existsSync } from 'node:fs';
-import { readFile, realpath, writeFile } from 'node:fs/promises';
-import { EOL } from 'node:os';
-import path from 'node:path';
+import { assert } from './utils.js';
 
 const defaultConfig = {
     vendorFolder: './vendor',
@@ -155,7 +152,10 @@ export async function getConfig(): Promise<VendorsOptions> {
 export async function writeConfig({
     configFile,
     configFileSettings,
-}: { configFile: ConfigFile; configFileSettings: ConfigFileSettings }) {
+}: {
+    configFile: ConfigFile;
+    configFileSettings: ConfigFileSettings;
+}) {
     const indent = configFileSettings.indent;
     const stringify = {
         toml: (configFile: ConfigFile) => {

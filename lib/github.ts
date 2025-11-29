@@ -1,7 +1,3 @@
-import type { Repository } from './types.js';
-
-import { assert, error, success, warning } from './utils.js';
-
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import { Octokit } from '@octokit/rest';
 import * as dotenv from 'dotenv';
@@ -9,6 +5,8 @@ import getEnvPaths from 'env-paths';
 import _fetch, { type FetchOptions } from 'make-fetch-happen';
 import open from 'open';
 import * as tokenProvider from './auth.js';
+import type { Repository } from './types.js';
+import { assert, error, success, warning } from './utils.js';
 
 const envPaths = getEnvPaths('vendorfiles');
 const fetch = _fetch.defaults({
@@ -215,7 +213,7 @@ export async function login(token?: string) {
                 console.log(
                     'Then press [Enter] to continue in your web browser',
                 );
-                await new Promise((resolve) => {
+                await new Promise(resolve => {
                     process.stdin.once('data', resolve);
                 });
                 console.log('Opening your web browser...');
