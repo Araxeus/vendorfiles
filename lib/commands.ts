@@ -150,13 +150,11 @@ export async function uninstall(
         }
     } else if (lockfile?.[name]) {
         // if not, remove the dependency from the lockfile
-        // @ts-expect-error Type 'undefined' is not assignable to type 'VendorLock'
-        lockfile[name] = undefined;
+        delete lockfile[name];
         await fs.writeFile(lockfilePath, JSON.stringify(lockfile, null, 2));
     }
 
-    // @ts-expect-error Type 'undefined' is not assignable to type 'VendorDependency'
-    configFile.vendorDependencies[name] = undefined;
+    delete configFile.vendorDependencies[name];
 
     await writeConfig({
         configFile,
