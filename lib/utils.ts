@@ -158,7 +158,10 @@ export async function getNewVersion(
         }
     } else {
         try {
-            const latestRelease = await github.getLatestRelease(repo);
+            const latestRelease = await github.getLatestRelease(
+                repo,
+                dependency.releaseRegex,
+            );
             newVersion = latestRelease.tag_name as string;
         } catch {
             if (showOutdatedOnly) {
@@ -323,6 +326,28 @@ export function validateVendorDependency(
         Array.isArray(dependency.files) && dependency.files.length > 0,
         `config key 'vendorDependencies.${name}.files' is not a valid array`,
     );
+    if (dependency.hashVersionFile) {
+        assert(
+            typeof dependency.hashVersionFile === 'string' ||
+                dependency.hashVersionFile === true,
+            `config key 'vendorDependencies.${name}.hashVersionFile' must be a string or true`,
+        );
+    }
+    if (dependency.releaseRegex) {
+        assert(
+            typeof dependency.releaseRegex === 'string' &&
+                dependency.releaseRegex.length > 0 &&
+                (() => {
+                    try {
+                        new RegExp(dependency.releaseRegex);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                })(),
+            `config key 'vendorDependencies.${name}.releaseRegex' must be a valid regex string`,
+        );
+    }
 }
 
 export function getDependencyFolder({

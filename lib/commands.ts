@@ -258,8 +258,6 @@ export async function install({
         typeof file === 'object' ? Object.entries(file) : file,
     );
 
-    const ref = newVersion; // TODO delete this after typescript bug is fixed (newVersion is not a string)
-
     type ReleaseFileOutput = string | { [input: string]: string };
 
     const releaseFiles: { input: string; output: ReleaseFileOutput }[] = [];
@@ -296,7 +294,7 @@ export async function install({
                 .getFile({
                     repo,
                     path: input,
-                    ref,
+                    ref: newVersion,
                 })
                 .catch(err => {
                     if (err?.status === 404) {
@@ -309,7 +307,7 @@ export async function install({
                                 typeof file === 'string' ? file : file[0]
                             }" from ${
                                 dependency.repository
-                            } with version ${ref}`,
+                            } with version ${newVersion}`,
                         );
                     }
                 });
@@ -323,7 +321,7 @@ export async function install({
     await Promise.all(
         // file.output is either a string that or an object which would mean that we want to extract the files from the downloaded archive
         releaseFiles.map(async file => {
-            const input = replaceVersion(file.input, ref).replace(
+            const input = replaceVersion(file.input, newVersion).replace(
                 '{release}/',
                 '',
             );
@@ -332,7 +330,8 @@ export async function install({
             const releaseFile = await github.downloadReleaseFile({
                 repo,
                 path: input,
-                version: ref,
+                version: newVersion,
+                releaseRegex: dependency.releaseRegex,
             });
 
             if (typeof output === 'object') {
@@ -372,7 +371,7 @@ export async function install({
                         inputPath = path.join(randomFolderName, inputPath);
                         outputPath = path.join(
                             depDirectory,
-                            replaceVersion(outputPath, ref),
+                            replaceVersion(outputPath, newVersion),
                         );
                         try {
                             await fs.access(inputPath);
@@ -397,7 +396,7 @@ export async function install({
             } else {
                 await readableToFile(
                     releaseFile,
-                    path.join(depDirectory, replaceVersion(output, ref)),
+                    path.join(depDirectory, replaceVersion(output, newVersion)),
                 );
             }
         }),

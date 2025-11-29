@@ -48,6 +48,7 @@ export type VendorDependency = {
     hashVersionFile?: string | boolean;
     name?: string;
     vendorFolder?: string;
+    releaseRegex?: string;
 };
 
 // LOCKFILE TYPES
