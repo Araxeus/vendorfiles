@@ -24,8 +24,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: bun b
-        
-      - run: npm publish --provenance --access public
-        # this only works because this package has no dependencies that need to be built
 
+      - run: npm publish --provenance --access public
