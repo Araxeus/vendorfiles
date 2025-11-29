@@ -1,4 +1,19 @@
+import { deepStrictEqual } from 'node:assert';
+import { createWriteStream, existsSync } from 'node:fs';
+import {
+    mkdir,
+    readdir,
+    readFile,
+    realpath,
+    rm,
+    writeFile,
+} from 'node:fs/promises';
+import path from 'node:path';
+import { finished } from 'node:stream/promises';
+import parseJson from 'parse-json';
 import type { PackageJson } from 'type-fest';
+import { getConfig, getRunOptions } from './config.js';
+import github from './github.js';
 import type {
     FilesArray,
     Lockfile,
@@ -8,24 +23,6 @@ import type {
     VendorLock,
     VendorLockFiles,
 } from './types.js';
-
-import { deepStrictEqual } from 'node:assert';
-import { createWriteStream, existsSync } from 'node:fs';
-import {
-    mkdir,
-    readFile,
-    readdir,
-    realpath,
-    rm,
-    writeFile,
-} from 'node:fs/promises';
-import path from 'node:path';
-import { finished } from 'node:stream/promises';
-
-import parseJson from 'parse-json';
-
-import { getConfig, getRunOptions } from './config.js';
-import github from './github.js';
 
 export function assert(condition: boolean, message: string): asserts condition {
     if (!condition) {

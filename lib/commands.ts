@@ -1,3 +1,10 @@
+import { existsSync } from 'node:fs';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { unarchive } from 'unarchive';
+import { getRunOptions, writeConfig } from './config.js';
+import github from './github.js';
 import type {
     ConfigFile,
     ConfigFileSettings,
@@ -6,16 +13,6 @@ import type {
     VendorDependency,
     VendorsOptions,
 } from './types.js';
-
-import { existsSync } from 'node:fs';
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-
-import { unarchive } from 'unarchive';
-
-import { getRunOptions, writeConfig } from './config.js';
-import github from './github.js';
 import {
     assert,
     checkIfNeedsUpdate,
@@ -30,8 +27,8 @@ import {
     info,
     ownerAndNameFromRepoUrl,
     random,
-    readLockfile,
     readableToFile,
+    readLockfile,
     red,
     replaceVersion,
     success,

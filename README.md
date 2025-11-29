@@ -253,7 +253,7 @@ Commands:
   help [command]                              display help for command
 
 Options:
-  -dir, --folder [folder]                     Folder containing the config file
+  -d, --folder [folder]                     Folder containing the config file
   -v, --version                               output the current version
   -h, --help                                  display help for command
 ```
@@ -282,7 +282,7 @@ Usage: vendor update|upgrade [options] [names...]
 Update all/selected dependencies to their latest version (the tag of the latest release)
 
 Options:
-  -pr|--pr    Output pull request text for gh action (default: false)
+  -p|--pr    Output pull request text for gh action (default: false)
   -h, --help  display help for command
 
 Examples:

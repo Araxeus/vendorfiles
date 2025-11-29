@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
-import type { FilesArray, VendorsOptions } from './lib/types.js';
-
 import { Command } from '@commander-js/extra-typings';
-
 import { install, sync, uninstall } from './lib/commands.js';
 import { getConfig, setRunOptions } from './lib/config.js';
 import { findRepoUrl, login } from './lib/github.js';
+import type { FilesArray, VendorsOptions } from './lib/types.js';
 import {
     assert,
     getPackageJson,
@@ -39,7 +37,7 @@ const updateCmd = new Command('update')
     .alias('up')
     .alias('u')
     .argument('[names...]')
-    .option('-pr|--pr', 'Output pull request text for gh action', false)
+    .option('-p|--pr', 'Output pull request text for gh action', false)
     .action((names, { pr }) => {
         if (names.length === 0) {
             upgradeAll(pr);
@@ -195,7 +193,7 @@ program
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
     .addCommand(loginCmd)
-    .option('-dir, --folder [folder]', 'Folder containing the config file')
+    .option('-d, --folder [folder]', 'Folder containing the config file')
     .version(
         (await getPackageJson()).version || 'unknown',
         '-v, --version',
@@ -232,7 +230,12 @@ function installOne({
     name,
     version,
     files,
-}: { url: string; files: FilesArray; version?: string; name?: string }) {
+}: {
+    url: string;
+    files: FilesArray;
+    version?: string;
+    name?: string;
+}) {
     install({
         dependency: (name && vendorOptions.dependencies[name]) || {
             repository: url,
