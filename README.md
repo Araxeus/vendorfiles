@@ -24,6 +24,7 @@ Whether you're a web developer streamlining asset management or a power user aut
 - [Configuration](#configuration)
   - [Versioning Dependencies](#versioning-dependencies)
   - [GitHub Releases](#github-releases)
+  - [Filtering releases with releaseRegex](#filtering-releases-with-releaseregex)
 - [Default Configuration](#default-configuration)
 - [Commands](#commands)
   - [Sync](#sync)
@@ -215,6 +216,52 @@ To extract files from a compressed release archive, you can define an object tha
     }
 }
 ```
+
+### Filtering releases with releaseRegex
+
+Vendorfiles can now filter release tags/titles when searching for the "latest" release using the `releaseRegex` option. This should be a JavaScript-style regular expression string (without surrounding `/` delimiters). The regex is tested against the release tag/name (and can be used to match release titles where appropriate) to restrict which releases are considered the “latest”.
+
+Use-cases:
+
+- Only consider semver tags: `"^v\\d+\\.\\d+\\.\\d+$"`
+- Ignore pre-releases with `-alpha`/`-beta`: `"^v(?!.*-(?:alpha|beta)).*"`
+- Prefer releases whose title contains `stable`: `"stable"`
+
+Examples:
+
+JSON example (per-dependency):
+
+```json
+{
+  "vendorDependencies": {
+    "fzf": {
+      "version": "0.38.0",
+      "repository": "https://github.com/junegunn/fzf",
+      "releaseRegex": "^v\\d+\\.\\d+\\.\\d+$",
+      "files": ["{release}/fzf-{version}-linux_amd64.tar.gz"]
+    }
+  }
+}
+```
+
+YAML example (global default and per-dep override):
+
+```yaml
+vendorConfig:
+  vendorFolder: .
+default:
+  releaseRegex: "^v\\d+\\.\\d+\\.\\d+$"
+vendorDependencies:
+  fzf:
+    repository: https://github.com/junegunn/fzf
+    files:
+      - "{release}/fzf-{version}-linux_amd64.tar.gz"
+```
+
+Notes:
+
+- If omitted, Vendorfiles considers all releases/tags when determining the latest release.
+- Use double escaping (e.g. `\\d`) in JSON strings.
 
 ## Default Configuration
 

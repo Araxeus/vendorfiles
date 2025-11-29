@@ -1,5 +1,5 @@
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
-import { Octokit } from '@octokit/rest';
+import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import * as dotenv from 'dotenv';
 import getEnvPaths from 'env-paths';
 import _fetch, { type FetchOptions } from 'make-fetch-happen';
@@ -34,16 +34,23 @@ const octokit = () => {
     return _octokit;
 };
 
-const releases = new Map();
+const releases = new Map<
+    string,
+    RestEndpointMethodTypes['repos']['getReleaseByTag']['response']['data']
+>();
 async function getReleaseFromTag({
     owner,
     name,
     tag,
 }: Repository & { tag: string }) {
-    const key = `${owner}/${name}/${tag}`;
-    if (releases.has(key)) {
-        return releases.get(key);
+    const repo = `${owner}/${name}`;
+    const key = `${repo}/${tag}`;
+    for (const [k, release] of releases) {
+        if (k === key || (k.startsWith(repo) && release.tag_name === tag)) {
+            return release;
+        }
     }
+
     const res = await octokit().repos.getReleaseByTag({
         owner,
         repo: name,
@@ -54,11 +61,18 @@ async function getReleaseFromTag({
     return res.data;
 }
 
-export async function getLatestRelease({ owner, name: repo }: Repository) {
-    const key = `${owner}/${repo}/latest`;
-    if (releases.has(key)) {
-        return releases.get(key);
+export async function getLatestRelease(
+    { owner, name: repo }: Repository,
+    releaseRegex?: string,
+) {
+    if (releaseRegex) {
+        return getReleaseByRegex({ owner, name: repo }, releaseRegex);
     }
+    const key = `${owner}/${repo}/latest`;
+
+    const cached = releases.get(key);
+    if (cached !== undefined) return cached;
+
     const res = await octokit().repos.getLatestRelease({
         owner,
         repo,
@@ -66,6 +80,35 @@ export async function getLatestRelease({ owner, name: repo }: Repository) {
 
     releases.set(key, res.data);
     return res.data;
+}
+
+export async function getReleaseByRegex(
+    { owner, name: repo }: Repository,
+    releaseRegex: string,
+) {
+    const key = `${owner}/${repo}/regex/${releaseRegex}`;
+
+    const cached = releases.get(key);
+    if (cached !== undefined) return cached;
+
+    const releasesList = await octokit().repos.listReleases({
+        owner,
+        repo,
+        per_page: 100,
+    });
+
+    const releaseRegexObj = new RegExp(releaseRegex);
+    const matchedRelease = releasesList.data.find(
+        release =>
+            releaseRegexObj.test(release.tag_name) ||
+            releaseRegexObj.test(release.name || ''),
+    );
+    if (matchedRelease) {
+        releases.set(key, matchedRelease);
+        return matchedRelease;
+    }
+
+    throw `No releases found matching ${releaseRegex.toString()} in ${owner}/${repo}`;
 }
 
 export async function getFileCommitSha({
@@ -121,18 +164,23 @@ export async function downloadReleaseFile({
     repo,
     path,
     version,
+    releaseRegex,
 }: {
     repo: Repository;
     path: string;
     version: string;
+    releaseRegex?: string;
 }) {
     const release = await (version
         ? getReleaseFromTag({ ...repo, tag: version })
-        : getLatestRelease(repo));
+        : getLatestRelease(repo, releaseRegex));
 
-    assert(!!release, `Release "${version}" was not found in ${release.url}`);
+    assert(
+        !!release,
+        `Release "${version}" was not found in ${repo.owner}/${repo.name}`,
+    );
 
-    assert(release.assets, `Release assets were not found in ${release.url}`);
+    assert(!!release.assets, `Release assets were not found in ${release.url}`);
 
     const asset_id = release.assets.find(
         (asset: { name: string }) => asset.name === path,
