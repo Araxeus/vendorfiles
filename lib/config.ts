@@ -1,10 +1,9 @@
 import { existsSync } from 'node:fs';
 import { readFile, realpath, writeFile } from 'node:fs/promises';
-import { EOL } from 'node:os';
 import path from 'node:path';
-import toml, { Section } from '@ltd/j-toml';
 import detectIndent from 'detect-indent';
 import parseJson from 'parse-json';
+import toml from 'smol-toml';
 import yaml from 'yaml';
 import type {
     ConfigFile,
@@ -64,9 +63,7 @@ async function getConfigFile(folderPath: string): Promise<
         let data: ConfigFile;
         let format: 'toml' | 'yml' | 'json';
         if (config.path.endsWith('.toml')) {
-            data = toml.parse(config.data, {
-                joiner: EOL,
-            }) as ConfigFile;
+            data = toml.parse(config.data) as ConfigFile;
             format = 'toml';
         } else if (
             config.path.endsWith('.yml') ||
@@ -158,21 +155,7 @@ export async function writeConfig({
 }) {
     const indent = configFileSettings.indent;
     const stringify = {
-        toml: (configFile: ConfigFile) => {
-            for (const key of Object.keys(configFile.vendorDependencies)) {
-                if (configFile.vendorDependencies[key]) {
-                    configFile.vendorDependencies[key] = Section(
-                        configFile.vendorDependencies[key],
-                    );
-                }
-            }
-            // @ts-expect-error toml doesn't understand that the ConfigFile type is just an object
-            return toml.stringify(configFile, {
-                newline: EOL,
-                indent,
-                newlineAround: 'section',
-            });
-        },
+        toml: (configFile: ConfigFile) => toml.stringify(configFile),
         yml: (configFile: ConfigFile) =>
             yaml.stringify(configFile, {
                 indent: typeof indent === 'number' ? indent : indent?.length,
