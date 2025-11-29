@@ -1,6 +1,6 @@
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
-import * as dotenv from 'dotenv';
+import { config as dotenv } from 'dotenv';
 import getEnvPaths from 'env-paths';
 import _fetch, { type FetchOptions } from 'make-fetch-happen';
 import open from 'open';
@@ -14,7 +14,7 @@ const fetch = _fetch.defaults({
     //cache: 'default',
 });
 
-dotenv.config();
+dotenv({ quiet: true });
 // process.env.GITHUB_TOKEN or saved token
 const token = tokenProvider.get();
 
