@@ -20,7 +20,7 @@ const defaultConfig = {
 
 const runOptions = {
     prMode: false,
-    configFolder: '',
+    configLocation: '',
 };
 export function getRunOptions(): typeof runOptions {
     return runOptions;
@@ -29,18 +29,18 @@ export function setRunOptions(flags: Partial<typeof runOptions>) {
     Object.assign(runOptions, flags);
 }
 
-// function to get the configuration
-
 async function findFirstFile(folderPath: string, files: string[]) {
+    const getFile = async (file: string) => ({
+        data: await readFile(file, 'utf-8'),
+        path: file,
+    });
+    const isAlreadyFilepath = files.find(f => folderPath.endsWith(f));
+    if (isAlreadyFilepath && existsSync(folderPath)) {
+        return getFile(folderPath);
+    }
     for (const file of files) {
         const filePath = path.join(folderPath, file);
-
-        if (existsSync(filePath)) {
-            return {
-                data: await readFile(filePath, 'utf-8'),
-                path: filePath,
-            };
-        }
+        if (existsSync(filePath)) return getFile(filePath);
     }
 
     return null;
@@ -92,7 +92,7 @@ export async function getConfig(): Promise<VendorsOptions> {
     if (res) return res;
 
     const folderPath = await realpath(
-        runOptions.configFolder ||
+        runOptions.configLocation ||
             process.env.INIT_CWD ||
             process.env.PWD ||
             process.cwd(),

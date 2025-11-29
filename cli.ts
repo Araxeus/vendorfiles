@@ -180,7 +180,7 @@ program
     .name('vendor')
     .hook('preAction', async () => {
         setRunOptions({
-            configFolder: program.getOptionValue('folder') as
+            configLocation: program.getOptionValue('config') as
                 | string
                 | undefined,
         });
@@ -193,7 +193,10 @@ program
     .addCommand(installCmd)
     .addCommand(uninstallCmd)
     .addCommand(loginCmd)
-    .option('-d, --folder [folder]', 'Folder containing the config file')
+    .option(
+        '-c, --config [file/folder path]',
+        'Config file path / Folder containing the config file',
+    )
     .version(
         (await getPackageJson()).version || 'unknown',
         '-v, --version',
