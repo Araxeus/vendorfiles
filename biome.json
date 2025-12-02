@@ -7,7 +7,7 @@
             "!node_modules",
             "!dist",
             "!vendor",
-            "!lib/auth.js"
+            "!.ignore"
         ]
     },
     "javascript": {

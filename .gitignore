@@ -1,7 +1,5 @@
 .env
 dist/*
 vendor/*
-lib/auth-original.js
 .ignore/*
 /node_modules/*
-
