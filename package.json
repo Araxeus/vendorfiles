@@ -32,10 +32,10 @@
   ],
   "scripts": {
     "start": "bun b && bun dist/cli.js",
-    "b": "del-cli dist && tsc && bun cpy lib/auth.js lib/types.d.ts dist",
+    "b": "bun scripts/delete_dist.ts && tsc",
     "lint": "bun biome check --write",
     "check": "tsc --noEmit && bun biome ci && bun start sync",
-    "release": "bun check && bun b && npm publish"
+    "release": "bun check && bun b && bun scripts/release.ts"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
@@ -58,10 +58,10 @@
     "@types/make-fetch-happen": "^10.0.4",
     "@types/node": "^24.10.1",
     "@types/parse-json": "^7.0.0",
-    "cpy-cli": "^6.0.0",
-    "del-cli": "^7.0.0",
     "type-fest": "^5.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@inquirer/prompts": "^8.0.2",
+    "semver": "^7.7.3"
   },
   "vendorDependencies": {
     "fzf": {
