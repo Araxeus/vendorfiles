@@ -32,9 +32,9 @@
   ],
   "scripts": {
     "start": "bun b && bun dist/cli.js",
-    "b": "bun scripts/delete_dist.ts && tsc",
+    "b": "bun scripts/delete-dist.ts && tsc",
     "lint": "bun biome check --write",
-    "check": "tsc --noEmit && bun biome ci && bun start sync",
+    "check": "tsc --noEmit && bun biome check && bun start sync",
     "release": "bun check && bun b && bun scripts/release.ts"
   },
   "dependencies": {
@@ -44,7 +44,6 @@
     "@octokit/rest": "^22.0.1",
     "commander": "^14.0.2",
     "detect-indent": "^7.0.2",
-    "dotenv": "^17.2.3",
     "env-paths": "^3.0.0",
     "make-fetch-happen": "^15.0.3",
     "open": "^11.0.0",
@@ -55,13 +54,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
+    "@inquirer/prompts": "^8.0.2",
     "@types/make-fetch-happen": "^10.0.4",
     "@types/node": "^24.10.1",
     "@types/parse-json": "^7.0.0",
+    "@types/semver": "^7.7.1",
+    "semver": "^7.7.3",
     "type-fest": "^5.2.0",
-    "typescript": "^5.9.3",
-    "@inquirer/prompts": "^8.0.2",
-    "semver": "^7.7.3"
+    "typescript": "^5.9.3"
   },
   "vendorDependencies": {
     "fzf": {

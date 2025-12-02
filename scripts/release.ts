@@ -55,11 +55,7 @@ if (!newVersion) {
 }
 
 pkgJson.version = newVersion;
-await writeFile(
-    pkgJsonPath,
-    JSON.stringify(pkgJson, null, indent),
-    'utf-8',
-);
+await writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, indent), 'utf-8');
 console.log(`Updated package.json to version ${newVersion}`);
 
 await $`bun format`.quiet();
