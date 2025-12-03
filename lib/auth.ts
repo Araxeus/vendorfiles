@@ -1,13 +1,33 @@
+import crypto from 'node:crypto';
+import os from 'node:os';
 import { Entry } from '@napi-rs/keyring';
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import open from 'open';
-import { assert, error, success, warning } from './utils.js';
+import { assert, error, getPackageJson, success, warning } from './utils.js';
 
 const keyring = new Entry('vendorfiles-cli', 'github_token');
 
+const h = os.hostname();
+const v = (await getPackageJson()).name as string;
+const he = (e: string) => `${h}-${v[0]}${v[6]}${v[10]}${e}`;
+const cipher = {
+    key: crypto
+        .createHash('sha256')
+        .update(he('daab511784574ec8a96cecf86cd10353'))
+        .digest()
+        .subarray(0, 0x20),
+    iv: crypto
+        .createHash('sha256')
+        .update(he('21ft0as6vba96zxcpqaha1bsflv'))
+        .digest()
+        .subarray(0, 0x10),
+};
+
 const getKeyringToken = () => {
     try {
-        return keyring.getPassword();
+        const encryptedToken = keyring.getPassword();
+        if (encryptedToken) return decryptToken(encryptedToken);
+        return null;
     } catch {
         return null;
     }
@@ -15,7 +35,7 @@ const getKeyringToken = () => {
 
 const saveTokenToKeyring = (token: string) => {
     try {
-        keyring.setPassword(token);
+        keyring.setPassword(encryptToken(token));
         return true;
     } catch {
         warning('Failed to save token to keyring');
@@ -73,5 +93,20 @@ export async function login(token?: string) {
         error(e as string);
     } finally {
         process.exit(0);
+    }
+}
+
+function encryptToken(token: string) {
+    const c = crypto.createCipheriv('aes-256-cbc', cipher.key, cipher.iv);
+    return c.update(token, 'utf8', 'base64') + c.final('base64');
+}
+
+function decryptToken(encryptedToken: string) {
+    try {
+        const d = crypto.createDecipheriv('aes-256-cbc', cipher.key, cipher.iv);
+        return d.update(encryptedToken, 'base64', 'utf8') + d.final('utf8');
+    } catch {
+        warning('Failed to decrypt token:');
+        return undefined;
     }
 }
