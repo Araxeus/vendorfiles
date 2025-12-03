@@ -1,12 +1,29 @@
 import { Entry } from '@napi-rs/keyring';
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import open from 'open';
-import { assert, error, success } from './utils.js';
+import { assert, error, success, warning } from './utils.js';
 
 const keyring = new Entry('vendorfiles-cli', 'github_token');
 
-export const token =
-    process.env.GITHUB_TOKEN || keyring.getPassword() || undefined;
+const getKeyringToken = () => {
+    try {
+        return keyring.getPassword();
+    } catch {
+        return null;
+    }
+};
+
+const saveTokenToKeyring = (token: string) => {
+    try {
+        keyring.setPassword(token);
+        return true;
+    } catch {
+        warning('Failed to save token to keyring');
+        return false;
+    }
+};
+
+export const token = process.env.GITHUB_TOKEN || getKeyringToken() || undefined;
 
 export async function login(token?: string) {
     if (token) {
@@ -21,7 +38,7 @@ export async function login(token?: string) {
         assert(res.status !== 401, 'Invalid token');
         assert(res.status !== 403, 'Token is rate limited');
         assert(res.ok, 'Something went wrong, try again later');
-        keyring.setPassword(token);
+        saveTokenToKeyring(token);
         success('Token saved successfully');
         return;
     }
@@ -49,7 +66,7 @@ export async function login(token?: string) {
             type: 'oauth',
         });
 
-        keyring.setPassword(tokenAuthentication.token);
+        saveTokenToKeyring(tokenAuthentication.token);
 
         success('Logged in successfully');
     } catch (e) {
