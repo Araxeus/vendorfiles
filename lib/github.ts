@@ -1,22 +1,15 @@
-import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
-import { config as dotenv } from 'dotenv';
 import getEnvPaths from 'env-paths';
 import _fetch, { type FetchOptions } from 'make-fetch-happen';
-import open from 'open';
-import * as tokenProvider from './auth.js';
+import { token } from './auth.js';
 import type { Repository } from './types.js';
-import { assert, error, success, warning } from './utils.js';
+import { assert, error, warning } from './utils.js';
 
 const envPaths = getEnvPaths('vendorfiles');
 const fetch = _fetch.defaults({
     cachePath: envPaths.cache,
     //cache: 'default',
 });
-
-dotenv({ quiet: true });
-// process.env.GITHUB_TOKEN or saved token
-const token = tokenProvider.get();
 
 let _octokit: Octokit;
 const octokit = () => {
@@ -232,59 +225,7 @@ export async function findRepoUrl(name: string) {
     return item.html_url;
 }
 
-export async function login(token?: string) {
-    if (token) {
-        const res = await fetch('https://api.github.com', {
-            cache: 'no-store',
-            method: 'HEAD',
-            headers: {
-                Authorization: `bearer ${token}`,
-            },
-        });
-
-        assert(res.status !== 401, 'Invalid token');
-        assert(res.status !== 403, 'Token is rate limited');
-        assert(res.ok, 'Something went wrong, try again later');
-        await tokenProvider.set(token);
-        success('Token saved successfully');
-        return;
-    }
-    try {
-        const auth = createOAuthDeviceAuth({
-            clientType: 'oauth-app',
-            clientId: '39d3104ecbbfd876dfa5',
-            scopes: [],
-            async onVerification(verification) {
-                console.log(
-                    `First, copy your one-time code: ${verification.user_code}`,
-                );
-                console.log(
-                    'Then press [Enter] to continue in your web browser',
-                );
-                await new Promise(resolve => {
-                    process.stdin.once('data', resolve);
-                });
-                console.log('Opening your web browser...');
-                await open(verification.verification_uri);
-            },
-        });
-
-        const tokenAuthentication = await auth({
-            type: 'oauth',
-        });
-
-        await tokenProvider.set(tokenAuthentication.token);
-
-        success('Logged in successfully');
-    } catch (e) {
-        error(e as string);
-    } finally {
-        process.exit(0);
-    }
-}
-
 export default {
-    login,
     getFile,
     getFileCommitSha,
     getLatestRelease,

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { Command } from '@commander-js/extra-typings';
+import { login } from './lib/auth.js';
 import { install, sync, uninstall } from './lib/commands.js';
 import { getConfig, setRunOptions } from './lib/config.js';
-import { findRepoUrl, login } from './lib/github.js';
+import { findRepoUrl } from './lib/github.js';
 import type { FilesArray, VendorsOptions } from './lib/types.js';
 import {
     assert,

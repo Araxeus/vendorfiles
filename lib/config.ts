@@ -29,17 +29,17 @@ export function setRunOptions(flags: Partial<typeof runOptions>) {
     Object.assign(runOptions, flags);
 }
 
-async function findFirstFile(folderPath: string, files: string[]) {
+async function findFirstFile(folderOrFilePath: string, files: string[]) {
     const getFile = async (file: string) => ({
         data: await readFile(file, 'utf-8'),
         path: file,
     });
-    const isAlreadyFilepath = files.find(f => folderPath.endsWith(f));
-    if (isAlreadyFilepath && existsSync(folderPath)) {
-        return getFile(folderPath);
+    const isAlreadyFilepath = files.find(f => folderOrFilePath.endsWith(f));
+    if (isAlreadyFilepath && existsSync(folderOrFilePath)) {
+        return getFile(folderOrFilePath);
     }
     for (const file of files) {
-        const filePath = path.join(folderPath, file);
+        const filePath = path.join(folderOrFilePath, file);
         if (existsSync(filePath)) return getFile(filePath);
     }
 
