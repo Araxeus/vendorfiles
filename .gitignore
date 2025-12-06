@@ -3,3 +3,4 @@ dist/*
 vendor/*
 .ignore/*
 /node_modules/*
+*.tsbuildinfo
