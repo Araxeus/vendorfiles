@@ -118,7 +118,8 @@ export async function getConfig(): Promise<VendorsOptions> {
         `Invalid vendorConfig key in ${configFile.path}`,
     );
 
-    const defaultOptions = configFile.data.default || {};
+    const defaultOptions =
+        configFile.data.defaultVendorOptions || configFile.data.default || {};
 
     for (const depName of Object.keys(dependencies)) {
         const files = dependencies[depName].files;

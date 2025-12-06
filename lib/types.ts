@@ -9,6 +9,7 @@ export type ConfigFile = {
     vendorConfig: VendorConfig;
     vendorDependencies: VendorDependencies;
     default?: DefaultOptions;
+    defaultVendorOptions?: DefaultOptions;
     [key: string]: unknown;
 };
 
