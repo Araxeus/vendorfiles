@@ -249,11 +249,10 @@ export async function install({
 
     const allFiles: (
         | string
-        | [string, string]
-        | [string, { [input: string]: string }]
-    )[] = dependency.files.flatMap(file =>
-        // @ts-expect-error Type 'string' is not assignable to type '[string, string]'
-        typeof file === 'object' ? Object.entries(file) : file,
+        | [string, string | { [input: string]: string }]
+    )[] = dependency.files.flatMap(
+        (file): (string | [string, string | { [input: string]: string }])[] =>
+            typeof file === 'object' ? Object.entries(file) : [file],
     );
 
     type ReleaseFileOutput = string | { [input: string]: string };
