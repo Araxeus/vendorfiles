@@ -8,6 +8,8 @@ import github from './github.js';
 import type {
     ConfigFile,
     ConfigFileSettings,
+    FileInputOutputInner,
+    flatFilesArray,
     Lockfile,
     VendorConfig,
     VendorDependency,
@@ -247,23 +249,18 @@ export async function install({
         }
     }
 
-    const allFiles: (
-        | string
-        | [string, string | { [input: string]: string }]
-    )[] = dependency.files.flatMap(
-        (file): (string | [string, string | { [input: string]: string }])[] =>
+    const allFiles: flatFilesArray = dependency.files.flatMap(
+        (file): flatFilesArray =>
             typeof file === 'object' ? Object.entries(file) : [file],
     );
 
-    type ReleaseFileOutput = string | { [input: string]: string };
-
-    const releaseFiles: { input: string; output: ReleaseFileOutput }[] = [];
+    const releaseFiles: { input: string; output: FileInputOutputInner }[] = [];
 
     await Promise.all(
         allFiles.map(async file => {
             let input: string;
             // type of parameter two
-            let output: ReleaseFileOutput;
+            let output: FileInputOutputInner;
             if (Array.isArray(file)) {
                 input = file[0];
                 output = file[1];

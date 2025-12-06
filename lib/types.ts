@@ -27,9 +27,16 @@ export type VendorDependencies = {
     [key: string]: VendorDependency;
 };
 
+export type FileInputOutputInner =
+    | string
+    | { [input: string]: string }
+    | string[];
+
 export type FileInputOutput = {
-    [input1: string]: string | { [input2: string]: string };
+    [input1: string]: FileInputOutputInner;
 };
+
+export type flatFilesArray = (string | [string, FileInputOutputInner])[];
 
 export type FilesArray = (string | FileInputOutput)[];
 
