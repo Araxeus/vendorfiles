@@ -51,7 +51,7 @@
     "parse-json": "^8.3.0",
     "smol-toml": "^1.5.2",
     "unarchive": "^1.1.4",
-    "yaml": "^2.8.1"
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
