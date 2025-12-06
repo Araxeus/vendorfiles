@@ -11,7 +11,6 @@ import {
 import path from 'node:path';
 import { finished } from 'node:stream/promises';
 import parseJson from 'parse-json';
-import type { PackageJson } from 'type-fest';
 import { getConfig, getRunOptions } from './config.js';
 import github from './github.js';
 import type {
@@ -250,7 +249,7 @@ export async function deleteFileAndEmptyFolders(
         ./dist/file3: "file3",
     }
 
-    to [ "file1", "file2", "zip1", "zip2", "file3" ]    
+    to [ "file1", "file2", "zip1", "zip2", "file3" ]
 **/
 export function flatFiles(files: VendorLockFiles) {
     return Object.values(files).flatMap(file =>
@@ -369,16 +368,6 @@ export function getDependencyFolder({
         ) || config.vendorFolder,
         dependency.vendorFolder ? '' : dependency.name || backupName,
     );
-}
-
-export async function getPackageJson(): Promise<PackageJson> {
-    const pkg: PackageJson = parseJson(
-        await readFile(new URL('../../package.json', import.meta.url), 'utf-8'),
-    );
-
-    assert(!!pkg, 'Could not find package.json');
-
-    return pkg;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: circular types are hard
