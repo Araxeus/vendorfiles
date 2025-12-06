@@ -36,7 +36,8 @@
     "lint": "biome check --write",
     "format": "biome format --write",
     "check": "tsc --noEmit && bun biome check && bun start sync",
-    "release": "bun check && bun b && bun scripts/release.ts"
+    "release": "bun check && bun b && bun scripts/release.ts",
+    "build-ex": "bun ./scripts/build-executables.ts"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",

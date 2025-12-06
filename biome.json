@@ -14,7 +14,8 @@
         "formatter": {
             "quoteStyle": "single",
             "arrowParentheses": "asNeeded"
-        }
+        },
+        "globals": ["Bun"]
     },
     "json": {
         "formatter": {
