@@ -22,8 +22,8 @@ jobs:
       - name: Verify npm version
         run: npm -v
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
-      - run: bun check
+      - run: bun ci
+      - run: bun run ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: bun b
