@@ -260,6 +260,7 @@ function upgradeOne(name: string) {
     assert(!!dep, `No dependency found with name ${name}`);
     assert(!!dep.repository, `No repository found for dependency ${name}`);
     assert(!!dep.files, `No files found for dependency ${name}`);
+    assert(!dep.locked, `Dependency ${name} is locked and cannot be upgraded`);
 
     installOne({
         url: dep.repository,

@@ -57,6 +57,7 @@ export type VendorDependency = {
     name?: string;
     vendorFolder?: string;
     releaseRegex?: string;
+    locked?: boolean;
 };
 
 // LOCKFILE TYPES
