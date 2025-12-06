@@ -23,6 +23,7 @@ Vendorfiles lets you pull files from GitHub repositories and keep them up to dat
   - [Commit-Based Versioning](#commit-based-versioning)
   - [GitHub Releases](#github-releases)
   - [Filtering Releases](#filtering-releases)
+  - [Locking Dependencies](#locking-dependencies)
   - [Default Options](#default-options)
 - [Commands](#commands)
   - [Sync](#sync)
@@ -256,6 +257,30 @@ Common patterns:
 ```
 
 > **Note:** Use double escaping (`\\d`) in JSON strings.
+
+### Locking Dependencies
+
+Use `locked: true` to prevent a dependency from being updated when running `vendor update`. This is useful when you need to pin a specific version and want to avoid accidental upgrades.
+
+```json
+{
+    "vendorDependencies": {
+        "Coloris": {
+            "version": "v0.17.1",
+            "repository": "https://github.com/mdbassit/Coloris",
+            "files": ["dist/coloris.min.js", "dist/coloris.min.css"],
+            "locked": true
+        }
+    }
+}
+```
+
+Locked dependencies:
+
+- Will still be downloaded during `vendor sync` if not already present
+- Will be skipped during `vendor update`
+- Will not appear in `vendor outdated` output
+- Can be unlocked by removing the `locked` option or setting it to `false`
 
 ### Default Options
 

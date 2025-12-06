@@ -63,18 +63,20 @@ export async function sync(
 
         const oldVersion = dependency.version;
 
+        const shouldUpdateDep = dependency.locked ? false : shouldUpdate;
+
         const newVersion = await install({
             dependency,
             configFile,
             configFileSettings,
             config,
-            shouldUpdate,
+            shouldUpdate: shouldUpdateDep,
             force,
             showOutdatedOnly,
         });
 
         if (
-            shouldUpdate &&
+            shouldUpdateDep &&
             !showOutdatedOnly &&
             oldVersion &&
             newVersion &&
