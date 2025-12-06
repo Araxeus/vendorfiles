@@ -62,7 +62,6 @@
     "@types/parse-json": "^7.0.0",
     "@types/semver": "^7.7.1",
     "semver": "^7.7.3",
-    "type-fest": "^5.2.0",
     "typescript": "^5.9.3"
   },
   "vendorDependencies": {
