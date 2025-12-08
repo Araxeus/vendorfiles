@@ -51,7 +51,7 @@
     "open": "^11.0.0",
     "parse-json": "^8.3.0",
     "smol-toml": "^1.5.2",
-    "unarchive": "^1.1.4",
+    "unarchive": "^1.2.0",
     "yaml": "^2.8.1"
   },
   "devDependencies": {
