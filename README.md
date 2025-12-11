@@ -31,8 +31,8 @@ Vendorfiles lets you pull files from GitHub repositories and keep them up to dat
   - [Install](#install)
   - [Uninstall](#uninstall)
   - [Login](#login)
-- [JSON Schema](#json-schema)
 - [GitHub Action](#github-action)
+- [JSON Schema](#json-schema)
 
 ## Quick Start
 
@@ -424,7 +424,7 @@ Examples:
 
 ## GitHub Action
 
-Automate dependency updates with [vendorfiles-action](https://github.com/marketplace/actions/vendorfiles-updater):
+Automate dependency updates with [vendorfiles-action](https://github.com/marketplace/actions/vendorfiles-updater) which creates pull requests for outdated dependencies.
 
 ```yaml
 - uses: Araxeus/vendorfiles-action@v1
@@ -445,7 +445,7 @@ Vendorfiles provides a JSON Schema for configuration file validation and autocom
 {
     "$schema": "./node_modules/vendorfiles/vendorfiles.schema.json",
     "vendorDependencies": {
-        ...
+        //...
     }
 }
 ```
@@ -456,12 +456,13 @@ Vendorfiles provides a JSON Schema for configuration file validation and autocom
 {
     "$schema": "https://raw.githubusercontent.com/Araxeus/vendorfiles/refs/heads/main/vendorfiles.schema.json",
     "vendorDependencies": {
-        ...
+        //...
     }
 }
 ```
 
 The schema provides:
+
 - Autocompletion for all configuration options
 - Validation of your configuration structure
 - Inline documentation and examples in supported editors (VS Code, JetBrains IDEs, etc.)
