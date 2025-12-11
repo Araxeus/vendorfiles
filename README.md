@@ -15,7 +15,6 @@ Vendorfiles lets you pull files from GitHub repositories and keep them up to dat
 ## Table of Contents <!-- omit from toc -->
 
 - [Quick Start](#quick-start)
-- [Installation](#installation)
 - [Configuration](#configuration)
   - [Basic Setup](#basic-setup)
   - [Custom Output Paths](#custom-output-paths)
@@ -32,16 +31,20 @@ Vendorfiles lets you pull files from GitHub repositories and keep them up to dat
   - [Install](#install)
   - [Uninstall](#uninstall)
   - [Login](#login)
+- [JSON Schema](#json-schema)
 - [GitHub Action](#github-action)
 
 ## Quick Start
 
-1. Install vendorfiles:
-   ```bash
-   npm install -g vendorfiles
-   ```
+**Install vendorfiles:**
 
-2. Create a `vendor.json` in your project:
+```bash
+npm install -g vendorfiles   # global (recommended for CLI usage)
+npm install vendorfiles      # local (for project-specific usage)
+```
+
+**Create a `vendor.json` in your project:**
+
    ```json
    {
        "vendorDependencies": {
@@ -52,26 +55,15 @@ Vendorfiles lets you pull files from GitHub repositories and keep them up to dat
            }
        }
    }
-   ```
+```
 
-3. Run:
-   ```bash
-   vendor sync
-   ```
+**Run:**
+
+```bash
+vendor sync
+```
 
 That's it! Your files are now in `./vendor/Coloris/`.
-
-## Installation
-
-**Global** (recommended for CLI usage):
-```bash
-npm install -g vendorfiles
-```
-
-**Local** (for project-specific usage):
-```bash
-npm install vendorfiles
-```
 
 ## Configuration
 
@@ -442,3 +434,34 @@ Automate dependency updates with [vendorfiles-action](https://github.com/marketp
 ```
 
 See the [action's readme](https://github.com/Araxeus/vendorfiles-action#readme) for more options.
+
+## JSON Schema
+
+Vendorfiles provides a JSON Schema for configuration file validation and autocompletion in your editor.
+
+**If vendorfiles is installed locally:**
+
+```json
+{
+    "$schema": "./node_modules/vendorfiles/vendorfiles.schema.json",
+    "vendorDependencies": {
+        ...
+    }
+}
+```
+
+**If vendorfiles is not installed locally (or for global usage):**
+
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/Araxeus/vendorfiles/refs/heads/main/vendorfiles.schema.json",
+    "vendorDependencies": {
+        ...
+    }
+}
+```
+
+The schema provides:
+- Autocompletion for all configuration options
+- Validation of your configuration structure
+- Inline documentation and examples in supported editors (VS Code, JetBrains IDEs, etc.)
