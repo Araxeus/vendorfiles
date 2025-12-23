@@ -40,9 +40,9 @@
         "$ref": "#/definitions/vendorDependency"
       }
     },
-    "vendorDependency": {
+    "vendorDependencyBase": {
       "type": "object",
-      "description": "Configuration for a single vendor dependency",
+      "description": "Base properties for vendor dependency configuration",
       "properties": {
         "repository": {
           "type": "string",
@@ -59,7 +59,15 @@
           "examples": ["v0.17.1", "1.0.0", "f6ec482ea395cead4fd849c05df6edd8da284a52"]
         },
         "files": {
-          "$ref": "#/definitions/filesArray"
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Single file path to download"
+            },
+            {
+              "$ref": "#/definitions/filesArray"
+            }
+          ]
         },
         "vendorFolder": {
           "type": "string",
@@ -95,13 +103,18 @@
           "default": false
         }
       },
-      "required": ["repository", "files"],
       "additionalProperties": false
     },
+    "vendorDependency": {
+      "description": "Configuration for a single vendor dependency",
+      "allOf": [
+        { "$ref": "#/definitions/vendorDependencyBase" }
+      ],
+      "required": ["repository", "files"]
+    },
     "defaultOptions": {
-      "type": "object",
       "description": "Default options that apply to all dependencies. Individual dependencies can override these values",
-      "$ref": "#/definitions/vendorDependency"
+      "$ref": "#/definitions/vendorDependencyBase"
     },
     "filesArray": {
       "type": "array",
