@@ -324,6 +324,8 @@ Options:
   -h, --help                                  display help for command
 ```
 
+You can also set the config location via the `VENDOR_CONFIG` environment variable. The CLI option (`-c`) takes precedence if both are provided.
+
 ### Sync
 
 Download and sync all dependencies defined in your config file.

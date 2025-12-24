@@ -93,6 +93,7 @@ export async function getConfig(): Promise<VendorsOptions> {
 
     const folderPath = await realpath(
         runOptions.configLocation ||
+            process.env.VENDOR_CONFIG ||
             process.env.INIT_CWD ||
             process.env.PWD ||
             process.cwd(),
