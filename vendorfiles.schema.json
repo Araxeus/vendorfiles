@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vendorfiles Configuration",
+  "description": "Configuration file for vendorfiles - a tool to pull files from GitHub repositories and keep them up to date",
+  "type": "object",
+  "properties": {
+    "vendorConfig": {
+      "$ref": "#/definitions/vendorConfig"
+    },
+    "vendorDependencies": {
+      "$ref": "#/definitions/vendorDependencies"
+    },
+    "default": {
+      "$ref": "#/definitions/defaultOptions"
+    },
+    "defaultVendorOptions": {
+      "$ref": "#/definitions/defaultOptions"
+    }
+  },
+  "required": ["vendorDependencies"],
+  "additionalProperties": true,
+  "definitions": {
+    "vendorConfig": {
+      "type": "object",
+      "description": "Global configuration options for vendorfiles",
+      "properties": {
+        "vendorFolder": {
+          "type": "string",
+          "description": "Base folder where vendor files will be saved",
+          "default": "./vendor",
+          "examples": ["./vendor", "./my-vendors", "./libs"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "vendorDependencies": {
+      "type": "object",
+      "description": "Map of dependency names to their configuration",
+      "additionalProperties": {
+        "$ref": "#/definitions/vendorDependency"
+      }
+    },
+    "vendorDependencyBase": {
+      "type": "object",
+      "description": "Base properties for vendor dependency configuration",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "GitHub repository URL",
+          "pattern": "^https://github\\.com/[^/]+/[^/]+/?$",
+          "examples": [
+            "https://github.com/mdbassit/Coloris",
+            "https://github.com/junegunn/fzf"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "description": "Version to download. Can be a release tag (e.g., 'v1.0.0') or a commit hash for hash-based versioning",
+          "examples": ["v0.17.1", "1.0.0", "f6ec482ea395cead4fd849c05df6edd8da284a52"]
+        },
+        "files": {
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Single file path to download"
+            },
+            {
+              "$ref": "#/definitions/filesArray"
+            }
+          ]
+        },
+        "vendorFolder": {
+          "type": "string",
+          "description": "Custom output folder for this dependency. Use {vendorFolder} to reference the base vendor folder",
+          "examples": ["{vendorFolder}/mylib", "./custom-folder", "{vendorFolder}"]
+        },
+        "hashVersionFile": {
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Track a specific file's commit hash for versioning"
+            },
+            {
+              "type": "boolean",
+              "description": "When true, tracks the first file in the files array"
+            }
+          ],
+          "description": "Enable commit-based versioning. Set to a file path to track that file's commits, or true to track the first file in the files array",
+          "examples": ["package.json", "src/main.js", true]
+        },
+        "releaseRegex": {
+          "type": "string",
+          "description": "Regular expression to filter which releases are considered when finding the latest version. Use double escaping (\\\\d) in JSON",
+          "examples": [
+            "^v\\d+\\.\\d+\\.\\d+$",
+            "^v(?!.*-(?:alpha|beta)).*",
+            "stable"
+          ]
+        },
+        "locked": {
+          "type": "boolean",
+          "description": "When true, prevents this dependency from being updated by 'vendor update'. Useful for pinning specific versions",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "vendorDependency": {
+      "description": "Configuration for a single vendor dependency",
+      "allOf": [
+        { "$ref": "#/definitions/vendorDependencyBase" }
+      ],
+      "required": ["repository", "files"]
+    },
+    "defaultOptions": {
+      "description": "Default options that apply to all dependencies. Individual dependencies can override these values",
+      "$ref": "#/definitions/vendorDependencyBase"
+    },
+    "filesArray": {
+      "type": "array",
+      "description": "List of files to download from the repository",
+      "items": {
+        "$ref": "#/definitions/fileItem"
+      },
+      "minItems": 1,
+      "examples": [
+        ["dist/coloris.min.js", "dist/coloris.min.css", "LICENSE"],
+        ["LICENSE", "{release}/fzf-{version}-linux_amd64.tar.gz"]
+      ]
+    },
+    "fileItem": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Simple file path to download. Use {release}/ prefix for release assets and {version} for semver substitution",
+          "examples": [
+            "dist/coloris.min.js",
+            "LICENSE",
+            "{release}/fzf-{version}-linux_amd64.tar.gz"
+          ]
+        },
+        {
+          "type": "object",
+          "description": "File mapping object for renaming, moving, or extracting from archives",
+          "additionalProperties": {
+            "$ref": "#/definitions/fileMapping"
+          },
+          "minProperties": 1,
+          "examples": [
+            { "LICENSE": "../licenses/COLORIS_LICENSE" },
+            { "{release}/fzf-{version}-windows_amd64.zip": "fzf-windows.zip" },
+            { "{release}/fzf-{version}-linux_amd64.tar.gz": ["fzf"] },
+            { "{release}/fzf-{version}-windows_amd64.zip": { "fzf.exe": "my-custom-fzf.exe" } }
+          ]
+        }
+      ]
+    },
+    "fileMapping": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Destination path for renaming or moving a file"
+        },
+        {
+          "type": "array",
+          "description": "List of files to extract from an archive",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "File to extract from the archive"
+              },
+              {
+                "type": "object",
+                "description": "File to extract with custom destination name",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "minProperties": 1,
+                "maxProperties": 1
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        {
+          "type": "object",
+          "description": "Map of files to extract from an archive with custom destination names",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "vendorDependencies": {
+        "Coloris": {
+          "version": "v0.17.1",
+          "repository": "https://github.com/mdbassit/Coloris",
+          "files": ["dist/coloris.min.js", "dist/coloris.min.css"]
+        }
+      }
+    },
+    {
+      "vendorConfig": {
+        "vendorFolder": "./my-vendors"
+      },
+      "vendorDependencies": {
+        "Cooltipz": {
+          "version": "v2.2.0",
+          "repository": "https://github.com/jackdomleo7/Cooltipz.css",
+          "files": ["cooltipz.min.css", "LICENSE"],
+          "vendorFolder": "{vendorFolder}/Cooltipz"
+        }
+      }
+    },
+    {
+      "vendorDependencies": {
+        "fzf": {
+          "version": "0.38.0",
+          "repository": "https://github.com/junegunn/fzf",
+          "releaseRegex": "^v\\d+\\.\\d+\\.\\d+$",
+          "files": [
+            "LICENSE",
+            {
+              "{release}/fzf-{version}-windows_amd64.zip": {
+                "fzf.exe": "my-custom-fzf.exe"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "vendorConfig": {
+        "vendorFolder": "."
+      },
+      "default": {
+        "vendorFolder": "{vendorFolder}",
+        "repository": "https://github.com/nushell/nu_scripts",
+        "hashVersionFile": true
+      },
+      "vendorDependencies": {
+        "nu-winget-completions": {
+          "files": ["custom-completions/winget/winget-completions.nu"],
+          "version": "912bea4588ba089aebe956349488e7f78e56061c"
+        }
+      }
+    }
+  ]
+}

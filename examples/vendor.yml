@@ -2,13 +2,12 @@ vendorConfig:
   vendorFolder: vendor
 vendorDependencies:
   fzf:
-    name: fzf
     version: 0.37.0
     repository: https://github.com/junegunn/fzf
     files:
       - LICENSE
-      - "{release}/fzf-{version}-windows_amd64.zip":
+      - '{release}/fzf-{version}-windows_amd64.zip':
           - fzf.exe
-      - "{release}/fzf-{version}-windows_amd64.zip":
-          - fzf.exe : custom-fzf.exe
-    vendorFolder: "{vendorFolder}/fzf-yml"
+      - '{release}/fzf-{version}-windows_amd64.zip':
+          - fzf.exe: custom-fzf.exe
+    vendorFolder: '{vendorFolder}/fzf-yml'

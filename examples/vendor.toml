@@ -3,7 +3,6 @@
 vendorFolder = 'vendor'
 
 [vendorDependencies.fzf]
-name = 'fzf'
 version = '0.37.0'
 repository = 'https://github.com/junegunn/fzf'
 files = [
