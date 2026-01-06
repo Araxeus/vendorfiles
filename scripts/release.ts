@@ -64,4 +64,5 @@ await $`git add .`;
 await $`git commit -m "v${newVersion}"`;
 await $`git tag v${newVersion}`;
 
-console.log(`Committed and tagged version v${newVersion} successfully.`);
+console.log(`Committed and tagged version v${newVersion} successfully.
+run 'git push origin main && git push --tags origin main' to push changes.`);
