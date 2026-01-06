@@ -364,7 +364,10 @@ export async function install({
 
                     // move files
                     for (let [inputPath, outputPath] of inputOutput) {
-                        inputPath = path.join(randomFolderName, inputPath);
+                        inputPath = path.join(
+                            randomFolderName,
+                            replaceVersion(inputPath, newVersion),
+                        );
                         outputPath = path.join(
                             depDirectory,
                             replaceVersion(outputPath, newVersion),
