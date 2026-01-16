@@ -231,6 +231,7 @@ You can extract specific files from zip/tar archives:
 Use `releaseRegex` to control which releases are considered when finding the "latest" version. The regex is tested against release tags/names.
 
 Common patterns:
+
 - Semver only: `"^v\\d+\\.\\d+\\.\\d+$"`
 - Exclude pre-releases: `"^v(?!.*-(?:alpha|beta)).*"`
 - Match title containing "stable": `"stable"`
@@ -272,7 +273,6 @@ Locked dependencies:
 - Will still be downloaded during `vendor sync` if not already present
 - Will be skipped during `vendor update`
 - Will not appear in `vendor outdated` output
-- Can be unlocked by removing the `locked` option or setting it to `false`
 
 ### Default Options
 
@@ -432,16 +432,16 @@ Automate dependency updates with [vendorfiles-action](https://github.com/marketp
 - uses: Araxeus/vendorfiles-action@v1
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
-    package-manager: yarn
+    package-manager: npm
 ```
 
 See the [action's readme](https://github.com/Araxeus/vendorfiles-action#readme) for more options.
 
 ## JSON Schema
 
-Vendorfiles provides a JSON Schema for configuration file validation and autocompletion in your editor.
+Validate your `vendor.json` against the JSON schema to catch configuration errors
 
-**If vendorfiles is installed locally:**
+**If installed locally:**
 
 ```json
 {
@@ -452,7 +452,7 @@ Vendorfiles provides a JSON Schema for configuration file validation and autocom
 }
 ```
 
-**If vendorfiles is not installed locally (or for global usage):**
+**From URL**
 
 ```json
 {
@@ -462,9 +462,3 @@ Vendorfiles provides a JSON Schema for configuration file validation and autocom
     }
 }
 ```
-
-The schema provides:
-
-- Autocompletion for all configuration options
-- Validation of your configuration structure
-- Inline documentation and examples in supported editors (VS Code, JetBrains IDEs, etc.)
