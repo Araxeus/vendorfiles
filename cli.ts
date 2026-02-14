@@ -7,7 +7,7 @@ import { getConfig, setRunOptions } from './lib/config.js';
 import { findRepoUrl } from './lib/github.js';
 import type { FilesArray, VendorsOptions } from './lib/types.js';
 import { assert, isGitHubUrl, ownerAndNameFromRepoUrl } from './lib/utils.js';
-import { version } from './package.json' with { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 
 let vendorOptions: VendorsOptions;
 
@@ -195,7 +195,7 @@ program
         'Config file path / Folder containing the config file',
     )
     .version(
-        version || 'unknown',
+        pkg.version || 'unknown',
         '-v, --version',
         'output the current version',
     )
