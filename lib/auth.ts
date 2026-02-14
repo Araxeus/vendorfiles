@@ -3,12 +3,13 @@ import os from 'node:os';
 import { Entry } from '@napi-rs/keyring';
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import open from 'open';
-import { name as n } from '../package.json' with { type: 'json' };
+import pkg from '../package.json' with { type: 'json' };
 import { assert, error, success, warning } from './utils.js';
 
 const keyring = new Entry('vendorfiles-cli', 'github_token');
 
-const he = (e: string) => `${os.hostname()}-${n[0]}${n[6]}${n[10]}${e}`;
+const he = (e: string) =>
+    `${os.hostname()}-${pkg.name[0]}${pkg.name[6]}${pkg.name[10]}${e}`;
 const cipher = {
     key: crypto
         .createHash('sha256')
