@@ -236,13 +236,19 @@ function installOne({
     version?: string;
     name?: string;
 }) {
+    const dependency = name
+        ? {
+              name,
+              ...vendorOptions.dependencies[name],
+          }
+        : {
+              repository: url,
+              files,
+              version,
+              name,
+          };
     install({
-        dependency: (name && vendorOptions.dependencies[name]) || {
-            repository: url,
-            files,
-            version,
-            name,
-        },
+        dependency,
         config: vendorOptions.config,
         configFile: vendorOptions.configFile,
         configFileSettings: vendorOptions.configFileSettings,
