@@ -55,11 +55,11 @@
     "yaml": "^2.8.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.14",
-    "@inquirer/prompts": "^8.2.0",
-    "@types/bun": "^1.3.9",
+    "@biomejs/biome": "^2.4.5",
+    "@inquirer/prompts": "^8.3.0",
+    "@types/bun": "^1.3.10",
     "@types/make-fetch-happen": "^10.0.4",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.3",
     "@types/parse-json": "^7.0.0",
     "@types/semver": "^7.7.1",
     "semver": "^7.7.4",
