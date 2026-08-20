@@ -360,12 +360,18 @@ export function getDependencyFolder({
     configPath: string;
     backupName: string;
 }): string {
-    return path.join(
-        path.dirname(configPath),
+    const folder =
         dependency.vendorFolder?.replace(
             '{vendorFolder}',
             config.vendorFolder,
-        ) || config.vendorFolder,
+        ) || config.vendorFolder;
+
+    const base = path.isAbsolute(folder)
+        ? folder
+        : path.join(path.dirname(configPath), folder);
+
+    return path.join(
+        base,
         dependency.vendorFolder ? '' : dependency.name || backupName,
     );
 }
