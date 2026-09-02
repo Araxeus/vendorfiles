@@ -11,6 +11,7 @@ import type {
     FileInputOutputInner,
     flatFilesArray,
     Lockfile,
+    Repository,
     VendorConfig,
     VendorDependency,
     VendorsOptions,
@@ -256,8 +257,6 @@ export async function install({
             typeof file === 'object' ? Object.entries(file) : [file],
     );
 
-    const releaseFiles: { input: string; output: FileInputOutputInner }[] = [];
-
     await Promise.all(
         allFiles.map(async file => {
             let input: string;
@@ -274,8 +273,13 @@ export async function install({
             }
 
             if (input.startsWith('{release}/')) {
-                releaseFiles.push({ input, output });
-                return;
+                return await handleReleaseFile({
+                    file: { input, output },
+                    repo,
+                    newVersion,
+                    releaseRegex: dependency.releaseRegex,
+                    depDirectory,
+                });
             }
 
             if (typeof output !== 'string') {
@@ -314,93 +318,6 @@ export async function install({
         }),
     );
 
-    await Promise.all(
-        // file.output is either a string that or an object which would mean that we want to extract the files from the downloaded archive
-        releaseFiles.map(async file => {
-            const input = replaceVersion(file.input, newVersion).replace(
-                '{release}/',
-                '',
-            );
-            const output = file.output;
-
-            const releaseFile = await github.downloadReleaseFile({
-                repo,
-                path: input,
-                version: newVersion,
-                releaseRegex: dependency.releaseRegex,
-            });
-
-            if (typeof output === 'object') {
-                const tempFolder = path.join(
-                    os.tmpdir(),
-                    `vendorfiles-${random()}`,
-                );
-                try {
-                    // create temp folder
-                    await fs.mkdir(tempFolder, { recursive: true });
-
-                    // save archive to temp folder
-                    const archivePath = path.join(tempFolder, input);
-                    await readableToFile(releaseFile, archivePath, false);
-
-                    // extract archive
-                    const randomFolderName = path.join(tempFolder, random());
-
-                    try {
-                        await unarchive(archivePath, randomFolderName);
-                    } catch {
-                        await fs.rm(tempFolder, {
-                            force: true,
-                            recursive: true,
-                        });
-                        error(
-                            `file "${input}" cannot be extracted.\nplease check that it's either a zip | tar | tar.gz`,
-                        );
-                    }
-
-                    const inputOutput = Array.isArray(output)
-                        ? output.map(o => [o, o])
-                        : Object.entries(output);
-
-                    // move files
-                    for (let [inputPath, outputPath] of inputOutput) {
-                        inputPath = path.join(
-                            randomFolderName,
-                            replaceVersion(inputPath, newVersion),
-                        );
-                        outputPath = path.join(
-                            depDirectory,
-                            replaceVersion(outputPath, newVersion),
-                        );
-                        try {
-                            await fs.access(inputPath);
-                            await fs.mkdir(path.dirname(outputPath), {
-                                recursive: true,
-                            });
-                            await fs.rename(inputPath, outputPath);
-                            info(`Saved ${outputPath}`);
-                        } catch (e) {
-                            await fs.rm(tempFolder, {
-                                force: true,
-                                recursive: true,
-                            });
-                            error(
-                                `Error while moving file "${inputPath}" to "${outputPath}":\n${e}`,
-                            );
-                        }
-                    }
-                } finally {
-                    await fs.rm(tempFolder, { force: true, recursive: true });
-                }
-            } else {
-                await readableToFile(
-                    releaseFile,
-                    path.join(depDirectory, replaceVersion(output, newVersion)),
-                );
-            }
-        }),
-    );
-
     await writeLockfile(
         dependency.name,
         {
@@ -430,4 +347,100 @@ export async function install({
     }
 
     success(`Installed ${dependency.name} ${newVersion}`);
+}
+
+async function handleReleaseFile({
+    file,
+    repo,
+    newVersion,
+    releaseRegex,
+    depDirectory,
+}: {
+    repo: Repository;
+    newVersion: string;
+    file: {
+        input: string;
+        output: FileInputOutputInner;
+    };
+    releaseRegex?: string | undefined;
+    depDirectory: string;
+}): Promise<void> {
+    const input = replaceVersion(file.input, newVersion).replace(
+        '{release}/',
+        '',
+    );
+    const output = file.output;
+
+    const releaseFile = await github.downloadReleaseFile({
+        repo,
+        path: input,
+        version: newVersion,
+        releaseRegex: releaseRegex,
+    });
+
+    if (typeof output === 'object') {
+        const tempFolder = path.join(os.tmpdir(), `vendorfiles-${random()}`);
+        try {
+            // create temp folder
+            await fs.mkdir(tempFolder, { recursive: true });
+
+            // save archive to temp folder
+            const archivePath = path.join(tempFolder, input);
+            await readableToFile(releaseFile, archivePath, false);
+
+            // extract archive
+            const randomFolderName = path.join(tempFolder, random());
+
+            try {
+                await unarchive(archivePath, randomFolderName);
+            } catch {
+                await fs.rm(tempFolder, {
+                    force: true,
+                    recursive: true,
+                });
+                error(
+                    `file "${input}" cannot be extracted.\nplease check that it's either a zip | tar | tar.gz`,
+                );
+            }
+
+            const inputOutput = Array.isArray(output)
+                ? output.map(o => [o, o])
+                : Object.entries(output);
+
+            // move files
+            for (let [inputPath, outputPath] of inputOutput) {
+                inputPath = path.join(
+                    randomFolderName,
+                    replaceVersion(inputPath, newVersion),
+                );
+                outputPath = path.join(
+                    depDirectory,
+                    replaceVersion(outputPath, newVersion),
+                );
+                try {
+                    await fs.access(inputPath);
+                    await fs.mkdir(path.dirname(outputPath), {
+                        recursive: true,
+                    });
+                    await fs.rename(inputPath, outputPath);
+                    info(`Saved ${outputPath}`);
+                } catch (e) {
+                    await fs.rm(tempFolder, {
+                        force: true,
+                        recursive: true,
+                    });
+                    error(
+                        `Error while moving file "${inputPath}" to "${outputPath}":\n${e}`,
+                    );
+                }
+            }
+        } finally {
+            await fs.rm(tempFolder, { force: true, recursive: true });
+        }
+    } else {
+        await readableToFile(
+            releaseFile,
+            path.join(depDirectory, replaceVersion(output, newVersion)),
+        );
+    }
 }
