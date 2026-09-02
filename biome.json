@@ -2,13 +2,7 @@
     "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
     "assist": { "actions": { "source": { "organizeImports": "on" } } },
     "files": {
-        "includes": [
-            "**",
-            "!node_modules",
-            "!dist",
-            "!vendor",
-            "!.ignore"
-        ]
+        "includes": ["**", "!node_modules", "!dist", "!vendor", "!.ignore"]
     },
     "javascript": {
         "formatter": {
@@ -30,7 +24,7 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "recommended": true,
+            "preset": "recommended",
             "correctness": {
                 "noUndeclaredVariables": "error",
                 "noUnusedVariables": "error"
@@ -39,7 +33,7 @@
                 "noParameterAssign": "off"
             },
             "nursery": {
-                "recommended": true
+                "preset": "recommended"
             }
         }
     }
