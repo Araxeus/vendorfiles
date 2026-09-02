@@ -24,13 +24,15 @@ const cipher = {
 };
 
 const getKeyringToken = () => {
+    let encryptedToken: string | null = null;
     try {
-        const encryptedToken = keyring.getPassword();
-        if (encryptedToken) return decryptToken(encryptedToken);
-        return null;
-    } catch {
+        encryptedToken = keyring.getPassword();
+    } catch (e) {
+        warning(`Failed to get token from keyring: ${e}`);
         return null;
     }
+    if (encryptedToken) return decryptToken(encryptedToken);
+    return null;
 };
 
 const saveTokenToKeyring = (token: string) => {
