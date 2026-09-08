@@ -55,9 +55,9 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.11",
-    "@inquirer/prompts": "^8.7.0",
-    "@types/bun": "^1.4.0",
+    "@biomejs/biome": "^2.5.12",
+    "@inquirer/prompts": "^8.7.1",
+    "@types/bun": "^1.4.1",
     "@types/make-fetch-happen": "^10.0.4",
     "@types/node": "^26.4.1",
     "@types/parse-json": "^7.0.0",
