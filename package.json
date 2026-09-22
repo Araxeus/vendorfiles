@@ -41,18 +41,18 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^15.0.0",
-    "@napi-rs/keyring": "^2.0.0",
+    "@napi-rs/keyring": "^2.1.0",
     "@octokit/auth-oauth-device": "^8.0.5",
     "@octokit/rest": "^22.0.1",
     "commander": "^15.0.0",
     "detect-indent": "^7.0.2",
     "env-paths": "^4.0.0",
     "make-fetch-happen": "^16.0.1",
-    "open": "^11.0.2",
+    "open": "^11.0.4",
     "parse-json": "^8.3.0",
     "smol-toml": "^1.8.0",
     "unarchive": "^1.2.1",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.11",
