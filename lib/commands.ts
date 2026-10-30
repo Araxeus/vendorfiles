@@ -9,7 +9,7 @@ import type {
     ConfigFile,
     ConfigFileSettings,
     FileInputOutputInner,
-    flatFilesArray,
+    FlatFilesArray,
     Lockfile,
     Repository,
     VendorConfig,
@@ -252,8 +252,8 @@ export async function install({
         }
     }
 
-    const allFiles: flatFilesArray = dependency.files.flatMap(
-        (file): flatFilesArray =>
+    const allFiles: FlatFilesArray = dependency.files.flatMap(
+        (file): FlatFilesArray =>
             typeof file === 'object' ? Object.entries(file) : [file],
     );
 

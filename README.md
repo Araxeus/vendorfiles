@@ -45,16 +45,16 @@ npm install vendorfiles      # local (for project-specific usage)
 
 **Create a `vendor.json` in your project:**
 
-   ```json
-   {
-       "vendorDependencies": {
-           "Coloris": {
-               "version": "v0.17.1",
-               "repository": "https://github.com/mdbassit/Coloris",
-               "files": ["dist/coloris.min.js", "dist/coloris.min.css"]
-           }
-       }
-   }
+```json
+{
+    "vendorDependencies": {
+        "Coloris": {
+            "version": "v0.17.1",
+            "repository": "https://github.com/mdbassit/Coloris",
+            "files": ["dist/coloris.min.js", "dist/coloris.min.css"]
+        }
+    }
+}
 ```
 
 **Run:**
@@ -282,7 +282,7 @@ Use a `default` or `defaultVendorOptions` object to share options across all dep
 vendorConfig:
   vendorFolder: .
 default:
-  vendorFolder: "{vendorFolder}"
+  vendorFolder: '{vendorFolder}'
   repository: https://github.com/nushell/nu_scripts
   hashVersionFile: true
 vendorDependencies:

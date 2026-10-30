@@ -37,7 +37,7 @@ export type FileInputOutput = {
     [input1: string]: FileInputOutputInner;
 };
 
-export type flatFilesArray = (string | [string, FileInputOutputInner])[];
+export type FlatFilesArray = (string | [string, FileInputOutputInner])[];
 
 export type FilesArray = (string | FileInputOutput)[];
 
