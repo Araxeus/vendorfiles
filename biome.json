@@ -15,6 +15,12 @@
             "enabled": false
         }
     },
+    "yaml": {
+        "formatter": {
+            "indentWidth": 2,
+            "quoteStyle": "single"
+        }
+    },
     "formatter": {
         "enabled": true,
         "indentStyle": "space",
