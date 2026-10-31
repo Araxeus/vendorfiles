@@ -2,7 +2,14 @@
 
 [![NPM Version](https://img.shields.io/npm/v/vendorfiles)](https://www.npmjs.com/package/vendorfiles)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Araxeus/vendorfiles/blob/main/LICENSE)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Araxeus/vendorfiles)
+[![Maintenance](https://img.shields.io/badge/maintenance-mode-orange.svg)](https://github.com/Araxeus/vendorfiles-rs)
+
+> [!IMPORTANT]
+> **This project is in maintenance mode.**
+>
+> It still gets bug fixes and security updates, but new features now live in **[vendorfiles-rs](https://github.com/Araxeus/vendorfiles-rs)**, the Rust rewrite of vendorfiles.
+>
+> [![vendorfiles-rs](https://img.shields.io/badge/%E2%86%92_check_out-vendorfiles--rs-dea584?logo=rust&logoColor=white)](https://github.com/Araxeus/vendorfiles-rs)
 
 Vendorfiles lets you pull files from GitHub repositories and keep them up to date. Think of it like a package manager, but for individual files — CSS libraries, binaries, config files, whatever you need.
 
