@@ -61,7 +61,7 @@ console.log(`Updated package.json to version ${newVersion}`);
 await $`bun format`.quiet();
 
 await $`git add .`;
-await $`git commit -m "v${newVersion}"`;
+await $`git commit -m "chore(release): v${newVersion}"`;
 await $`git tag v${newVersion}`;
 
 console.log(`Committed and tagged version v${newVersion} successfully.
