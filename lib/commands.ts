@@ -349,6 +349,17 @@ export async function install({
     success(`Installed ${dependency.name} ${newVersion}`);
 }
 
+// rename() fails with EXDEV across filesystems (e.g. tmpfs /tmp on CI), so fall back to copy
+
+async function moveFile(from: string, to: string) {
+    try {
+        await fs.rename(from, to);
+    } catch (e) {
+        if ((e as NodeJS.ErrnoException).code !== 'EXDEV') throw e;
+        await fs.cp(from, to, { recursive: true });
+    }
+}
+
 async function handleReleaseFile({
     file,
     repo,
@@ -422,7 +433,7 @@ async function handleReleaseFile({
                     await fs.mkdir(path.dirname(outputPath), {
                         recursive: true,
                     });
-                    await fs.rename(inputPath, outputPath);
+                    await moveFile(inputPath, outputPath);
                     info(`Saved ${outputPath}`);
                 } catch (e) {
                     await fs.rm(tempFolder, {
