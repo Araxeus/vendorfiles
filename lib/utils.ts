@@ -87,7 +87,7 @@ export async function readableToFile(
 }
 
 export function replaceVersion(path: string, version: string) {
-    return path.replace(
+    return path.replaceAll(
         '{version}',
         /\d+\.\d+\.\d+/.exec(version)?.[0] || trimStartMatches(version, 'v'),
     );
