@@ -44,7 +44,7 @@
     "@napi-rs/keyring": "^2.1.2",
     "@octokit/auth-oauth-device": "^8.0.5",
     "@octokit/rest": "^22.0.1",
-    "commander": "^15.0.0",
+    "commander": "^15.1.0",
     "detect-indent": "^7.0.2",
     "env-paths": "^4.0.0",
     "make-fetch-happen": "^16.0.1",
